@@ -1,0 +1,65 @@
+# DECISIONS.md — Architecture Decision Records
+
+Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "Decisiones arquitectónicas iniciales"). ADR-009 es una decisión tomada dentro de este proyecto (ver "Detalle" más abajo). Registro append-only: nunca se borra una decisión, se supera con un nuevo ADR que referencia al anterior.
+
+| ADR | Decisión | Estado |
+|---|---|---|
+| ADR-001 | Un núcleo multi-property en lugar de tres proyectos aislados. | ACCEPTED |
+| ADR-002 | Next.js + TypeScript como aplicación principal sobre Vercel. | ACCEPTED |
+| ADR-003 | Supabase Postgres/Auth/Storage/RLS como data core. | ACCEPTED |
+| ADR-004 | ROE (Revenue Optimization Engine) separado de Product Quality Score. | ACCEPTED |
+| ADR-005 | No auto-publicación monetizada sin revisión/curación humana. | ACCEPTED |
+| ADR-006 | Review cruzado Codex↔Claude Code + CI determinístico obligatorio. | ACCEPTED |
+| ADR-007 | Lanzamiento vertical por oleadas, no simultáneo masivo (Software/AI → Travel → Consumer Tech). | ACCEPTED |
+| ADR-008 | Paid acquisition solo con unit economics positivos; no AdSense arbitrage. | ACCEPTED |
+| ADR-009 | Nombre comercial de la plataforma: **Decidero** (provisional). | ACCEPTED — PROVISIONAL, sujeto a cambio |
+
+## Detalle
+
+### ADR-001 — Núcleo multi-property
+**Contexto**: se necesitan 3 verticales con economías distintas (Software/AI, Travel, Consumer Tech) sin triplicar infraestructura.
+**Decisión**: un solo backend/admin, verticales identificadas por `site_id`/`niche_id`, con posibilidad de rutas/subdominios/dominios independientes por vertical.
+**Consecuencia**: toda tabla monetizable debe incluir `site_id`/`niche_id` (regla de datos, ver `PROJECT_CHARTER.md`).
+
+### ADR-002 — Next.js + TypeScript sobre Vercel
+**Estado**: ACCEPTED (confirmado al cierre de Fase 0, 2026-08-07). Es el stack recomendado por el blueprint original; no se evaluaron alternativas formalmente (no se identificó ningún requisito del proyecto — SSR/ISR editorial, ecosistema de comparadores, integración nativa con Vercel/Supabase — que lo desaconsejara), por lo que se confirma sin bloquear el inicio de Fase 1.
+
+### ADR-003 — Supabase como data core
+**Decisión**: Postgres + Auth + Storage + RLS + Edge Functions + Cron + Queues, todo dentro de Supabase.
+**Razón**: fuente única de verdad relacional, RLS server-side obligatorio (no solo ocultar UI), jobs recurrentes nativos (R4, R5).
+
+### ADR-004 — ROE separado del Quality Score
+**Decisión**: el Revenue Optimization Engine decide mezcla de monetización (placement/CTA); el Quality Score decide ranking editorial. Son señales independientes — firewall editorial no negociable.
+**Razón**: evitar que la comisión de afiliado más alta distorsione la recomendación al usuario (riesgo identificado en pre-mortem).
+
+### ADR-005 — No auto-publicación sin revisión humana
+**Decisión**: ningún contenido monetizado con ads puede publicarse por pipeline AI sin aprobación humana.
+**Razón**: política de Google sobre contenido automático no revisado (R2); riesgo de policy violation y de contenido genérico de baja calidad.
+
+### ADR-006 — Review cruzado Codex↔Claude + CI determinístico
+**Decisión**: el autor de un cambio nunca es su único auditor. GitHub debe exigir status checks determinísticos antes de merge (R7). Una revisión de AI es evidencia auxiliar, no sustituto de tests.
+**Razón**: mitigar el riesgo de pre-mortem "AI introduce errores de código" mediante independencia estructural.
+
+### ADR-007 — Lanzamiento por oleadas
+**Decisión**: Software/AI primero (validar tracking/monetización) → Travel segundo (validar volumen/social) → Consumer Tech tercero (validar commerce + short-form).
+**Razón**: mitigar el riesgo "dilución por 3 nichos" — evitar que cada vertical quede superficial por falta de foco.
+
+### ADR-008 — Paid acquisition disciplinado
+**Decisión**: Google/Meta/TikTok Ads solo cuando expected contribution margin > CAC. Nunca para arbitraje de AdSense.
+**Razón**: sostenibilidad económica; evitar quemar presupuesto en tráfico que no cubre su propio costo.
+
+### ADR-009 — Nombre comercial: Decidero (provisional)
+**Contexto**: el blueprint original indica "Nombre comercial: pendiente de definir". Se investigaron 11 candidatos por screening informal de conflictos (empresas/marcas/dominios existentes en espacios de reviews, SaaS, comparadores, travel, marketing). `Decidero` resultó ser el candidato sin conflicto comercial detectado, alineado con el posicionamiento de "plataforma de decisión/comparación".
+
+**Decisión**: se adopta **Decidero** como nombre comercial de trabajo para poder avanzar con el proyecto. Se marca **PROVISIONAL** porque:
+- No se ha hecho una búsqueda formal de marca (USPTO TESS / EUIPO / registros nacionales) — solo screening informal por búsqueda web.
+- No se ha verificado disponibilidad real de dominio en un registrador.
+- El propietario funcional puede decidir cambiarlo más adelante (rebranding).
+
+**Consecuencia obligatoria — el sistema debe soportar un rename sin fricción**:
+- El nombre de marca (`Decidero`) **nunca se hardcodea** disperso en código, UI strings, metadata SEO, seeds de base de datos o nombres de servicios/paquetes internos. Vive en un único punto de configuración (branding config) desde el inicio de Fase 1.
+- El slug técnico del repositorio/carpeta (`jprs-monetization-platform`) es intencionalmente distinto del nombre comercial — no se renombra el repo cada vez que cambie la marca.
+- `site_id`/`niche_id` y demás identificadores de datos son slugs técnicos estables, no derivados del nombre comercial.
+- Dominio, logos, metadata OG y legal (Terms/Privacy) deben quedar identificados como "brand-dependent assets" fáciles de sustituir — se documentará como tarea técnica explícita en Fase 1 (ver `MASTER_BACKLOG.md`, ID 108).
+
+**Acción pendiente antes de Fase 11 (launch)**: búsqueda formal de marca + registro de dominio + confirmación final del propietario funcional. Si el nombre cambia, este ADR se supera con un ADR-010 (nunca se edita este registro retroactivamente).

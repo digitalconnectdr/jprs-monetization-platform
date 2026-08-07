@@ -1,0 +1,2 @@
+-- Seed controlado (backlog 401/406). No hay datos hasta Fase 2 (schema) y Fase 4 (catalog).
+-- No sobrescribir históricos: precios/comisiones/métricas son series temporales (ver docs/PROJECT_BLUEPRINT.md §5).

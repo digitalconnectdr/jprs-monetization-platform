@@ -1,0 +1,164 @@
+# MASTER_BACKLOG.md
+
+Fuente: [PROJECT_BLUEPRINT.md](PROJECT_BLUEPRINT.md), sección "Plan maestro por fases". Estado inicial de todos los ítems: **TODO**. Los IDs nunca se reutilizan. Este documento debe actualizarse por A9 (Project Controller) al cierre de cada fase — sin borrar historial.
+
+**Nota sobre la columna "Prioridad"**: los valores `P0`/`P1` en esa columna indican prioridad de negocio dentro de la fase (P0 = bloqueante, P1 = importante pero no bloqueante), **no** el número de fase. No confundir con los encabezados `## Fase P0`, `## Fase P1`, etc., que agrupan por fase del roadmap.
+
+Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DONE`
+
+## Fase P0 — Charter & Research Lock
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 001 | P0 | Crear PROJECT_CHARTER.md | Charter aprobado | DONE (auditado en `docs/audits/P0_AUDIT.md`, aprobado 2026-08-07) |
+| 002 | P0 | Definir verticales/subcategorías | Taxonomía aprobada | DONE (auditado en `docs/audits/P0_AUDIT.md`, aprobado 2026-08-07) |
+| 003 | P0 | Definir KPI tree y gates 10K/100K/1M | KPI doc aprobado | DONE (auditado en `docs/audits/P0_AUDIT.md`, aprobado 2026-08-07) |
+| 004 | P0 | Crear MONETIZATION_POLICY.md | Policy aprobada | DONE (auditado en `docs/audits/P0_AUDIT.md`, aprobado 2026-08-07) |
+| 005 | P0 | Crear CONTENT_POLICY.md | Policy aprobada | DONE (auditado en `docs/audits/P0_AUDIT.md`, aprobado 2026-08-07) |
+| 006 | P1 | Definir naming/domain como decisión separada | ADR creado | DONE (ADR-009: "Decidero", provisional — falta búsqueda formal de marca y registro de dominio, ver 109) |
+| 106 | P0 | Crear AGENTS.md y CLAUDE.md mínimos | Agentes cargan reglas | DONE (ver raíz del repo) — *ID asignado originalmente a P1 en el blueprint original; se entregó en P0 porque los agentes necesitaban el guardrail de branding (ADR-009) desde el primer momento. No se reutiliza el ID, solo se reubica su fila.* |
+
+## Fase P1 — Repository & Delivery Foundation
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 101 | P0 | Crear monorepo Next.js/TypeScript | Build local verde | PARTIAL — typecheck/lint/dev verdes; `next build` falla localmente por una restricción de memoria del entorno (ver `docs/phases/P1_REPORT.md`), no confirmado aún en CI |
+| 102 | P0 | Configurar lint/typecheck/tests | CI verde | PARTIAL — scripts configurados y verdes localmente (typecheck, lint); `.github/workflows/ci.yml` creado pero no ejecutado (sin repo remoto todavía) |
+| 103 | P0 | Configurar Supabase environments | Env matrix | TODO — requiere cuenta/CLI de Supabase del propietario funcional |
+| 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | TODO — requiere repo remoto + cuenta Vercel |
+| 105 | P0 | Proteger main y checks requeridos | Ruleset activo | TODO — requiere que 104 exista primero |
+| 107 | P1 | Templates Issue/PR/Audit | Templates presentes | DONE |
+| 108 | P1 | Centralizar nombre de marca en config única (branding) para soportar rename sin fricción (ADR-009) | Un solo punto de config; sin strings hardcodeados en UI/SEO/seeds | DONE — `packages/shared/src/branding.ts` |
+| 109 | P1 | Búsqueda formal de marca (USPTO/EUIPO) + registro de dominio para "Decidero" o el nombre final | Marca despejada + dominio adquirido | TODO — acción del propietario funcional |
+
+## Fase P2 — Data Core, Auth & RBAC
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 201 | P0 | Schema identity/properties | Migration PASS | TODO |
+| 202 | P0 | Supabase Auth | Flows PASS | TODO |
+| 203 | P0 | RBAC + RLS | Negative tests PASS | TODO |
+| 204 | P0 | Admin/User route guards | E2E PASS | TODO |
+| 205 | P1 | Data dictionary | Documentado | TODO |
+
+## Fase P3 — Design System & Public Shell
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 301 | P0 | Design tokens propios | UI review PASS | TODO |
+| 302 | P0 | Navigation + search shell | Responsive PASS | TODO |
+| 303 | P0 | Core page templates | A11y PASS | TODO |
+| 304 | P1 | Motion guidelines | Reduced-motion PASS | TODO |
+| 305 | P0 | Mobile comparison patterns | UX PASS | TODO |
+
+## Fase P4 — CMS & Product Intelligence
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 401 | P0 | Catalog/vendor/product CRUD | Integration PASS | TODO |
+| 402 | P0 | Product sources + checked_at | Validation PASS | TODO |
+| 403 | P0 | Content workflow/versioning | Workflow PASS | TODO |
+| 404 | P0 | Price/feature history | History preserved | TODO |
+| 405 | P1 | Bulk import validation | Invalid rows rejected | TODO |
+| 406 | P0 | Freshness queue | Stale item visible | TODO |
+
+## Fase P5 — Monetization & Attribution
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 501 | P0 | Affiliate programs/offers/terms | CRUD PASS | TODO |
+| 502 | P0 | Affiliate click attribution | Dedup PASS | TODO |
+| 503 | P0 | Ad slot/rule engine | Policy tests PASS | TODO |
+| 504 | P0 | Lead form/routing model | Secure flow PASS | TODO |
+| 505 | P0 | Revenue events | Reconcile PASS | TODO |
+| 506 | P0 | Disclosure/Sponsored labels | Policy review PASS | TODO |
+| 507 | P1 | Import commissions/reversals | Import PASS | TODO |
+
+## Fase P6A — Vertical 1: Business Software & AI
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 601 | P0 | Software/AI taxonomy | Approved | TODO |
+| 602 | P0 | Catalog seed | Verified | TODO |
+| 603 | P0 | Best/VS/Review templates | QA PASS | TODO |
+| 604 | P0 | Software tool v1 | E2E PASS | TODO |
+| 605 | P0 | Content batch v1 | Editorial PASS | TODO |
+
+## Fase P6B — Vertical 2: Travel & Smart Travel
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 611 | P0 | Travel taxonomy/data | Approved | TODO |
+| 612 | P0 | Travel templates | QA PASS | TODO |
+| 613 | P0 | Travel tool v1 | E2E PASS | TODO |
+| 614 | P0 | Content batch v1 | Editorial PASS | TODO |
+| 615 | P1 | Seasonality rules | Jobs PASS | TODO |
+
+## Fase P6C — Vertical 3: Consumer Tech & Smart Home
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 621 | P0 | Consumer Tech taxonomy/specs | Approved | TODO |
+| 622 | P0 | Commerce templates | QA PASS | TODO |
+| 623 | P0 | Finder/compatibility tool | E2E PASS | TODO |
+| 624 | P0 | Deal expiration | Job PASS | TODO |
+| 625 | P0 | Content batch v1 | Editorial PASS | TODO |
+
+## Fase P7 — Admin Analytics & ROE v1
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 701 | P0 | Executive dashboard | Reconcile PASS | TODO |
+| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO |
+| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO |
+| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO |
+| 705 | P0 | ROE v1 rules | Unit tests PASS | TODO |
+| 706 | P1 | Ops alerts | Alert test PASS | TODO |
+
+## Fase P8 — Growth/Search/Distribution
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 801 | P0 | Metadata/canonical/robots | SEO audit PASS | TODO |
+| 802 | P0 | Sitemaps per property | Validated | TODO |
+| 803 | P0 | Structured data | Validator PASS | TODO |
+| 804 | P0 | Internal linking/breadcrumbs | Crawl PASS | TODO |
+| 805 | P1 | Newsletter/preferences | E2E PASS | TODO |
+| 806 | P1 | Social content workflow | Playbook ready | TODO |
+
+## Fase P9 — AI Operations & Freshness
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 901 | P0 | AI job queue | Retry/DLQ PASS | TODO |
+| 902 | P0 | Research/draft/review pipeline | Audit trail PASS | TODO |
+| 903 | P0 | Human approval gate | Cannot bypass | TODO |
+| 904 | P0 | Freshness detectors | Stale simulation PASS | TODO |
+| 905 | P1 | AI cost controls | Budget alerts | TODO |
+
+## Fase P10 — Hardening & Compliance
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 1001 | P0 | Threat model | Reviewed | TODO |
+| 1002 | P0 | RLS/auth security tests | PASS | TODO |
+| 1003 | P0 | Dependency/security scan | No High/Critical | TODO |
+| 1004 | P0 | Privacy/consent | Compliance review | TODO |
+| 1005 | P0 | Accessibility audit | AA baseline | TODO |
+| 1006 | P0 | Performance budgets | PASS | TODO |
+| 1007 | P0 | Backup/restore drill | Evidence saved | TODO |
+
+## Fase P11 — MVP Launch + 10K Gate
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 1101 | P0 | Production launch | Smoke PASS | TODO |
+| 1102 | P0 | Analytics validation | Reconcile PASS | TODO |
+| 1103 | P0 | Search indexing validation | Coverage monitored | TODO |
+| 1104 | P0 | 10K economic gate report | GO/PIVOT/STOP | TODO |
+
+## Notas de mantenimiento
+
+- Este backlog se actualiza exclusivamente por A9 (Project Controller) al cierre de cada fase, según el protocolo obligatorio descrito en `PROJECT_BLUEPRINT.md` §9.
+- Los hallazgos de auditoría (Critical/High/Medium/Low) se convierten en nuevos ítems de backlog con su propio ID — nunca se reescribe un ID existente.
+- Fases P12 (100K Scale) y P13 (1M Platform) no tienen backlog detallado todavía; se generará cuando se aproxime su inicio, condicionado a los gates económicos.

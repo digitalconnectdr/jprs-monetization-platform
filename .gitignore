@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Build outputs
+dist/
+build/
+
+# Env files — nunca commitear secretos
+.env
+.env.local
+.env.*.local
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# Auto-generados por `next dev`/`next build` (Next.js 16+): guía de la API de Next.js
+# para agentes AI, específica de la instalación local — no son los AGENTS.md/CLAUDE.md
+# del proyecto (esos viven solo en la raíz). Ver docs/phases/P1_REPORT.md.
+apps/*/AGENTS.md
+apps/*/CLAUDE.md
+apps/web/dev_output.txt
+
+# Testing
+coverage/
+playwright-report/
+test-results/
