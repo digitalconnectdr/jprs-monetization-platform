@@ -23,3 +23,10 @@ Formato: fecha, fase, resumen. Mantenido por A9 (Project Controller) al cierre d
 - Primer run de CI en GitHub Actions: `conclusion=success` — confirma que la falla de `next build` reportada antes era una restricción de memoria de la máquina local del agente, no un defecto de código. Backlog 101/102 pasan a DONE.
 - Branch protection aplicada en `main` (backlog 105, con confirmación explícita del propietario funcional): PR obligatorio, check `build` requerido en verde, rama actualizada, sin force-push ni borrado.
 - Quedan pendientes de Fase 1: 103 (Supabase), 104 (Vercel), 109 (marca/dominio) — todas requieren cuentas/acciones del propietario funcional.
+
+## 2026-08-07 — Supabase configurado (backlog 103 DONE)
+
+- Proyecto Supabase creado por el propietario funcional (`jprs-monetization-platform`, US East/N. Virginia; "Automatically expose new tables" desactivado, "Enable automatic RLS" activado; GitHub conectado).
+- ADR-010 aceptado: un solo proyecto Supabase con Database Branching (vía GitHub) en lugar de 3 proyectos dev/staging/prod separados.
+- `apps/web/.env.local` completado y verificado: formato correcto, JWTs con los roles correctos (`anon`/`service_role`, no intercambiadas), conectividad real confirmada. `apps/web/.env.local.example` agregado como plantilla versionada.
+- Solo quedan pendientes de Fase 1: 104 (Vercel) y 109 (marca/dominio).

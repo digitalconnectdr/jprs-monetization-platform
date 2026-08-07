@@ -24,7 +24,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DONE`
 |---|---|---|---|---|
 | 101 | P0 | Crear monorepo Next.js/TypeScript | Build local verde | DONE — build falla solo localmente por una restricción de memoria específica de esta máquina (no del código); confirmado exitoso en CI (run 31225151278) |
 | 102 | P0 | Configurar lint/typecheck/tests | CI verde | DONE — `.github/workflows/ci.yml` corrió y pasó (`conclusion=success`) en el primer push a `main` |
-| 103 | P0 | Configurar Supabase environments | Env matrix | TODO — requiere cuenta/CLI de Supabase del propietario funcional |
+| 103 | P0 | Configurar Supabase environments | Env matrix | DONE — un solo proyecto (`jprs-monetization-platform`, US East) + Database Branching vía GitHub, ver ADR-010. `.env.local` configurado y verificado (URL, anon key, service_role key) en `apps/web/` |
 | 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | TODO — repo remoto ya existe; falta conexión OAuth manual a Vercel del propietario funcional |
 | 105 | P0 | Proteger main y checks requeridos | Ruleset activo | DONE — PR obligatorio, check `build` requerido en verde, rama actualizada, sin force-push ni borrado de `main` |
 | 107 | P1 | Templates Issue/PR/Audit | Templates presentes | DONE |

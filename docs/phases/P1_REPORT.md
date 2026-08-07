@@ -35,17 +35,24 @@ Repo creado por el propietario funcional en `https://github.com/digitalconnectdr
 
 Aplicada 2026-08-07 con confirmación explícita del propietario funcional: PR obligatorio antes de mergear a `main`, check `build` (de `.github/workflows/ci.yml`) requerido en verde, rama debe estar actualizada (`strict: true`), sin force-push ni borrado de `main`. Sin mínimo de aprobaciones de PR (0) — se puede subir a 1+ más adelante si se suma otra cuenta revisora.
 
+## Supabase (backlog 103)
+
+Proyecto creado por el propietario funcional: `jprs-monetization-platform`, región US East (N. Virginia), con "Automatically expose new tables" desactivado y "Enable automatic RLS" activado (alineado con la regla de RLS obligatorio de `PROJECT_BLUEPRINT.md`). Se conectó GitHub durante la creación.
+
+**Decisión de arquitectura (ADR-010)**: un solo proyecto Supabase con Database Branching, en vez de 3 proyectos dev/staging/prod separados — ver detalle en `docs/DECISIONS.md`.
+
+`apps/web/.env.local` creado y verificado (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`): formato correcto, roles de JWT correctos (no intercambiadas), conectividad real confirmada contra Auth API (anon key, HTTP 200) y REST API (service_role key, HTTP 200). Se agregó `apps/web/.env.local.example` como plantilla versionada sin secretos. Nota: el archivo se creó inicialmente como `.env.local.txt` por el comportamiento de Windows Explorer de agregar `.txt` al ocultar extensiones — se corrigió el nombre.
+
 ## Qué falta para cerrar Fase 1
 
 No se marca CLOSED todavía. Pendiente:
 
-1. **Backlog 103** — Supabase environments (dev/staging/prod): requiere cuenta/CLI de Supabase del propietario funcional.
-2. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (conexión OAuth manual del propietario funcional).
-3. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
-4. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA).
+1. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (conexión OAuth manual del propietario funcional).
+2. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
+3. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA).
 
 ## Riesgos y deuda conocida
 
-- El `package-lock.json` generado no está commiteado todavía (no se ha hecho ningún commit git — se dejó así intencionalmente para que el propietario funcional revise el estado antes del primer commit).
-- Versiones de `next`/`react`/`eslint-config-next` fijadas a `"latest"` en los `package.json` — deben congelarse a versiones exactas (`^X.Y.Z`) en el primer commit real, para reproducibilidad (`latest` es aceptable solo para el bootstrap inicial).
+- Versiones de `next`/`react`/`eslint-config-next` fijadas a `"latest"` en los `package.json` — deben congelarse a versiones exactas (`^X.Y.Z`) antes del lanzamiento, para reproducibilidad (`latest` es aceptable solo para el bootstrap inicial).
 - No hay tests todavía (unit/integration/E2E) — no hay lógica de producto que probar aún; se agregan a partir de Fase 2.
+- Con un solo proyecto Supabase (ADR-010), no existe un ambiente de staging persistente — solo branches temporales. Revisar si esto sigue siendo suficiente al acercarse a Fase 4/5 (datos reales de producto/monetización).

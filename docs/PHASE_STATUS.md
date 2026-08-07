@@ -5,7 +5,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | Fase | Nombre | Estado | Evidencia |
 |---|---|---|---|
 | 0 | Charter & Research Lock | **CLOSED** (2026-08-07) | `docs/phases/P0_REPORT.md`, `docs/audits/P0_AUDIT.md`, `CHANGELOG.md`, ADR-002 y ADR-009 ACCEPTED |
-| 1 | Repository & Delivery Foundation | **IN PROGRESS** | `docs/phases/P1_REPORT.md` — repo remoto creado, push hecho, CI verde confirmado, `main` protegida (105). Solo faltan 103 (Supabase) y 104 (Vercel), y 109 (marca/dominio) |
+| 1 | Repository & Delivery Foundation | **IN PROGRESS** | `docs/phases/P1_REPORT.md` — repo remoto, CI verde, `main` protegida (105), Supabase configurado con ADR-010 (103). Solo faltan 104 (Vercel) y 109 (marca/dominio) |
 | 2 | Data Core, Auth & RBAC | NOT STARTED | — |
 | 3 | Design System & Public Shell | NOT STARTED | — |
 | 4 | CMS & Product Intelligence | NOT STARTED | — |
@@ -27,11 +27,9 @@ Todos los criterios de `PROJECT_CHARTER.md` §10 cumplidos: documentos completos
 
 ## Fase 1 — en curso
 
-Alcance real ejecutado hasta ahora: bootstrap **local** del monorepo (101, 102, 108, 107 parcial). Pendiente y **fuera del alcance de un agente autónomo sin credenciales**:
+Completado: 101, 102, 103 (ADR-010), 105, 106, 107, 108. Pendiente y **fuera del alcance de un agente autónomo sin credenciales**:
 
-- **103** — Supabase environments: requiere cuenta/CLI de Supabase del propietario funcional.
-- **104** — Conectar GitHub↔Vercel previews: requiere repositorio GitHub remoto y cuenta Vercel.
-- **105** — Proteger `main` y checks requeridos: requiere que el repo remoto exista primero.
+- **104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (OAuth manual del propietario funcional).
 - **109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago, requiere decisión y ejecución del propietario funcional.
 
 Fase 1 no se marca CLOSED hasta que estos ítems tengan evidencia y pase la auditoría correspondiente (A1/A2 Architecture/A3 Security/A4 QA).
