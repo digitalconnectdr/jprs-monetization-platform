@@ -31,15 +31,18 @@ Next.js 16 genera automáticamente `apps/web/AGENTS.md` y `apps/web/CLAUDE.md` (
 
 Repo creado por el propietario funcional en `https://github.com/digitalconnectdr/jprs-monetization-platform`. Push inicial (commit `59a4536`) hecho el 2026-08-07 usando la sesión de `gh` CLI ya autenticada en la máquina (cuenta `digitalconnectdr`, scopes `repo`+`workflow`) — no fue necesario manejar ningún token en la conversación. CI se disparó automáticamente por el push; ver resultado arriba.
 
+## Branch protection (backlog 105)
+
+Aplicada 2026-08-07 con confirmación explícita del propietario funcional: PR obligatorio antes de mergear a `main`, check `build` (de `.github/workflows/ci.yml`) requerido en verde, rama debe estar actualizada (`strict: true`), sin force-push ni borrado de `main`. Sin mínimo de aprobaciones de PR (0) — se puede subir a 1+ más adelante si se suma otra cuenta revisora.
+
 ## Qué falta para cerrar Fase 1
 
 No se marca CLOSED todavía. Pendiente:
 
-1. **Backlog 105** — Proteger `main` y checks requeridos: repo remoto ya existe y CI ya corrió en verde una vez, así que ya se puede configurar. **Pendiente de confirmación explícita del propietario funcional antes de aplicarlo** (es una configuración persistente del repositorio).
-2. **Backlog 103** — Supabase environments (dev/staging/prod): requiere cuenta/CLI de Supabase del propietario funcional.
-3. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (conexión OAuth manual del propietario funcional).
-4. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
-5. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA).
+1. **Backlog 103** — Supabase environments (dev/staging/prod): requiere cuenta/CLI de Supabase del propietario funcional.
+2. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (conexión OAuth manual del propietario funcional).
+3. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
+4. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA).
 
 ## Riesgos y deuda conocida
 
