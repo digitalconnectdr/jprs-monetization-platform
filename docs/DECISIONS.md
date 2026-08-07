@@ -13,6 +13,7 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 | ADR-007 | Lanzamiento vertical por oleadas, no simultáneo masivo (Software/AI → Travel → Consumer Tech). | ACCEPTED |
 | ADR-008 | Paid acquisition solo con unit economics positivos; no AdSense arbitrage. | ACCEPTED |
 | ADR-009 | Nombre comercial de la plataforma: **Decidero** (provisional). | ACCEPTED — PROVISIONAL, sujeto a cambio |
+| ADR-010 | Un solo proyecto Supabase (con Database Branching vía GitHub) en lugar de 3 proyectos separados dev/staging/prod. | ACCEPTED |
 
 ## Detalle
 
@@ -62,4 +63,17 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 - `site_id`/`niche_id` y demás identificadores de datos son slugs técnicos estables, no derivados del nombre comercial.
 - Dominio, logos, metadata OG y legal (Terms/Privacy) deben quedar identificados como "brand-dependent assets" fáciles de sustituir — se documentará como tarea técnica explícita en Fase 1 (ver `MASTER_BACKLOG.md`, ID 108).
 
-**Acción pendiente antes de Fase 11 (launch)**: búsqueda formal de marca + registro de dominio + confirmación final del propietario funcional. Si el nombre cambia, este ADR se supera con un ADR-010 (nunca se edita este registro retroactivamente).
+**Acción pendiente antes de Fase 11 (launch)**: búsqueda formal de marca + registro de dominio + confirmación final del propietario funcional. Si el nombre cambia, este ADR se supera con un ADR nuevo (nunca se edita este registro retroactivamente).
+
+### ADR-010 — Un solo proyecto Supabase con Database Branching
+**Contexto**: el blueprint original pedía "Crear proyectos Supabase dev/staging/prod o estrategia equivalente de environments" (backlog 103). Al crear el proyecto Supabase (`jprs-monetization-platform`, región US East/N. Virginia, con "Automatically expose new tables" desactivado y "Enable automatic RLS" activado) se conectó GitHub directamente, lo que habilita **Database Branching**: cada rama/PR de git puede generar una rama de base de datos aislada (schema + datos propios), construida a partir de `supabase/migrations/`, análoga a los Preview Deployments de Vercel.
+
+**Decisión**: usar **un solo proyecto Supabase** como entorno único, con Database Branching como mecanismo de aislamiento por rama/PR, en lugar de mantener 3 proyectos Supabase separados y sincronizados manualmente.
+
+**Consecuencias**:
+- El proyecto Supabase conectado a GitHub actúa como la base de datos de producción (rama principal).
+- Ramas/PRs pueden obtener su propia base de datos de preview vía branching, en vez de compartir un único ambiente de "staging" persistente.
+- `supabase/migrations/` es la única fuente de verdad del schema — nunca se edita el schema manualmente desde el dashboard en producción.
+- Reduce costo y complejidad operativa frente a mantener 3 proyectos sincronizados a mano.
+- Riesgo aceptado: no existe un "staging" persistente y estable, solo branches temporales. Si más adelante se necesita un ambiente de staging de larga duración (por ejemplo, para QA manual sostenido), se revisará esta decisión con un ADR nuevo — no se reinterpreta este registro.
+- Ninguna migración se aplica directamente contra el proyecto de producción sin pasar por PR + revisión, consistente con la regla de `main` protegida (ADR de branch protection, backlog 105).
