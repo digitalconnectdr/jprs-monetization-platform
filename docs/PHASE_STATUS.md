@@ -5,7 +5,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | Fase | Nombre | Estado | Evidencia |
 |---|---|---|---|
 | 0 | Charter & Research Lock | **CLOSED** (2026-08-07) | `docs/phases/P0_REPORT.md`, `docs/audits/P0_AUDIT.md`, `CHANGELOG.md`, ADR-002 y ADR-009 ACCEPTED |
-| 1 | Repository & Delivery Foundation | **IN PROGRESS** | `docs/phases/P1_REPORT.md` — bootstrap local hecho; build de producción sin confirmar (ver riesgo de memoria); 103/104/105/109 requieren al propietario funcional |
+| 1 | Repository & Delivery Foundation | **IN PROGRESS** | `docs/phases/P1_REPORT.md` — repo remoto creado, push hecho, CI verde confirmado, `main` protegida (105). Solo faltan 103 (Supabase) y 104 (Vercel), y 109 (marca/dominio) |
 | 2 | Data Core, Auth & RBAC | NOT STARTED | — |
 | 3 | Design System & Public Shell | NOT STARTED | — |
 | 4 | CMS & Product Intelligence | NOT STARTED | — |
