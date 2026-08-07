@@ -21,22 +21,25 @@ Bootstrap **local** del monorepo (npm workspaces, sin Turborepo/pnpm por simplic
 | `npm run typecheck` (todos los workspaces) | ✅ |
 | `npm run lint` | ✅ — requirió corregir `apps/web/eslint.config.mjs`: había usado el patrón de ESLint de Next.js 15 (`FlatCompat`/`@eslint/eslintrc`), que Next.js 16 rompe (`next lint` fue eliminado en v16). Corregido al patrón documentado en `node_modules/next/dist/docs/.../03-eslint.md` (`eslint-config-next/core-web-vitals` + `/typescript` como exports directos) |
 | `npm run dev` | ✅ — arranca en 4.4s, sirve `http://localhost:3311` |
-| `npm run build` (`next build`) | ❌ — falla de forma reproducible con `FATAL ERROR: Committing semi space failed / JavaScript heap out of memory`, en Turbopack y en webpack, en Bash y en PowerShell nativo (con y sin sandbox del agente), incluso subiendo `NODE_OPTIONS=--max-old-space-size`. El pagefile de la máquina tiene 48GB asignados, así que no es falta de memoria virtual del sistema — el patrón (falla casi inmediata al intentar comprometer una región de memoria minúscula) apunta a interferencia de software de seguridad/antivirus interceptando llamadas de asignación de memoria en esta máquina específica (se observó un crash de AMSI en PowerShell por una causa relacionada durante la misma sesión). **No se pudo confirmar un build de producción exitoso en este entorno.** |
+| `npm run build` (`next build`) | ❌ localmente / **✅ en GitHub Actions**. Localmente falla de forma reproducible con `FATAL ERROR: Committing semi space failed / JavaScript heap out of memory`, en Turbopack y en webpack, en Bash y en PowerShell nativo (con y sin sandbox del agente), incluso subiendo `NODE_OPTIONS=--max-old-space-size`. El pagefile de la máquina tiene 48GB asignados, así que no era falta de memoria virtual del sistema — el patrón apuntaba a interferencia de software de seguridad/antivirus interceptando llamadas de asignación de memoria en esta máquina específica. **Confirmado**: el primer run de CI (`gh run list`, run `31225151278`, disparado por el push a `main`) terminó `conclusion=success` — lint, typecheck y build pasan limpio en los runners de GitHub Actions. La causa era 100% local a esta máquina, no un defecto de código. |
 
 ## Hallazgo adicional corregido durante el bootstrap
 
 Next.js 16 genera automáticamente `apps/web/AGENTS.md` y `apps/web/CLAUDE.md` (guía de la API de Next.js 16 para agentes AI, regenerados en cada `next dev`/`next build`) — colisionan de nombre con los `AGENTS.md`/`CLAUDE.md` del proyecto en la raíz. Se agregaron a `.gitignore` (`apps/*/AGENTS.md`, `apps/*/CLAUDE.md`) y se documentó la distinción en los archivos raíz para que no se confundan.
 
+## Repositorio remoto
+
+Repo creado por el propietario funcional en `https://github.com/digitalconnectdr/jprs-monetization-platform`. Push inicial (commit `59a4536`) hecho el 2026-08-07 usando la sesión de `gh` CLI ya autenticada en la máquina (cuenta `digitalconnectdr`, scopes `repo`+`workflow`) — no fue necesario manejar ningún token en la conversación. CI se disparó automáticamente por el push; ver resultado arriba.
+
 ## Qué falta para cerrar Fase 1
 
 No se marca CLOSED todavía. Pendiente:
 
-1. **Confirmar el build de producción en un entorno sin la restricción de memoria observada** — recomendado: dejar que lo confirme el workflow de CI (`.github/workflows/ci.yml`) una vez exista el repo remoto, ya que los runners de GitHub Actions no deberían tener esta limitación. Alternativa: que el propietario funcional corra `npm run build` en su propia máquina/terminal fuera de esta sesión.
+1. **Backlog 105** — Proteger `main` y checks requeridos: repo remoto ya existe y CI ya corrió en verde una vez, así que ya se puede configurar. **Pendiente de confirmación explícita del propietario funcional antes de aplicarlo** (es una configuración persistente del repositorio).
 2. **Backlog 103** — Supabase environments (dev/staging/prod): requiere cuenta/CLI de Supabase del propietario funcional.
-3. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere repositorio GitHub remoto y cuenta Vercel.
-4. **Backlog 105** — Proteger `main` y checks requeridos: requiere que el repo remoto exista primero.
-5. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
-6. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA) — no ejecutada todavía; no tiene sentido auditar arquitectura/seguridad de un bootstrap que aún no corrió en CI.
+3. **Backlog 104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (conexión OAuth manual del propietario funcional).
+4. **Backlog 109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago del propietario funcional.
+5. Auditoría de cierre de fase (A1/A2 Architecture/A3 Security/A4 QA).
 
 ## Riesgos y deuda conocida
 

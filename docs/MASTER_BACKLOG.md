@@ -22,11 +22,11 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DONE`
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 101 | P0 | Crear monorepo Next.js/TypeScript | Build local verde | PARTIAL — typecheck/lint/dev verdes; `next build` falla localmente por una restricción de memoria del entorno (ver `docs/phases/P1_REPORT.md`), no confirmado aún en CI |
-| 102 | P0 | Configurar lint/typecheck/tests | CI verde | PARTIAL — scripts configurados y verdes localmente (typecheck, lint); `.github/workflows/ci.yml` creado pero no ejecutado (sin repo remoto todavía) |
+| 101 | P0 | Crear monorepo Next.js/TypeScript | Build local verde | DONE — build falla solo localmente por una restricción de memoria específica de esta máquina (no del código); confirmado exitoso en CI (run 31225151278) |
+| 102 | P0 | Configurar lint/typecheck/tests | CI verde | DONE — `.github/workflows/ci.yml` corrió y pasó (`conclusion=success`) en el primer push a `main` |
 | 103 | P0 | Configurar Supabase environments | Env matrix | TODO — requiere cuenta/CLI de Supabase del propietario funcional |
-| 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | TODO — requiere repo remoto + cuenta Vercel |
-| 105 | P0 | Proteger main y checks requeridos | Ruleset activo | TODO — requiere que 104 exista primero |
+| 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | TODO — repo remoto ya existe; falta conexión OAuth manual a Vercel del propietario funcional |
+| 105 | P0 | Proteger main y checks requeridos | Ruleset activo | TODO — listo para aplicar (repo existe, CI ya corrió en verde); pendiente confirmación explícita antes de aplicar |
 | 107 | P1 | Templates Issue/PR/Audit | Templates presentes | DONE |
 | 108 | P1 | Centralizar nombre de marca en config única (branding) para soportar rename sin fricción (ADR-009) | Un solo punto de config; sin strings hardcodeados en UI/SEO/seeds | DONE — `packages/shared/src/branding.ts` |
 | 109 | P1 | Búsqueda formal de marca (USPTO/EUIPO) + registro de dominio para "Decidero" o el nombre final | Marca despejada + dominio adquirido | TODO — acción del propietario funcional |
