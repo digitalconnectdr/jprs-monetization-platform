@@ -8,7 +8,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 1 | Repository & Delivery Foundation | **CLOSED** (2026-08-07) | `docs/phases/P1_REPORT.md`, `docs/audits/P1_AUDIT.md` — repo remoto, CI verde, `main` protegida (`enforce_admins=true`, ADR-011), Supabase (ADR-010), Vercel conectado con preview confirmado (PR #3). 109 DEFERRED (ADR-009) |
 | 2 | Data Core, Auth & RBAC | **CLOSED** (2026-08-08) | `docs/phases/P2_REPORT.md`, `docs/audits/P2_AUDIT.md` — 18/18 tests de RLS contra el proyecto real, ADR-012 (sin branching). 204 DEFERRED a Fase 3 |
 | 3 | Design System & Public Shell | **CLOSED** (2026-08-08) | `docs/phases/P3_REPORT.md`, `docs/audits/P3_AUDIT.md` — shell público completo (Home/Discover/vertical hub/Search/5 legales), design tokens OKLCH, i18n 4 idiomas (EN/ES/PT/HI, ADR-013). 204 re-DEFERRED a Fase 4 |
-| 4 | CMS & Product Intelligence | NOT STARTED | — |
+| 4 | CMS & Product Intelligence | **CLOSED** (2026-08-08) | `docs/phases/P4_REPORT.md`, `docs/audits/P4_AUDIT.md` — catalog completo (variants/features/prices/media, append-only), content workflow con enforcement de ADR-005, freshness queue, bulk import. Auditoría inicial NO-GO (1 Critical + 2 High), corregido y verificado: 29/29 tests contra el proyecto real. Backlog 409 (nuevo) es prerrequisito real de 204, que se re-DEFERRED sin atarlo a una fase fija |
 | 5 | Monetization & Attribution | NOT STARTED | — |
 | 6A | Vertical 1: Software & AI | NOT STARTED | — |
 | 6B | Vertical 2: Travel | NOT STARTED | — |
@@ -47,3 +47,12 @@ Completado: 301, 302, 303, 304, 305 (parcial, ver `MASTER_BACKLOG.md`), 306 (i18
 **Deuda técnica no bloqueante**: `packages/ui` sigue siendo un placeholder vacío — los tokens viven en `apps/web/src/app/globals.css` (un solo consumidor hasta ahora); se evalúa moverlos a `packages/ui` cuando exista una segunda app.
 
 **Actualización posterior al cierre (2026-08-08)**: se agregó francés (`fr`) como 5to idioma del shell público (backlog 309) — no reabre la fase, solo ejercita la extensibilidad de i18n que ADR-013 ya había diseñado. Ver `CHANGELOG.md`.
+
+## Fase 4 — cerrada 2026-08-08
+
+Completado: 401, 402, 403, 404, 405, 406. Catalog completo (`product_variants`/`product_features`/`product_prices`/`product_media`, append-only para features/prices), content workflow (`content_items`/`content_versions`/`content_blocks`/`content_product_links`/`content_sources`) con trigger que implementa ADR-005 a nivel de DB, `freshness_checks`, función `import_product_prices` con validación fila-por-fila.
+
+**Auditoría de cierre obligatoria (ADR-011, toca schema/RLS)**: veredicto inicial **NO-GO** (`docs/audits/P4_AUDIT.md`) — 1 hallazgo Critical (F-01: el trigger de publish-gate no validaba que la versión aprobada perteneciera al mismo `content_item`, anulando el enforcement de ADR-005) y 2 High (F-02/F-03: `content_product_links` sin aislamiento por site/status). Como las migraciones ya estaban aplicadas al único proyecto Supabase real (ADR-012), los hallazgos quedaban explotables en producción — se corrigieron de inmediato con una migración nueva (`20260808030000_fix_p4_audit_findings.sql`), sin esperar el ciclo normal de PR. Verificado con 29/29 tests contra el proyecto real (4 nuevos, reproducen los escenarios exactos de la auditoría). Veredicto final: **GO**.
+
+**Deferred, sin fase fija**: 204 (Admin/User route guards) sigue bloqueado por la falta de wiring de cliente Supabase/sesión en `apps/web` — nuevo backlog 409 documenta ese prerrequisito explícitamente.
+**Deuda heredada de Fase 3, sin tocar** (Fase 4 no modificó `apps/web`): 407 (migración `middleware.ts`→`proxy.ts`), 408 (`not-found.tsx` localizado).

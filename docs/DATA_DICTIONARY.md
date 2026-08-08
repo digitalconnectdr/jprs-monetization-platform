@@ -119,9 +119,7 @@ Configuración flexible por site — **nunca pública**.
 
 RLS: sin policy de lectura para `anon`. Solo `admin`/`super_admin` del site (lectura y escritura).
 
-## Dominio: catalog (shell mínimo — Fase 4 trae el resto)
-
-> `product_variants`, `product_features`, `product_prices`, `product_media`, y los campos `source`/`checked_at`/`confidence` de la regla de datos del blueprint **no existen todavía** — se agregan en Fase 4 (CMS & Product Intelligence). Lo de acá es solo lo necesario para que RLS/RBAC tengan algo real que proteger en Fase 2.
+## Dominio: catalog
 
 ### `vendors`
 | Columna | Tipo | Notas |
@@ -146,6 +144,131 @@ RLS: lectura pública solo `published`. Escritura: `admin` o `editor` de algún 
 
 RLS: lectura pública solo `published` (nunca thin/draft visible — alineado con `CONTENT_POLICY.md`). Escritura: `admin`/`editor` de ese site, o `super_admin`.
 
+### `product_variants`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| product_id | uuid FK → products(id) | |
+| slug / name | text | único por `(product_id, slug)` |
+| status | text | `draft` / `published` / `archived` |
+
+RLS: lectura pública si `status='published'` **y** el producto padre está `published`. Escritura: `editor`/`admin` del site del producto padre.
+
+### `product_features` y `product_prices` — append-only
+
+> Regla de datos no negociable (`PROJECT_BLUEPRINT.md` §5): "no se sobrescribe histórico — precios, comisiones y métricas requieren series temporales". Se implementa como **garantía técnica, no solo convención**: ninguna de las dos tablas tiene policy de `UPDATE` para `anon`/`authenticated` (ni siquiera `admin`/`super_admin`). Cada cambio de precio o feature es una fila nueva con `checked_at` más reciente; el valor "actual" es la fila con mayor `checked_at` para la misma clave. `DELETE` está reservado a `super_admin` (corrección de un dato erróneo en casos extremos, no edición de rutina). **`service_role` no tiene `UPDATE` de tabla** (revocado explícitamente tras F-05 de `docs/audits/P4_AUDIT.md`) — sigue bypasseando RLS por diseño de Postgres/Supabase, pero ya no tiene el privilegio de tabla necesario para alterar una fila histórica.
+
+### `product_features`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| product_id | uuid FK → products(id) | |
+| variant_id | uuid FK → product_variants(id), nullable | |
+| feature_key / feature_value | text | |
+| source | text | **requerido** |
+| checked_at | timestamptz | **requerido**, default `now()` |
+| confidence | text | `verified` / `estimated` / `unverified`, default `unverified` (corregido tras F-08 — un dato sin confidence declarado no debe asumirse verificado) |
+
+RLS: lectura pública si el producto padre está `published`. `INSERT`: `editor`/`admin` del site del producto. Sin `UPDATE` para nadie (incluido `service_role`, ver arriba). `DELETE`: solo `super_admin`.
+
+### `product_prices`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| product_id | uuid FK → products(id) | |
+| variant_id | uuid FK → product_variants(id), nullable | |
+| vendor_id | uuid FK → vendors(id), nullable | qué merchant ofrece este precio |
+| price_type | text | `list` / `sale` / `subscription_monthly` / `subscription_yearly` / `starting_at` |
+| amount | numeric(12,2) | `>= 0` |
+| currency | text | código ISO de 3 letras |
+| source | text | **requerido** |
+| checked_at | timestamptz | **requerido**, default `now()` |
+| confidence | text | `verified` / `estimated` / `unverified`, default `unverified` (F-08) |
+
+RLS: igual patrón que `product_features` (lectura pública si producto published, `INSERT` editor/admin del site, sin `UPDATE` para nadie incluido `service_role`, `DELETE` solo `super_admin`).
+
+### `product_media`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| product_id | uuid FK → products(id) | |
+| variant_id | uuid FK → product_variants(id), nullable | |
+| media_type | text | `image` / `video` |
+| url / alt_text | text | |
+| sort_order | int | |
+| status | text | `draft` / `published` / `archived` |
+
+A diferencia de features/prices, **sí es editable** (gestión de assets, no histórico de hechos) — CRUD completo para `editor`/`admin` del site.
+
+## Dominio: content
+
+Pipeline de `PROJECT_BLUEPRINT.md` §15 (Draft → Fact Check → Editorial/UX Review → Monetization Policy Review → Publish) implementado como versionado real, no edición in-place.
+
+### `content_items`
+Unidad publicable (Best X, VS, Review, Buying Guide, Tool, etc.).
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| site_id | uuid FK → sites(id) | |
+| category_id | uuid FK → categories(id), nullable | |
+| content_type | text | `best_x` / `vs` / `alternatives` / `review` / `buying_guide` / `tool` / `landing` / `support` |
+| slug / title | text | único por `(site_id, slug)` |
+| status | text | `draft` / `in_review` / `published` / `archived` |
+| current_version_id | uuid FK → content_versions(id), nullable | qué versión está live |
+| created_by | uuid FK → auth.users(id) | |
+
+**Trigger `enforce_publish_requires_approved_version`**: rechaza cualquier `insert`/`update` que ponga `status='published'` a menos que `current_version_id` no sea nulo y **esa versión, perteneciente al mismo `content_item`,** tenga `review_state='approved'`. Esto implementa ADR-005 (no auto-publicación sin revisión humana) como garantía de base de datos, no solo de UI — importante porque todavía no existe ninguna UI de admin que lo hiciera cumplir (ver `docs/phases/P4.md`). **Corregido tras F-01 de `docs/audits/P4_AUDIT.md` (Critical)**: la versión original del trigger no comparaba `content_versions.content_item_id` contra el item que se publicaba, permitiendo "tomar prestada" la versión aprobada de cualquier otro item del proyecto para publicar contenido nunca revisado. Blindado además a nivel de schema: `content_versions` tiene `UNIQUE (id, content_item_id)` y `content_items.current_version_id` es una FK compuesta `(current_version_id, id) → content_versions(id, content_item_id)`, no una FK simple — la invariante "la versión live pertenece a este item" no depende únicamente del trigger.
+
+RLS: lectura pública solo `status='published'`. Escritura: `editor`/`admin` del site.
+
+### `content_versions`
+Cada edición es una fila nueva (versionado real).
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| content_item_id | uuid FK → content_items(id) | |
+| version_number | int | único por `(content_item_id, version_number)` |
+| body | jsonb | |
+| review_state | text | `draft` / `pending_editorial_review` / `pending_monetization_review` / `approved` / `rejected` |
+| author_id / reviewed_by | uuid FK → auth.users(id), nullable | |
+| reviewed_at | timestamptz, nullable | |
+
+RLS: lectura pública **solo** de la versión que es `current_version_id` de un `content_item` con `status='published'` — un draft de un item ya publicado sigue sin ser público. `editor`/`admin` del site ven y escriben todas las versiones de su site (incluye poder marcar `review_state='approved'` — **Fase 4 MVP no separa "quién aprueba" de "quién escribe"** a nivel de base de datos; esa separación de roles, si se necesita, es una decisión explícita futura, no un descuido).
+
+### `content_blocks`
+Contenido estructurado por versión (`block_type` + `block_data jsonb`, ej. `intro`, `comparison_table`, `pros_cons`, `faq` — el renderer del frontend interpreta `block_type`). RLS: mismo patrón de "solo la versión live de un item published" vía join a `content_versions`→`content_items`.
+
+### `content_product_links`
+Qué productos menciona/compara cada `content_item` (`role`: `primary` / `alternative` / `mentioned`). Único por `(content_item_id, product_id)`. RLS: lectura pública si el `content_item` padre está `published` **y** el `product_id` vinculado también está `published`; escritura `editor`/`admin` del site, y **solo si `products.site_id = content_items.site_id`** (vincular productos cross-site está bloqueado explícitamente, no es un caso de uso soportado). **Corregido tras F-02/F-03 de `docs/audits/P4_AUDIT.md` (High)**: la versión original no validaba ni el `status` del producto vinculado en lectura ni el `site_id` en escritura — permitía filtrar a `anon` la existencia de productos `draft` de cualquier site y vincular contenido con productos de sites ajenos.
+
+### `content_sources`
+Fuentes citadas por versión (`PROJECT_BLUEPRINT.md` §6.3). RLS: mismo patrón "solo versión live de item published".
+
+## Dominio: operations
+
+### `freshness_checks`
+Cola de qué entidad necesita revisión y cuándo — herramienta interna, **nunca pública**.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| entity_type | text | `product_price` / `product_feature` / `content_item` |
+| entity_id | uuid | sin FK real (referencia polimórfica a distintas tablas) |
+| last_checked_at / next_check_due_at | timestamptz | |
+| status | text | `fresh` / `due` / `stale` |
+| note | text, nullable | |
+
+RLS: solo `super_admin` (lectura y escritura). Sin cron/Edge Function que la puebla o consuma automáticamente todavía — eso es Fase 9 (AI Operations & Freshness); acá solo el dato.
+
+## Funciones adicionales de Fase 4
+
+### `import_product_prices(rows jsonb)`
+Bulk import con validación fila-por-fila (backlog 405) — recibe un array JSON de filas candidatas a `product_prices` (máximo 500 por llamada, corregido tras F-07), valida cada una (`product_id` existe y el llamador tiene autorización sobre su site, `amount >= 0`, `currency` de 3 letras, `price_type` válido, `source` no vacío, `confidence` válido, default `unverified` tras F-08) y devuelve una tabla `(row_index, status, reason, price_id)` por fila: `accepted` con el `id` insertado, o `rejected` con el motivo — sin abortar el lote completo si una fila falla.
+
+`SECURITY DEFINER`, pero la autorización **no se delega al bypass de RLS**: la función valida explícitamente `has_role('editor', site_id) or is_admin_for_site(site_id)` para el site del producto de cada fila, usando `auth.uid()` del llamador — exactamente la misma regla que aplicaría RLS normal. **Corregido tras F-04 de `docs/audits/P4_AUDIT.md` (Medium)**: la versión original resolvía la existencia del `product_id` *antes* del chequeo de autorización y devolvía motivos de rechazo distinguibles ("no existe" vs "sin autorización"), permitiendo que cualquier `authenticated` sin ningún rol usara la función como oráculo de existencia de productos ajenos — ambos casos ahora devuelven el mismo motivo genérico. Sin endpoint HTTP propio todavía (se llama vía RPC de PostgREST); exponerlo en una ruta de Next.js requiere la misma auth de admin que la UI de CMS, diferida (ver `docs/phases/P4.md`).
+
 ## Seed (`supabase/seed.sql`)
 
 Idempotente (`insert ... on conflict do nothing`): los 6 roles, los 3 niches (`active`), 1 site por niche (`draft` — se activan en su respectiva Fase 6A/6B/6C según el orden de lanzamiento por oleadas). No siembra `vendors`/`products` — eso es contenido real de Fase 4/6.
@@ -154,4 +277,8 @@ Idempotente (`insert ... on conflict do nothing`): los 6 roles, los 3 niches (`a
 
 - `user_roles` solo lo escribe `super_admin` en Fase 2. Delegar asignación de roles a `admin` de property es una decisión futura explícita, no un descuido — evaluar al construir el panel de administración (Fase 7+).
 - `profiles_self_read` da a `super_admin` lectura de todos los perfiles; no hay una policy intermedia para que un `admin` de site vea perfiles de usuarios de su property — se agrega cuando exista un caso de uso real (evita over-engineering).
-- Los `GRANT` a `service_role` (`supabase/migrations/20260808010405_grant_service_role_access.sql`) son explícitos por tabla, no vía `ALTER DEFAULT PRIVILEGES ... GRANT ALL ON TABLES TO service_role`. Tablas nuevas de Fase 3+ van a necesitar su propio `GRANT` explícito o van a repetir el hallazgo F-07 (`docs/audits/P2_AUDIT.md`) — evaluar un `ALTER DEFAULT PRIVILEGES` a nivel de proyecto antes de que eso vuelva a pasar.
+- Los `GRANT` a `service_role` (`supabase/migrations/20260808010405_grant_service_role_access.sql`, `20260808020030_grant_service_role_p4.sql`) son explícitos por tabla, no vía `ALTER DEFAULT PRIVILEGES ... GRANT ALL ON TABLES TO service_role`. Fase 4 lo hizo desde el día uno (misma migración que crea las tablas) para no repetir el hallazgo F-07 — pero sigue siendo manual; evaluar un `ALTER DEFAULT PRIVILEGES` a nivel de proyecto antes de que una fase futura lo olvide.
+- **Content workflow sin separación de roles para aprobar (Fase 4)**: cualquier `editor`/`admin` de un site puede escribir una `content_version` Y marcarla `review_state='approved'` — no hay a nivel de base de datos una regla de "el aprobador no puede ser el autor". El trigger `enforce_publish_requires_approved_version` garantiza que *alguna* aprobación exista antes de publicar, pero no garantiza separación de funciones. Es una decisión explícita de Fase 4 (documentada en `docs/phases/P4.md`), no un descuido — se revisa si Fase 6A+ (contenido editorial real con más de un editor por site) lo necesita.
+- **UI de administración/CMS no existe todavía**: `apps/web` no tiene ningún cliente de Supabase instalado (`@supabase/supabase-js`/`@supabase/ssr`), ni login, ni sesión de servidor. Backlog 204 (Admin/User route guards) sigue sin poder implementarse por esta razón concreta — ver backlog 410 (nuevo, Fase 4) para el wiring de auth que es su prerrequisito real.
+- **Patrón para futuras tablas append-only**: si una fase futura agrega otra tabla "histórico, nunca se sobrescribe" (siguiendo el patrón de `product_prices`/`product_features`), el `GRANT` a `service_role` debe excluir `UPDATE` explícitamente desde el día uno (`grant select, insert, delete on ... to service_role`, no `grant all`) — Fase 4 usó `grant all` inicialmente y tuvo que revocar `UPDATE` después de que la auditoría lo señalara (F-05, `docs/audits/P4_AUDIT.md`).
+- **Invariantes "esta FK debe apuntar a una fila con este otro campo igual"**: cuando una tabla tiene una referencia condicional como `content_items.current_version_id` (debe apuntar a una versión del MISMO item, no solo a cualquier fila válida), un trigger solo no es suficiente — se necesita una FK compuesta contra una `UNIQUE` compuesta en la tabla referenciada (patrón usado para corregir F-01). Vale la pena revisar este patrón proactivamente en Fase 5+ para cualquier referencia condicional similar (ej. `affiliate_offers` apuntando a `affiliate_programs` del mismo vendor).
