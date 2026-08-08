@@ -260,6 +260,7 @@ export const pt: Dictionary = {
   catalog: {
     startingAt: "A partir de",
     perMonth: "/mês",
+    perYear: "/ano",
     visitWebsite: "Visitar site",
     viewDetails: "Ver detalhes",
     backToCategory: "← Voltar para {category}",
@@ -277,6 +278,13 @@ export const pt: Dictionary = {
     entryPlanColumn: "Plano de entrada",
     priceColumn: "Preço inicial",
     freeTierColumn: "Plano gratuito",
+    billingModelColumn: "Faturamento",
+    integrationsColumn: "Integrações",
     noSelection: "Selecione pelo menos um CRM acima para ver uma comparação.",
+    esimComparatorTitle: "Comparador de planos eSIM",
+    esimComparatorIntro: "Selecione os provedores de eSIM que você está avaliando para comparar preço de entrada, modelo de dados e cobertura lado a lado.",
+    dataModelColumn: "Modelo de dados",
+    largestPlanColumn: "Maior plano",
+    coverageColumn: "Cobertura",
   },
 };

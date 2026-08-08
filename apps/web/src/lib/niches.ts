@@ -34,8 +34,8 @@ export const nicheStructures: NicheStructure[] = [
     slug: "travel-smart-travel",
     siteSlug: "travel",
     accentVar: "var(--color-niche-travel)",
-    launched: false,
-    categorySlugs: [],
+    launched: true,
+    categorySlugs: ["hotels", "destinations", "itineraries", "esim-connectivity", "luggage", "travel-tech"],
   },
   {
     slug: "consumer-tech-smart-home",

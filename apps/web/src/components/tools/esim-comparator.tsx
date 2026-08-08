@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ProductDetail } from "@platform/db";
 
-export function CrmComparator({
+export function EsimComparator({
   products,
   labels,
 }: {
@@ -12,9 +12,9 @@ export function CrmComparator({
     selectToCompare: string;
     entryPlanColumn: string;
     priceColumn: string;
-    freeTierColumn: string;
-    billingModelColumn: string;
-    integrationsColumn: string;
+    dataModelColumn: string;
+    largestPlanColumn: string;
+    coverageColumn: string;
     noSelection: string;
     sourceLabel: string;
   };
@@ -60,28 +60,28 @@ export function CrmComparator({
         <p className="mt-8 text-sm text-muted">{labels.noSelection}</p>
       ) : (
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-sm">
+          <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="py-2 pr-4 font-semibold text-ink"> </th>
                 <th className="py-2 pr-4 font-semibold text-ink">{labels.entryPlanColumn}</th>
                 <th className="py-2 pr-4 font-semibold text-ink">{labels.priceColumn}</th>
-                <th className="py-2 pr-4 font-semibold text-ink">{labels.freeTierColumn}</th>
-                <th className="py-2 pr-4 font-semibold text-ink">{labels.billingModelColumn}</th>
-                <th className="py-2 pr-4 font-semibold text-ink">{labels.integrationsColumn}</th>
+                <th className="py-2 pr-4 font-semibold text-ink">{labels.dataModelColumn}</th>
+                <th className="py-2 pr-4 font-semibold text-ink">{labels.largestPlanColumn}</th>
+                <th className="py-2 pr-4 font-semibold text-ink">{labels.coverageColumn}</th>
               </tr>
             </thead>
             <tbody>
               {selectedProducts.map((product) => (
                 <tr key={product.id} className="border-b border-border">
                   <td className="py-3 pr-4 font-medium text-ink">{product.name}</td>
-                  <td className="py-3 pr-4 text-ink">{featureValue(product, "entry_plan_name") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "entry_plan") ?? "—"}</td>
                   <td className="py-3 pr-4 text-ink">
-                    {product.latestPrice ? `$${product.latestPrice.amount.toFixed(0)}/mo` : "—"}
+                    {product.latestPrice ? `$${product.latestPrice.amount.toFixed(2)}` : "—"}
                   </td>
-                  <td className="py-3 pr-4 text-ink">{featureValue(product, "free_tier") ?? "—"}</td>
-                  <td className="py-3 pr-4 text-ink">{featureValue(product, "billing_model") ?? "—"}</td>
-                  <td className="py-3 pr-4 text-ink">{featureValue(product, "marketplace_integrations") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "data_model") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "largest_plan") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "coverage") ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

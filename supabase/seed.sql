@@ -48,3 +48,20 @@ select id, slug, name from public.niches, (values
 ) as cat(slug, name)
 where niches.slug = 'business-software-ai'
 on conflict (niche_id, slug) do nothing;
+
+-- Categorías de travel-smart-travel (Fase 6B, backlog 611) — mismas 6 subcategorías
+-- usadas consistentemente en los diccionarios i18n desde Fase 3. Nota: el blueprint
+-- original (§3) lista 7 subcategorías incluyendo "movilidad local"; se siembra la
+-- taxonomía real de 6 ya congelada en los diccionarios, no la del blueprint original
+-- (mismo criterio aplicado a business-software-ai en Fase 6A).
+insert into public.categories (niche_id, slug, name)
+select id, slug, name from public.niches, (values
+  ('hotels', 'Hotels'),
+  ('destinations', 'Destinations'),
+  ('itineraries', 'Itineraries'),
+  ('esim-connectivity', 'eSIM & connectivity'),
+  ('luggage', 'Luggage'),
+  ('travel-tech', 'Travel tech')
+) as cat(slug, name)
+where niches.slug = 'travel-smart-travel'
+on conflict (niche_id, slug) do nothing;

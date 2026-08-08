@@ -5,6 +5,7 @@ import { createPublicSupabaseClient, getProduct } from "@platform/db";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
+import { priceSuffix } from "@/lib/catalog-price";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +45,8 @@ export default async function ProductPage({ params }: { params: Promise<RoutePar
             {dictionary.catalog.pricingHeading}
           </h2>
           <p className="mt-2 text-2xl font-semibold text-ink">
-            ${detail.latestPrice.amount.toFixed(0)}
-            <span className="text-base font-normal text-muted">{dictionary.catalog.perMonth}</span>
+            ${detail.latestPrice.amount.toFixed(2)}
+            <span className="text-base font-normal text-muted">{priceSuffix(dictionary, detail.latestPrice.priceType)}</span>
           </p>
           <p className="mt-2 text-xs text-muted">
             {dictionary.catalog.sourceLabel}:{" "}

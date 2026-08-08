@@ -11,7 +11,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 4 | CMS & Product Intelligence | **CLOSED** (2026-08-08) | `docs/phases/P4_REPORT.md`, `docs/audits/P4_AUDIT.md` — catalog completo (variants/features/prices/media, append-only), content workflow con enforcement de ADR-005, freshness queue, bulk import. Auditoría inicial NO-GO (1 Critical + 2 High), corregido y verificado: 29/29 tests contra el proyecto real. Backlog 409 (nuevo) es prerrequisito real de 204, que se re-DEFERRED sin atarlo a una fase fija |
 | 5 | Monetization & Attribution | **CLOSED** (2026-08-08) | `docs/phases/P5_REPORT.md`, `docs/audits/P5_AUDIT.md` — affiliate/monetization/leads/revenue_events completos, firewall editorial en `roe_scores`, disclosure obligatorio. Auditoría inicial GO CON CONDICIONES (1 High + 1 Low), corregido y verificado: 45/45 tests contra el proyecto real |
 | 6A | Vertical 1: Software & AI | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6A_REPORT.md` — taxonomía + 5 productos reales sembrados (CRM, AI Assistants) + templates + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 12-18 páginas target) — backlog 606/607/608 |
-| 6B | Vertical 2: Travel | NOT STARTED | — |
+| 6B | Vertical 2: Travel | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6B_REPORT.md` — taxonomía (6 categorías) + 3 productos reales sembrados (eSIM & connectivity) + templates reutilizados + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 6 categorías con catálogo real) — backlog 615/616/617/618 |
 | 6C | Vertical 3: Consumer Tech | NOT STARTED | — |
 | 7 | Admin Analytics & ROE v1 | NOT STARTED | — |
 | 8 | Growth/Search/Distribution | NOT STARTED | — |
@@ -76,3 +76,15 @@ Completado: 601 (taxonomía), 602 (seed parcial: 5 productos en 2 de 6 categorí
 **ADR-005 confirmado en la práctica**: al intentar verificar visualmente el template de contenido, el Builder ejecutó (sin mala intención, para QA) un cambio de estado a `published` — el clasificador de permisos del entorno **bloqueó la acción** por ser auto-aprobación editorial. El Builder no intentó evadirlo; verificó los datos sin tocar el estado de publicación. Backlog 606 (nuevo): la pieza sigue esperando decisión humana explícita de publicar o rechazar.
 
 **Deferred, sin fase fija**: backlog 606 (aprobar/rechazar contenido pendiente), 607 (resto del seed editorial), 608 (`affiliate_links` reales — hoy son links directos al vendor, no monetizados).
+
+## Fase 6B — cerrada 2026-08-08 (v1 parcial)
+
+Completado: 611 (taxonomía, 6 categorías), 611/612 (seed parcial: 3 productos reales en 1 de 6 categorías — `eSIM & connectivity`), 612 (templates reutilizados de Fase 6A sin cambios estructurales), 613 (eSIM Data Plan Comparator), 614 (1 pieza de contenido, `pending_editorial_review`). Site `travel` activado (`draft`→`active`).
+
+**Defecto real corregido, retroactivo a Fase 6A**: el sufijo de precio en los templates de catálogo estaba hardcodeado a `/month` (asumía `subscription_monthly`); invisible en Fase 6A (catálogo 100% mensual) pero habría mostrado una afirmación falsa para los planes eSIM prepago de esta fase (`price_type='starting_at'`). Corregido con `apps/web/src/lib/catalog-price.ts` antes de sembrar el catálogo nuevo; verificado sin regresión sobre el catálogo de Fase 6A.
+
+**Alcance deliberadamente parcial** (documentado desde el inicio en `docs/phases/P6B.md`): catálogo real solo en 1 de 6 categorías. Hoteles/vuelos quedan fuera porque el modelo `product_prices` (Fase 4) asume precio de catálogo relativamente estable, no tarifa dinámica por fecha/disponibilidad — sembrarlo como si fuera un hecho estable sería engañoso. `Luggage` fue investigado (Away, Samsonite) pero descartado por fuentes inconsistentes (Away bloqueó el fetch; Samsonite mostró 3 precios distintos para el mismo SKU en la misma sesión de búsqueda).
+
+**Deferred, sin fase fija**: backlog 615 (seasonality rules), 616 (aprobar/rechazar contenido pendiente de esta fase), 617 (resto del seed editorial de Travel), 618 (`affiliate_links` reales). Backlog 606 (Fase 6A) sigue abierto también.
+
+**Actualización posterior al cierre de Fase 6A (2026-08-08)**: a pedido del propietario funcional, se enriqueció el catálogo de los 5 productos ya sembrados (`billing_model`, `marketplace_integrations`, `seat_minimum`, `api_access`, `team_plan`), se amplió el CRM Pricing Comparator a 5 columnas, y se creó una versión 2 (más rica, con veredictos "mejor para X caso de uso") del artículo pendiente — sigue sin publicar (ADR-005). No reabre Fase 6A. Ver addendum en `docs/phases/P6A_REPORT.md` y `CHANGELOG.md`.

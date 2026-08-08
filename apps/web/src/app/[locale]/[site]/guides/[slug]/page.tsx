@@ -5,6 +5,8 @@ import { createPublicSupabaseClient, getPublishedContentItem, getProduct } from 
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
+import { priceSuffix } from "@/lib/catalog-price";
+import type { Dictionary } from "@/lib/i18n/dictionary";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +26,18 @@ function IntroBlock({ text }: { text: string }) {
 
 async function ComparisonTableBlock({
   productSlugs,
+  categorySlug,
+  entryPlanFeatureKey,
   site,
   locale,
+  dictionary,
 }: {
   productSlugs: string[];
+  categorySlug: string;
+  entryPlanFeatureKey: string;
   site: string;
   locale: Locale;
+  dictionary: Dictionary;
 }) {
   const client = createPublicSupabaseClient();
   const products = (await Promise.all(productSlugs.map((slug) => getProduct(client, site, slug)))).filter(
@@ -42,22 +50,26 @@ async function ComparisonTableBlock({
         <thead>
           <tr className="border-b border-border text-left">
             <th className="py-2 pr-4 font-semibold text-ink"> </th>
-            <th className="py-2 pr-4 font-semibold text-ink">Entry plan</th>
-            <th className="py-2 pr-4 font-semibold text-ink">Starting price</th>
+            <th className="py-2 pr-4 font-semibold text-ink">{dictionary.tools.entryPlanColumn}</th>
+            <th className="py-2 pr-4 font-semibold text-ink">{dictionary.tools.priceColumn}</th>
           </tr>
         </thead>
         <tbody>
           {products.map((p) => (
             <tr key={p.id} className="border-b border-border">
               <td className="py-3 pr-4 font-medium text-ink">
-                <Link href={`/${locale}/${site}/crm/${p.slug}`} className="hover:text-primary">
+                <Link href={`/${locale}/${site}/${categorySlug}/${p.slug}`} className="hover:text-primary">
                   {p.name}
                 </Link>
               </td>
               <td className="py-3 pr-4 text-ink">
-                {p.features.find((f) => f.featureKey === "entry_plan_name")?.featureValue ?? "—"}
+                {p.features.find((f) => f.featureKey === entryPlanFeatureKey)?.featureValue ?? "—"}
               </td>
-              <td className="py-3 pr-4 text-ink">{p.latestPrice ? `$${p.latestPrice.amount.toFixed(0)}/mo` : "—"}</td>
+              <td className="py-3 pr-4 text-ink">
+                {p.latestPrice
+                  ? `$${p.latestPrice.amount.toFixed(2)}${priceSuffix(dictionary, p.latestPrice.priceType)}`
+                  : "—"}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -92,6 +104,21 @@ function ProsConsBlock({ productName, pros, cons }: { productName: string; pros:
   );
 }
 
+function VerdictsBlock({ items }: { items: { useCase: string; pick: string; reason: string }[] }) {
+  return (
+    <div className="flex flex-col gap-4">
+      {items.map((v) => (
+        <div key={v.useCase} className="rounded-lg border border-border bg-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{v.useCase}</p>
+          <p className="mt-1.5 text-sm text-ink">
+            <span className="font-semibold">{v.pick}</span> — {v.reason}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default async function GuidePage({ params }: { params: Promise<RouteParams> }) {
   const { locale, site, slug } = await params;
   const dictionary = getDictionary(locale);
@@ -120,10 +147,16 @@ export default async function GuidePage({ params }: { params: Promise<RouteParam
               <ComparisonTableBlock
                 key={i}
                 productSlugs={(data.productSlugs as string[]) ?? []}
+                categorySlug={String(data.categorySlug ?? "crm")}
+                entryPlanFeatureKey={String(data.entryPlanFeatureKey ?? "entry_plan_name")}
                 site={site}
                 locale={locale}
+                dictionary={dictionary}
               />
             );
+          }
+          if (block.blockType === "verdicts") {
+            return <VerdictsBlock key={i} items={(data.items as { useCase: string; pick: string; reason: string }[]) ?? []} />;
           }
           if (block.blockType === "pros_cons") {
             return (
