@@ -15,6 +15,7 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 | ADR-009 | Nombre comercial de la plataforma: **Decidero** (provisional). | ACCEPTED — PROVISIONAL, sujeto a cambio |
 | ADR-010 | Un solo proyecto Supabase (con Database Branching vía GitHub) en lugar de 3 proyectos separados dev/staging/prod. | ACCEPTED |
 | ADR-011 | Control de compensación para revisión de PRs mientras exista una sola cuenta con acceso al repo (excepción explícita a ADR-006). | ACCEPTED — TEMPORAL, con disparador de revisión |
+| ADR-012 | Corrección de ADR-010: Database Branching requiere plan Pro de Supabase (el proyecto está en FREE) — migraciones se aplican directo al proyecto único vía PR + CLI, sin preview DB por ahora. | ACCEPTED |
 
 ## Detalle
 
@@ -91,3 +92,18 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 **Disparador de revisión de este ADR**: en cuanto se agregue una segunda cuenta con acceso de escritura al repo (humana o de otro agente con credenciales propias), o al iniciar Fase 2 (Auth/RBAC/RLS) como mínimo, se debe revisar si subir `required_approving_review_count` a 1+ es ya viable y deseable. Este ADR se supera con uno nuevo si la decisión cambia — nunca se edita retroactivamente.
 
 **Consecuencia inmediata**: los PRs de Fase 1 que corrigen los hallazgos de esta misma auditoría (F-03 a F-08) se consideran de bajo riesgo (documentación + config no sensible), no requieren un segundo reporte de auditoría adjunto.
+
+**Revisión al inicio de Fase 2 (2026-08-08)**: se cumplió el disparador de revisión. `digitalconnectdr` sigue siendo la única cuenta con acceso de escritura al repo — no cambió nada respecto al contexto original. Se mantiene el control de compensación sin modificaciones: los PRs de Fase 2 (Auth/RBAC/RLS, la zona de mayor riesgo del proyecto) llevan auditoría de agente independiente obligatoria adjunta antes de mergear, sin excepción.
+
+### ADR-012 — Corrección de ADR-010: Database Branching no está disponible en el plan actual
+**Contexto**: al iniciar Fase 2 y vincular el CLI de Supabase al proyecto (`supabase link`), se intentó crear una branch de prueba para validar el flujo de preview-por-PR descrito en ADR-010. La API de Supabase respondió: `402 — "Branching is supported only on the Pro plan or above"`. El proyecto (`jprs-monetization-platform`, organización `DigitalConnectDR`) está en el plan **FREE**. ADR-010 asumió disponibilidad de branching porque GitHub estaba conectado al crear el proyecto, sin verificar el plan — esa verificación no se hizo en su momento y resultó ser necesaria.
+
+**Decisión**: mientras el proyecto esté en plan FREE, las migraciones de `supabase/migrations/` se revisan en PR como código SQL (sin preview DB real) y se aplican directamente al único proyecto Supabase (`supabase db push`) después de mergear a `main`, no antes. Riesgo aceptado explícitamente por el propietario funcional: no hay datos reales de usuarios todavía, por lo que aplicar migraciones directo al proyecto único es de bajo riesgo en esta etapa.
+
+**Consecuencias**:
+- No se puede probar una migración contra una base de datos aislada antes de mergear — la revisión de PR (SQL + auditoría de agente para PRs de riesgo, ver ADR-011) es el único control antes de aplicar.
+- Alternativa disponible sin costo: Supabase local vía Docker (`supabase start`) para probar antes de aplicar — no se usa por defecto en Fase 2 (Docker Desktop no estaba corriendo al tomar esta decisión), pero queda disponible si se necesita mayor confianza antes de una migración particularmente riesgosa.
+- Todas las referencias a "Database Branching" en `PROJECT_BLUEPRINT.md`, `docs/phases/P1_REPORT.md` y `MASTER_BACKLOG.md` (ítem 103) deben leerse con esta corrección — el mecanismo de aislamiento real hoy es "un solo proyecto, migraciones directas post-merge", no branching automático.
+- Este ADR no revierte ADR-010 en su decisión principal (un solo proyecto Supabase en vez de 3) — solo corrige el mecanismo de aislamiento por rama, que no está disponible.
+
+**Disparador de revisión**: si se decide subir a plan Pro de Supabase (decisión de costo del propietario funcional), este ADR se supera con uno nuevo que reactive el flujo de branching descrito originalmente en ADR-010.
