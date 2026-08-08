@@ -183,17 +183,38 @@ async function main() {
     const softwareSiteId = softwareSite.json?.[0]?.id;
     const otherSiteId = otherSite.json?.[0]?.id;
 
+    // Datos de setup vía service_role — si esto falla (ej. faltan GRANTs a
+    // service_role, como pasó la primera vez que se corrió este script contra el
+    // proyecto real), abortar con un error claro en vez de dejar que "undefined"
+    // se propague silenciosamente a los requests siguientes.
+    if (!softwareSiteId || !otherSiteId) {
+      throw new Error(
+        `No se pudo leer sites de setup vía service_role — softwareSite=${JSON.stringify(softwareSite)} otherSite=${JSON.stringify(otherSite)}`
+      );
+    }
+
     Object.assign(adminUser, await signUpAndSignIn(`p2-admin-${stamp}@example.com`, "TestPassword123!"));
     const adminRole = await rest("roles?select=id&name=eq.admin", { key: SERVICE_KEY });
     const superAdminRole = await rest("roles?select=id&name=eq.super_admin", { key: SERVICE_KEY });
     const adminRoleId = adminRole.json?.[0]?.id;
     const superAdminRoleId = superAdminRole.json?.[0]?.id;
 
-    await rest("user_roles", {
+    if (!adminRoleId || !superAdminRoleId) {
+      throw new Error(
+        `No se pudo leer roles de setup vía service_role — adminRole=${JSON.stringify(adminRole)} superAdminRole=${JSON.stringify(superAdminRole)}`
+      );
+    }
+
+    const roleAssignment = await rest("user_roles", {
       key: SERVICE_KEY,
       method: "POST",
       body: { user_id: adminUser.userId, role_id: adminRoleId, site_id: softwareSiteId },
     });
+    check(
+      "setup: se pudo asignar el rol admin (scoped) al usuario de prueba vía service_role",
+      roleAssignment.status === 201,
+      JSON.stringify(roleAssignment)
+    );
 
     // Aislamiento real de user_roles: ahora SÍ existe una fila de otro usuario (admin)
     // que el usuario normal no debería poder ver — a diferencia de antes (F-04),
@@ -272,15 +293,20 @@ async function main() {
     );
 
     // F-02: admin scoped a un solo site NO puede eliminar ese site (solo super_admin puede).
-    const adminDeleteOwnSite = await authRest(`sites?id=eq.${softwareSiteId}`, {
+    // Nota: sin "Prefer: return=representation" en un DELETE, PostgREST devuelve 204
+    // tanto si RLS bloqueó silenciosamente (0 filas afectadas) como si el request en
+    // teoría hubiera podido borrar algo — el status code solo no alcanza para probar
+    // esto. La verificación real es confirmar contra service_role que el site sigue existiendo.
+    await authRest(`sites?id=eq.${softwareSiteId}`, {
       key: adminUser.accessToken,
       method: "DELETE",
       extraHeaders: { apikey: ANON_KEY },
     });
+    const siteStillExists = await rest(`sites?select=id&id=eq.${softwareSiteId}`, { key: SERVICE_KEY });
     check(
-      "admin scoped a un site NO puede hacer DELETE de ese site (solo super_admin, F-02)",
-      adminDeleteOwnSite.status === 401 || adminDeleteOwnSite.status === 403 || (adminDeleteOwnSite.status === 200 && (adminDeleteOwnSite.json?.length ?? 0) === 0),
-      JSON.stringify(adminDeleteOwnSite)
+      "admin scoped a un site NO puede hacer DELETE de ese site — el site sigue existiendo (solo super_admin, F-02)",
+      siteStillExists.status === 200 && siteStillExists.json?.length === 1,
+      JSON.stringify(siteStillExists)
     );
 
     // Cross-site: admin de Software/AI no puede escribir products de otro site (Travel).

@@ -27,3 +27,16 @@ Auditor: agente independiente (sesión separada del Builder), actuando combinada
 ## Veredicto final tras corrección: **GO**
 
 Todos los hallazgos High/Medium/Low fueron corregidos directamente en las migraciones y el test script (nada se había aplicado aún al proyecto Supabase real, así que no hizo falta una migración de parche — se editaron los archivos originales). Los criterios de aceptación de Fase 2 ("Usuario normal no puede leer/escribir datos admin", "Admin scope funciona por property", "Todas las tablas sensibles tienen RLS explícito") quedan cubiertos con guardrails reales (trigger + función corregida) y con tests que efectivamente los ejercitan, no solo los documentan.
+
+## Post-merge: primera corrida real contra el proyecto Supabase (F-07, F-08)
+
+Tras mergear el PR #4 y aplicar las migraciones al proyecto real (`supabase db push`, sin preview DB por ADR-012), correr `rls_access.test.mjs` por primera vez contra datos reales reveló 2 problemas nuevos que ninguna revisión de código (ni la de este auditor, ni la del Builder) podía haber detectado sin ejecución real:
+
+| ID | Severidad | Resumen | Estado |
+|---|---|---|---|
+| F-07 | High | `service_role` no tenía `GRANT` de tabla explícito en ninguna migración — se asumió que bypassa RLS y grants automáticamente (cierto en un proyecto Supabase estándar), pero con "Automatically expose new tables" desactivado (decisión de Fase 1) también se suprimen los grants implícitos de `service_role` para tablas nuevas. Causó fallos en cascada: el propio script de tests no podía asignar el rol admin al usuario de prueba. | **RESUELTO** — nueva migración `20260808010405_grant_service_role_access.sql`, `grant all` explícito a `service_role` en las 10 tablas de Fase 2 |
+| F-08 | Low | El test de F-02 (admin no puede DELETE su site) asumía que un DELETE bloqueado por RLS devuelve 401/403/200-vacío, pero sin `Prefer: return=representation` PostgREST devuelve 204 tanto si RLS bloqueó (0 filas) como en otros casos — el status code solo no prueba nada | **RESUELTO** — el test ahora verifica directamente contra `service_role` que el site sigue existiendo después del intento de DELETE, en vez de inferir del status code |
+
+**Verificación empírica final**: `node supabase/tests/rls_access.test.mjs` corrido contra el proyecto real (`jprs-monetization-platform`) tras aplicar el fix — **18/18 tests pasan**, incluyendo los 5 casos negativos de auto-escalamiento/aislamiento agregados en la ronda anterior. Cleanup verificado: 0 usuarios, 0 `user_roles`, 0 `categories` de prueba quedaron huérfanos tras la corrida.
+
+Este hallazgo (F-07) refuerza por qué ADR-012 acepta el riesgo de "sin preview DB": una revisión de código, por rigurosa que sea, no sustituye ejecutar contra el sistema real al menos una vez antes de cerrar la fase.

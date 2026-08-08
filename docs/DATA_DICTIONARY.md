@@ -154,3 +154,4 @@ Idempotente (`insert ... on conflict do nothing`): los 6 roles, los 3 niches (`a
 
 - `user_roles` solo lo escribe `super_admin` en Fase 2. Delegar asignación de roles a `admin` de property es una decisión futura explícita, no un descuido — evaluar al construir el panel de administración (Fase 7+).
 - `profiles_self_read` da a `super_admin` lectura de todos los perfiles; no hay una policy intermedia para que un `admin` de site vea perfiles de usuarios de su property — se agrega cuando exista un caso de uso real (evita over-engineering).
+- Los `GRANT` a `service_role` (`supabase/migrations/20260808010405_grant_service_role_access.sql`) son explícitos por tabla, no vía `ALTER DEFAULT PRIVILEGES ... GRANT ALL ON TABLES TO service_role`. Tablas nuevas de Fase 3+ van a necesitar su propio `GRANT` explícito o van a repetir el hallazgo F-07 (`docs/audits/P2_AUDIT.md`) — evaluar un `ALTER DEFAULT PRIVILEGES` a nivel de proyecto antes de que eso vuelva a pasar.
