@@ -2,40 +2,68 @@
 
 Plataforma multi-vertical de descubrimiento, comparación y monetización (ads + affiliate + leads, progresivamente sponsored/vendor/data), construida sobre un núcleo único multi-property.
 
-Nombre comercial: **Decidero** — **provisional**, ver `docs/DECISIONS.md` ADR-009. Se eligió tras un screening informal de conflictos (sin marca formal aún) para poder avanzar; puede cambiar antes del lanzamiento. `jprs-monetization-platform` sigue siendo el slug técnico del repositorio/carpeta — deliberadamente independiente del nombre comercial, para que un rebranding no requiera renombrar el repo.
+Nombre comercial: **Decidero** — **provisional**, ver `docs/DECISIONS.md` ADR-009. Se eligió tras un screening informal de conflictos (sin marca formal aún) para poder avanzar; puede cambiar antes del lanzamiento. `jprs-monetization-platform` sigue siendo el slug técnico del repositorio/carpeta y de todos los proyectos de infraestructura (GitHub, Supabase, Vercel) — deliberadamente independiente del nombre comercial, para que un rebranding no requiera renombrar nada.
 
 ## Estado actual
 
-**Fase 0 — Charter & Research Lock: documentación completa y auditada, pendiente de aprobación humana.**
+**Fase 0 (Charter & Research Lock): CLOSED.** **Fase 1 (Repository & Delivery Foundation): auditada, cerrando.**
 
-No hay código de producto todavía. Este repositorio contiene la documentación operativa de Fase 0, generada a partir de `JPRS_Monetization_Intelligence_Platform_Blueprint_v1.docx` (v1.0, 7 de agosto de 2026) y revisada por una auditoría independiente (`docs/audits/P0_AUDIT.md`) que encontró y corrigió 7 hallazgos (ninguno queda abierto).
+Monorepo funcional con Next.js + TypeScript, conectado a GitHub, Supabase y Vercel. CI en verde, `main` protegida, secretos fuera del repo. No hay lógica de producto todavía — eso empieza en Fase 2.
+
+- Repo remoto: [`digitalconnectdr/jprs-monetization-platform`](https://github.com/digitalconnectdr/jprs-monetization-platform)
+- Base de datos: Supabase (`jprs-monetization-platform`, US East), un solo proyecto con Database Branching (ADR-010)
+- Hosting: Vercel, conectado vía GitHub, deploy de producción activo
 
 ## Estructura actual
 
 ```
+apps/
+└─ web/                        # Next.js 16 + TypeScript (App Router), Root Directory en Vercel
+   ├─ src/app/                 # layout.tsx, page.tsx, globals.css
+   ├─ eslint.config.mjs
+   ├─ next.config.mjs
+   └─ .env.local.example       # plantilla de variables Supabase (sin secretos)
+packages/
+├─ shared/src/branding.ts      # Único punto de configuración del nombre de marca (ADR-009)
+├─ ui/ · db/ · analytics/ · monetization/ · content/ · seo/   # Placeholders, lógica real por fase
+supabase/
+├─ migrations/ · functions/ · tests/
+└─ seed.sql
+.github/
+├─ ISSUE_TEMPLATE/ · PULL_REQUEST_TEMPLATE.md
+└─ workflows/ci.yml            # lint + typecheck + build, Actions pinneadas por SHA
 docs/
-├─ PROJECT_BLUEPRINT.md      # Versión resumida/operativa del blueprint completo — fuente de verdad
-├─ PROJECT_CHARTER.md        # Propósito, scope de los 3 verticales, límites editoriales
-├─ MONETIZATION_POLICY.md    # Reglas de ads/affiliate/leads/sponsored como requisitos técnicos
-├─ CONTENT_POLICY.md         # Reglas editoriales, componentes de confianza, freshness
-├─ KPI_TREE.md               # Árbol de KPIs, fórmulas, gates económicos 10K/100K/1M
-├─ MASTER_BACKLOG.md         # Backlog completo por fase, con IDs (nunca se reutilizan)
-├─ DECISIONS.md              # ADRs (Architecture Decision Records), append-only
-├─ PHASE_STATUS.md           # Estado real de cada fase — qué falta para cerrar Fase 0
-├─ phases/P0_REPORT.md       # Reporte de cierre del Builder para Fase 0
-└─ audits/P0_AUDIT.md        # Auditoría independiente de Fase 0 (hallazgos + resolución)
-AGENTS.md                    # Reglas mínimas del repo para Codex
-CLAUDE.md                    # Reglas mínimas del repo para Claude Code
-CHANGELOG.md                 # Historial de cambios por fase
+├─ PROJECT_BLUEPRINT.md        # Versión resumida/operativa del blueprint completo — fuente de verdad
+├─ PROJECT_CHARTER.md          # Propósito, scope de los 3 verticales, límites editoriales
+├─ MONETIZATION_POLICY.md      # Reglas de ads/affiliate/leads/sponsored como requisitos técnicos
+├─ CONTENT_POLICY.md           # Reglas editoriales, componentes de confianza, freshness
+├─ KPI_TREE.md                 # Árbol de KPIs, fórmulas, gates económicos 10K/100K/1M
+├─ MASTER_BACKLOG.md           # Backlog completo por fase, con IDs (nunca se reutilizan)
+├─ DECISIONS.md                # ADRs (Architecture Decision Records), append-only
+├─ PHASE_STATUS.md             # Estado real de cada fase
+├─ phases/                     # P0_REPORT.md, P1_REPORT.md — reportes de cierre por fase
+└─ audits/                     # P0_AUDIT.md, P1_AUDIT.md — auditorías independientes
+AGENTS.md                      # Reglas mínimas del repo para Codex
+CLAUDE.md                      # Reglas mínimas del repo para Claude Code
+CHANGELOG.md                   # Historial de cambios por fase
+```
+
+## Comandos
+
+```bash
+npm install        # instala todo el monorepo
+npm run dev         # arranca apps/web en local
+npm run typecheck   # todos los workspaces
+npm run lint        # todos los workspaces
+npm run build        # todos los workspaces
 ```
 
 ## Próximos pasos (según `docs/PHASE_STATUS.md`)
 
-1. **Aprobación humana de Fase 0**: revisar y aprobar `PROJECT_CHARTER.md`, `MONETIZATION_POLICY.md`, `CONTENT_POLICY.md`, `KPI_TREE.md`, `DECISIONS.md`.
-2. **Confirmar ADR-002** (Next.js + TypeScript) → cambiar su estado a ACCEPTED en `DECISIONS.md`. Es bloqueante explícito para Fase 1. ADR-009 (nombre comercial "Decidero") ya está aceptado como provisional — pendiente búsqueda formal de marca y registro de dominio (backlog ID 109) antes de Fase 11.
-3. Marcar Fase 0 como **CLOSED** en `docs/PHASE_STATUS.md` y `docs/MASTER_BACKLOG.md` (ítems 001–006).
-4. Crear repositorio GitHub (vacío, `main` protegida una vez exista CI) e iniciar **Fase 1 — Repository & Delivery Foundation** (bootstrap del monorepo Next.js/Supabase/Vercel).
+1. Cerrar Fase 1 formalmente una vez confirmado el preview de Vercel en un PR real.
+2. Iniciar **Fase 2 — Data Core, Auth & RBAC**: schema base, RLS, roles, migrations, tests de autorización. Zona de mayor riesgo del proyecto — requiere auditoría de seguridad obligatoria antes de cerrar (ver `docs/DECISIONS.md` ADR-011 sobre el control de compensación de revisión de PRs).
+3. **Deuda diferida, no bloqueante**: backlog 109 (búsqueda formal de marca + registro de dominio) — debe resolverse antes de Fase 11 (MVP Launch).
 
 ## Principio de ejecución
 
-Fases cerradas: **planificar → implementar → probar → auditar → corregir → cerrar → actualizar pendientes**. Una fase a la vez — no se entrega el blueprint completo a un agente con instrucción "hazlo todo". Ver `AGENTS.md` / `CLAUDE.md` para las reglas operativas mínimas.
+Fases cerradas: **planificar → implementar → probar → auditar → corregir → cerrar → actualizar pendientes**. Una fase a la vez — no se entrega el blueprint completo a un agente con instrucción "hazlo todo". El autor de un cambio nunca es su único auditor (ver ADR-006 y ADR-011 en `docs/DECISIONS.md`). Ver `AGENTS.md` / `CLAUDE.md` para las reglas operativas mínimas.

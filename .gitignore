@@ -45,3 +45,6 @@ apps/web/dev_output.txt
 coverage/
 playwright-report/
 test-results/
+
+# Vercel CLI (artefactos locales: org ID + project ID)
+.vercel

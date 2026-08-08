@@ -4,7 +4,7 @@ Fuente: [PROJECT_BLUEPRINT.md](PROJECT_BLUEPRINT.md), sección "Plan maestro por
 
 **Nota sobre la columna "Prioridad"**: los valores `P0`/`P1` en esa columna indican prioridad de negocio dentro de la fase (P0 = bloqueante, P1 = importante pero no bloqueante), **no** el número de fase. No confundir con los encabezados `## Fase P0`, `## Fase P1`, etc., que agrupan por fase del roadmap.
 
-Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DONE`
+Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloquea el cierre de la fase actual, pero tiene un gate posterior explícito donde debe resolverse) · `DONE`
 
 ## Fase P0 — Charter & Research Lock
 
@@ -25,11 +25,12 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DONE`
 | 101 | P0 | Crear monorepo Next.js/TypeScript | Build local verde | DONE — build falla solo localmente por una restricción de memoria específica de esta máquina (no del código); confirmado exitoso en CI (run 31225151278) |
 | 102 | P0 | Configurar lint/typecheck/tests | CI verde | DONE — `.github/workflows/ci.yml` corrió y pasó (`conclusion=success`) en el primer push a `main` |
 | 103 | P0 | Configurar Supabase environments | Env matrix | DONE — un solo proyecto (`jprs-monetization-platform`, US East) + Database Branching vía GitHub, ver ADR-010. `.env.local` configurado y verificado (URL, anon key, service_role key) en `apps/web/` |
-| 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | TODO — repo remoto ya existe; falta conexión OAuth manual a Vercel del propietario funcional |
-| 105 | P0 | Proteger main y checks requeridos | Ruleset activo | DONE — PR obligatorio, check `build` requerido en verde, rama actualizada, sin force-push ni borrado de `main` |
+| 104 | P0 | Conectar GitHub-Vercel previews | Preview PASS | DONE — proyecto Vercel `jprs-monetization-platform` conectado al repo (scope `digitalconnectdr`), deploy a producción exitoso (Root Directory `apps/web`), variables de Supabase cargadas en Vercel (Production + Preview). Preview en PR confirmado con evidencia real en PR #3 (estado "Ready") |
+| 105 | P0 | Proteger main y checks requeridos | Ruleset activo | DONE — PR obligatorio, check `build` requerido en verde, rama actualizada, sin force-push ni borrado de `main`, `enforce_admins=true` (ver ADR-011) |
 | 107 | P1 | Templates Issue/PR/Audit | Templates presentes | DONE |
 | 108 | P1 | Centralizar nombre de marca en config única (branding) para soportar rename sin fricción (ADR-009) | Un solo punto de config; sin strings hardcodeados en UI/SEO/seeds | DONE — `packages/shared/src/branding.ts` |
-| 109 | P1 | Búsqueda formal de marca (USPTO/EUIPO) + registro de dominio para "Decidero" o el nombre final | Marca despejada + dominio adquirido | TODO — acción del propietario funcional |
+| 109 | P1 | Búsqueda formal de marca (USPTO/EUIPO) + registro de dominio para "Decidero" o el nombre final | Marca despejada + dominio adquirido | DEFERRED — no bloquea cierre de Fase 1 (decisión explícita del propietario funcional, 2026-08-07); debe resolverse antes de Fase 11 (MVP Launch). Owner: propietario funcional |
+| 110 | P1 | Congelar versiones `"latest"` a versiones exactas resueltas (hallazgo F-05 de `docs/audits/P1_AUDIT.md`) | Sin rangos abiertos (`latest`) en `package.json` de `apps/*`/`packages/*` | DONE — `next`/`react`/`react-dom`/`@types/*`/`eslint`/`eslint-config-next`/`typescript` fijados a la versión resuelta en `package-lock.json`. Recordatorio: cualquier dependencia nueva debe agregarse con versión fijada, no `latest` |
 
 ## Fase P2 — Data Core, Auth & RBAC
 

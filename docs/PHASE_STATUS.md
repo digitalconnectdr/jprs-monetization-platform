@@ -5,7 +5,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | Fase | Nombre | Estado | Evidencia |
 |---|---|---|---|
 | 0 | Charter & Research Lock | **CLOSED** (2026-08-07) | `docs/phases/P0_REPORT.md`, `docs/audits/P0_AUDIT.md`, `CHANGELOG.md`, ADR-002 y ADR-009 ACCEPTED |
-| 1 | Repository & Delivery Foundation | **IN PROGRESS** | `docs/phases/P1_REPORT.md` — repo remoto, CI verde, `main` protegida (105), Supabase configurado con ADR-010 (103). Solo faltan 104 (Vercel) y 109 (marca/dominio) |
+| 1 | Repository & Delivery Foundation | **CLOSED** (2026-08-07) | `docs/phases/P1_REPORT.md`, `docs/audits/P1_AUDIT.md` — repo remoto, CI verde, `main` protegida (`enforce_admins=true`, ADR-011), Supabase (ADR-010), Vercel conectado con preview confirmado (PR #3). 109 DEFERRED (ADR-009) |
 | 2 | Data Core, Auth & RBAC | NOT STARTED | — |
 | 3 | Design System & Public Shell | NOT STARTED | — |
 | 4 | CMS & Product Intelligence | NOT STARTED | — |
@@ -25,11 +25,9 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 
 Todos los criterios de `PROJECT_CHARTER.md` §10 cumplidos: documentos completos y auditados, ADR-002 y ADR-009 en estado ACCEPTED (ADR-009 explícitamente provisional). Backlog 001–006 y 106 marcados DONE en `MASTER_BACKLOG.md`.
 
-## Fase 1 — en curso
+## Fase 1 — cerrada 2026-08-07
 
-Completado: 101, 102, 103 (ADR-010), 105, 106, 107, 108. Pendiente y **fuera del alcance de un agente autónomo sin credenciales**:
+Completado: 101, 102, 103 (ADR-010), 104, 105, 106, 107, 108, 110. Auditoría de cierre ejecutada (`docs/audits/P1_AUDIT.md`): 8 hallazgos (1 Critical, 1 High, 3 Medium, 3 Low), todos resueltos. Los 4 criterios de aceptación del blueprint verificados con evidencia independiente: build reproducible (CI + Vercel), `main` protegida (`enforce_admins=true`), preview en PR (PR #3, Vercel "Ready"), secretos fuera del repo (secret scanning activo, nunca commiteados).
 
-- **104** — Conectar GitHub↔Vercel previews: requiere cuenta Vercel (OAuth manual del propietario funcional).
-- **109** — Búsqueda formal de marca + registro de dominio: acción legal/de pago, requiere decisión y ejecución del propietario funcional.
-
-Fase 1 no se marca CLOSED hasta que estos ítems tengan evidencia y pase la auditoría correspondiente (A1/A2 Architecture/A3 Security/A4 QA).
+**Deferred, no bloqueante**: 109 (búsqueda formal de marca + registro de dominio) — antes de Fase 11.
+**Disparador de revisión**: ADR-011 (control de compensación de revisión de PRs) se revisa en cuanto exista una segunda cuenta con acceso de escritura, o al iniciar Fase 2 como mínimo.

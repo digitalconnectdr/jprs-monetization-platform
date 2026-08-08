@@ -14,6 +14,7 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 | ADR-008 | Paid acquisition solo con unit economics positivos; no AdSense arbitrage. | ACCEPTED |
 | ADR-009 | Nombre comercial de la plataforma: **Decidero** (provisional). | ACCEPTED — PROVISIONAL, sujeto a cambio |
 | ADR-010 | Un solo proyecto Supabase (con Database Branching vía GitHub) en lugar de 3 proyectos separados dev/staging/prod. | ACCEPTED |
+| ADR-011 | Control de compensación para revisión de PRs mientras exista una sola cuenta con acceso al repo (excepción explícita a ADR-006). | ACCEPTED — TEMPORAL, con disparador de revisión |
 
 ## Detalle
 
@@ -77,3 +78,16 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 - Reduce costo y complejidad operativa frente a mantener 3 proyectos sincronizados a mano.
 - Riesgo aceptado: no existe un "staging" persistente y estable, solo branches temporales. Si más adelante se necesita un ambiente de staging de larga duración (por ejemplo, para QA manual sostenido), se revisará esta decisión con un ADR nuevo — no se reinterpreta este registro.
 - Ninguna migración se aplica directamente contra el proyecto de producción sin pasar por PR + revisión, consistente con la regla de `main` protegida (ADR de branch protection, backlog 105).
+
+### ADR-011 — Control de compensación para revisión de PRs (excepción explícita a ADR-006)
+**Contexto**: la auditoría independiente de cierre de Fase 1 (`docs/audits/P1_AUDIT.md`) encontró que los primeros 2 PRs mergeados a `main` se auto-aprobaron sin revisión real — la checkbox "Revisión independiente de otro agente/persona" quedó sin marcar en ambos, y aun así se mergearon. Causa raíz: `digitalconnectdr` es la única cuenta con acceso de escritura al repositorio. GitHub no permite que el autor de un PR apruebe su propio PR para satisfacer un `required_approving_review_count`, así que exigir 1 aprobación humana bloquearía por completo la capacidad de mergear nada mientras exista una sola cuenta.
+
+**Decisión**: mientras `digitalconnectdr` sea la única cuenta con acceso de escritura al repo:
+- `required_approving_review_count` se mantiene en **0** (no se puede subir sin agregar una segunda cuenta revisora).
+- `enforce_admins` se activa en **true** — ni el admin puede saltarse el check de CI requerido ni hacer force-push, aunque no haya revisión de PR.
+- **Control de compensación obligatorio**: todo PR que toque áreas de riesgo (Auth, RBAC, RLS, secrets, monetización/affiliate — coincide con la matriz de independencia de `PROJECT_BLUEPRINT.md` §10.1) debe llevar adjunto, antes de mergear, un reporte de auditoría de un agente independiente (mismo patrón usado para cerrar Fase 0 y Fase 1), documentado en `docs/audits/`. Esto sustituye la aprobación humana de GitHub, no la reemplaza formalmente — es la mejor aproximación disponible a "el autor nunca es su único auditor" (ADR-006) dado el contexto real de un solo operador.
+- Los PRs que no tocan áreas de riesgo (solo documentación, config no sensible) pueden mergearse sin auditoría de agente adjunta, pero siempre con `enforce_admins`+CI en verde como mínimo.
+
+**Disparador de revisión de este ADR**: en cuanto se agregue una segunda cuenta con acceso de escritura al repo (humana o de otro agente con credenciales propias), o al iniciar Fase 2 (Auth/RBAC/RLS) como mínimo, se debe revisar si subir `required_approving_review_count` a 1+ es ya viable y deseable. Este ADR se supera con uno nuevo si la decisión cambia — nunca se edita retroactivamente.
+
+**Consecuencia inmediata**: los PRs de Fase 1 que corrigen los hallazgos de esta misma auditoría (F-03 a F-08) se consideran de bajo riesgo (documentación + config no sensible), no requieren un segundo reporte de auditoría adjunto.
