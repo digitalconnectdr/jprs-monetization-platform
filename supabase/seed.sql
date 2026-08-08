@@ -33,3 +33,18 @@ on conflict (slug) do nothing;
 insert into public.sites (niche_id, slug, name, status)
 select id, 'consumer-tech', 'Consumer Tech', 'draft' from public.niches where slug = 'consumer-tech-smart-home'
 on conflict (slug) do nothing;
+
+-- Categorías de business-software-ai (Fase 6A, backlog 601) — mismas 6 subcategorías
+-- usadas consistentemente en los diccionarios i18n desde Fase 3
+-- (apps/web/src/lib/i18n/*.ts, niches["business-software-ai"].categories).
+insert into public.categories (niche_id, slug, name)
+select id, slug, name from public.niches, (values
+  ('crm', 'CRM'),
+  ('ai-assistants', 'AI Assistants'),
+  ('automation', 'Automation'),
+  ('seo-marketing', 'SEO & Marketing Software'),
+  ('website-ecommerce', 'Website & E-commerce'),
+  ('productivity', 'Productivity')
+) as cat(slug, name)
+where niches.slug = 'business-software-ai'
+on conflict (niche_id, slug) do nothing;

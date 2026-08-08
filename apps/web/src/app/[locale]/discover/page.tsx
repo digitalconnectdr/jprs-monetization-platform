@@ -60,13 +60,24 @@ export default async function DiscoverPage({
               {niche.description}
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {niche.categories.map((category) => (
-                <li key={category}>
-                  <span className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink">
-                    {category}
-                  </span>
-                </li>
-              ))}
+              {niche.categories.map((category) =>
+                niche.launched ? (
+                  <li key={category.slug}>
+                    <Link
+                      href={`/${locale}/${niche.siteSlug}/${category.slug}`}
+                      className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink transition-colors duration-fast hover:border-primary hover:text-primary"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ) : (
+                  <li key={category.slug}>
+                    <span className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink">
+                      {category.name}
+                    </span>
+                  </li>
+                )
+              )}
             </ul>
           </section>
         ))}
