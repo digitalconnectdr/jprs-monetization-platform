@@ -159,4 +159,26 @@ export type Dictionary = {
     };
   };
   niches: Record<string, NicheCopy>;
+  catalog: {
+    startingAt: string;
+    perMonth: string;
+    visitWebsite: string;
+    viewDetails: string;
+    backToCategory: string;
+    sourceLabel: string;
+    lastCheckedLabel: string;
+    noProductsYet: string;
+    featuresHeading: string;
+    pricingHeading: string;
+    methodologyNote: string;
+  };
+  tools: {
+    crmComparatorTitle: string;
+    crmComparatorIntro: string;
+    selectToCompare: string;
+    entryPlanColumn: string;
+    priceColumn: string;
+    freeTierColumn: string;
+    noSelection: string;
+  };
 };

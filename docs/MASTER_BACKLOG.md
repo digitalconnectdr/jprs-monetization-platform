@@ -85,11 +85,14 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 601 | P0 | Software/AI taxonomy | Approved | TODO |
-| 602 | P0 | Catalog seed | Verified | TODO |
-| 603 | P0 | Best/VS/Review templates | QA PASS | TODO |
-| 604 | P0 | Software tool v1 | E2E PASS | TODO |
-| 605 | P0 | Content batch v1 | Editorial PASS | TODO |
+| 601 | P0 | Software/AI taxonomy | Approved | DONE — 6 categorías sembradas en `public.categories` (CRM, AI Assistants, Automation, SEO & Marketing, Website & E-commerce, Productivity) |
+| 602 | P0 | Catalog seed | Verified | DONE (parcial) — 5 vendors/products reales sembrados en 2 de 6 categorías (CRM, AI Assistants), cada precio/feature con `source`+`checked_at` real. Ver `docs/phases/P6A_REPORT.md` sobre por qué es parcial |
+| 603 | P0 | Best/VS/Review templates | QA PASS | DONE — categoría (Best X), perfil de producto, y guía/comparación (VS), todas renderizando datos reales, verificadas en navegador mobile/tablet/desktop |
+| 604 | P0 | Software tool v1 | E2E PASS | DONE — CRM Pricing Comparator, interactivo, verificado con toggle real de checkboxes |
+| 605 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 12-18 target) — 1 comparación real (HubSpot CRM vs Freshsales vs monday CRM), `pending_editorial_review`, no auto-publicada. Resto del lote es backlog explícito, no se declara completo por aproximación — ver `docs/phases/P6A_REPORT.md` |
+| 606 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6A | Decisión humana registrada | TODO — requiere al propietario funcional; el agente no se auto-aprueba (ADR-005), confirmado por el clasificador de permisos durante esta fase |
+| 607 | P0 | Completar el resto del seed editorial de Software & AI (10-15+ páginas adicionales, 4 categorías restantes: Automation, SEO & Marketing, Website & E-commerce, Productivity) | Editorial PASS | TODO — alcance completo de `PROJECT_BLUEPRINT.md` §15 para este vertical, diferido explícitamente de esta sesión (ver `docs/phases/P6A_REPORT.md`) |
+| 608 | P1 | Conectar `affiliate_links` reales a las páginas de producto (hoy son links directos al vendor, no monetizados) | Disclosure + tracking funcionando | TODO — requiere aprobación real de programas de afiliados (`MONETIZATION_POLICY.md` §3), fuera del alcance de un agente autónomo |
 
 ## Fase P6B — Vertical 2: Travel & Smart Travel
 

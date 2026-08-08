@@ -48,43 +48,47 @@ export default async function NicheHubPage({
         {niche.description}
       </p>
 
-      <div className="mt-10 rounded-lg border border-border bg-surface p-6">
-        <p className="text-sm leading-relaxed text-ink">
-          {dictionary.nicheHub.inDevelopmentPrefix} {niche.shortName}{" "}
-          {dictionary.nicheHub.inDevelopmentSuffix}{" "}
-          <Link
-            href={`/${locale}/about`}
-            className="underline underline-offset-2"
-          >
-            {dictionary.nicheHub.methodologyLink}
-          </Link>
-          .
-        </p>
-      </div>
+      {!niche.launched && (
+        <div className="mt-10 rounded-lg border border-border bg-surface p-6">
+          <p className="text-sm leading-relaxed text-ink">
+            {dictionary.nicheHub.inDevelopmentPrefix} {niche.shortName}{" "}
+            {dictionary.nicheHub.inDevelopmentSuffix}{" "}
+            <Link href={`/${locale}/about`} className="underline underline-offset-2">
+              {dictionary.nicheHub.methodologyLink}
+            </Link>
+            .
+          </p>
+        </div>
+      )}
 
       <section aria-labelledby="categories-heading" className="mt-12">
-        <h2
-          id="categories-heading"
-          className="font-serif text-xl font-semibold text-ink"
-        >
+        <h2 id="categories-heading" className="font-serif text-xl font-semibold text-ink">
           {dictionary.nicheHub.categoriesHeading}
         </h2>
         <ul className="mt-4 flex flex-wrap gap-2">
-          {niche.categories.map((category) => (
-            <li key={category}>
-              <span className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink">
-                {category}
-              </span>
-            </li>
-          ))}
+          {niche.categories.map((category) =>
+            niche.launched ? (
+              <li key={category.slug}>
+                <Link
+                  href={`/${locale}/${niche.siteSlug}/${category.slug}`}
+                  className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink transition-colors duration-fast hover:border-primary hover:text-primary"
+                >
+                  {category.name}
+                </Link>
+              </li>
+            ) : (
+              <li key={category.slug}>
+                <span className="inline-block rounded-md border border-border px-3 py-1.5 text-sm text-ink">
+                  {category.name}
+                </span>
+              </li>
+            )
+          )}
         </ul>
       </section>
 
       <p className="mt-14 border-t border-border pt-8 text-sm text-muted">
-        <Link
-          href={`/${locale}/discover`}
-          className="text-ink underline underline-offset-2"
-        >
+        <Link href={`/${locale}/discover`} className="text-ink underline underline-offset-2">
           {dictionary.common.backToDiscover}
         </Link>
       </p>

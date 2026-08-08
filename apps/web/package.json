@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@platform/db": "*",
     "@platform/shared": "*",
     "@tailwindcss/postcss": "4.3.3",
     "next": "^16.3.0",

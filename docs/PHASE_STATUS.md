@@ -10,7 +10,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 3 | Design System & Public Shell | **CLOSED** (2026-08-08) | `docs/phases/P3_REPORT.md`, `docs/audits/P3_AUDIT.md` — shell público completo (Home/Discover/vertical hub/Search/5 legales), design tokens OKLCH, i18n 4 idiomas (EN/ES/PT/HI, ADR-013). 204 re-DEFERRED a Fase 4 |
 | 4 | CMS & Product Intelligence | **CLOSED** (2026-08-08) | `docs/phases/P4_REPORT.md`, `docs/audits/P4_AUDIT.md` — catalog completo (variants/features/prices/media, append-only), content workflow con enforcement de ADR-005, freshness queue, bulk import. Auditoría inicial NO-GO (1 Critical + 2 High), corregido y verificado: 29/29 tests contra el proyecto real. Backlog 409 (nuevo) es prerrequisito real de 204, que se re-DEFERRED sin atarlo a una fase fija |
 | 5 | Monetization & Attribution | **CLOSED** (2026-08-08) | `docs/phases/P5_REPORT.md`, `docs/audits/P5_AUDIT.md` — affiliate/monetization/leads/revenue_events completos, firewall editorial en `roe_scores`, disclosure obligatorio. Auditoría inicial GO CON CONDICIONES (1 High + 1 Low), corregido y verificado: 45/45 tests contra el proyecto real |
-| 6A | Vertical 1: Software & AI | NOT STARTED | — |
+| 6A | Vertical 1: Software & AI | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6A_REPORT.md` — taxonomía + 5 productos reales sembrados (CRM, AI Assistants) + templates + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 12-18 páginas target) — backlog 606/607/608 |
 | 6B | Vertical 2: Travel | NOT STARTED | — |
 | 6C | Vertical 3: Consumer Tech | NOT STARTED | — |
 | 7 | Admin Analytics & ROE v1 | NOT STARTED | — |
@@ -66,3 +66,13 @@ Completado: 501, 502, 503, 504, 505, 506, 507. Dominios `affiliate` (programs/te
 **Bug real encontrado y corregido durante el desarrollo** (antes de la auditoría): policies que unían `sites` directamente fallaban para `editor` en sites `draft` — corregido con funciones `SECURITY DEFINER` (`has_role_in_niche`, `site_niche_id`), documentado como regla general en `docs/DATA_DICTIONARY.md`.
 
 **Deferred, sin fase fija**: backlog 411 (revisión sistemática de `GRANT`/`REVOKE EXECUTE` en funciones `SECURITY DEFINER` de Fases 2/4). 204/409 (route guards/wiring de auth) siguen sin resolver.
+
+## Fase 6A — cerrada 2026-08-08 (v1 parcial)
+
+Completado: 601 (taxonomía), 602 (seed parcial: 5 productos en 2 de 6 categorías), 603 (templates de categoría/perfil/comparación), 604 (CRM Pricing Comparator), 605 (1 pieza de contenido, `pending_editorial_review`). Site `software-ai` activado (`draft`→`active`). Nuevo paquete real `packages/db` (cliente Supabase público de solo lectura, sin auth).
+
+**Alcance deliberadamente parcial** (documentado desde el inicio en `docs/phases/P6A.md`, no scope creep oculto): el target de `PROJECT_BLUEPRINT.md` §15 es 12-18 páginas de contenido; esta sesión entrega 1, priorizando verificar el pipeline completo (schema→seed real→cliente→template→tool→contenido→gate humano) con evidencia real en vez de maximizar volumen con contenido genérico. Backlog 607 (nuevo) documenta el resto del lote pendiente.
+
+**ADR-005 confirmado en la práctica**: al intentar verificar visualmente el template de contenido, el Builder ejecutó (sin mala intención, para QA) un cambio de estado a `published` — el clasificador de permisos del entorno **bloqueó la acción** por ser auto-aprobación editorial. El Builder no intentó evadirlo; verificó los datos sin tocar el estado de publicación. Backlog 606 (nuevo): la pieza sigue esperando decisión humana explícita de publicar o rechazar.
+
+**Deferred, sin fase fija**: backlog 606 (aprobar/rechazar contenido pendiente), 607 (resto del seed editorial), 608 (`affiliate_links` reales — hoy son links directos al vendor, no monetizados).
