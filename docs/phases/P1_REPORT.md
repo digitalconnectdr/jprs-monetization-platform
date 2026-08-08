@@ -1,6 +1,6 @@
 # PHASE_REPORT — Fase 1: Repository & Delivery Foundation
 
-Builder: Claude Code (esta sesión). Fecha: 2026-08-07. **Estado: en cierre** — ver "Vercel" y "Qué queda abierto (no bloqueante)" abajo.
+Builder: Claude Code (esta sesión). Fecha: 2026-08-07. **Estado: CLOSED.**
 
 ## Qué cambió
 
@@ -45,14 +45,18 @@ Proyecto creado por el propietario funcional: `jprs-monetization-platform`, regi
 
 ## Vercel (backlog 104)
 
-Proyecto Vercel `jprs-monetization-platform` conectado al repositorio (scope `digitalconnectdr`), Root Directory `apps/web`. Deploy a producción exitoso — confirma, junto con el CI de GitHub Actions, que la falla de `next build` observada en la máquina local del agente era 100% ajena al código. Variables de entorno de Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) cargadas en Vercel para Production y Preview, confirmado por el propietario funcional. El branding centralizado (`packages/shared/src/branding.ts`, backlog 108) se verificó funcionando correctamente en el deploy real (título y tagline de la página coinciden con `brand.name`/`brand.tagline`). Preview automático por PR (parte del criterio "Preview PASS") se confirmará empíricamente con el próximo PR que se abra.
+Proyecto Vercel `jprs-monetization-platform` conectado al repositorio (scope `digitalconnectdr`), Root Directory `apps/web`. Deploy a producción exitoso — confirma, junto con el CI de GitHub Actions, que la falla de `next build` observada en la máquina local del agente era 100% ajena al código. Variables de entorno de Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) cargadas en Vercel para Production y Preview, confirmado por el propietario funcional. El branding centralizado (`packages/shared/src/branding.ts`, backlog 108) se verificó funcionando correctamente en el deploy real (título y tagline de la página coinciden con `brand.name`/`brand.tagline`). **Preview en PR confirmado (F-04)**: el PR #3 (que corrige los hallazgos de esta auditoría) generó un preview real de Vercel — `https://jprs-monetization-platfor-git-4bf58b-digitalconnectdrs-projects.vercel.app`, estado "Ready", Root Directory `apps/web` correcto. Los 3 checks del PR (`build` de GitHub Actions, `Vercel`, `Vercel Preview Comments`) pasaron.
 
-## Qué queda abierto (no bloqueante)
+## Auditoría de cierre
 
-- **Backlog 109** — Búsqueda formal de marca + registro de dominio: **DEFERRED** por decisión explícita del propietario funcional (2026-08-07). No bloquea el cierre de Fase 1; debe resolverse antes de Fase 11 (MVP Launch) — ver ADR-009 en `docs/DECISIONS.md`.
+Ejecutada por agente independiente: `docs/audits/P1_AUDIT.md`. 8 hallazgos (1 Critical, 1 High, 3 Medium, 3 Low). El más relevante: los 2 primeros PRs se habían mergeado sin ninguna revisión real, y `main` no tenía barrera técnica real para la única cuenta con acceso. Resuelto vía **ADR-011** (control de compensación: `enforce_admins=true` + auditoría de agente obligatoria en PRs de riesgo mientras exista una sola cuenta con acceso de escritura). Resto de hallazgos corregidos en el PR #3. Veredicto final: **GO**.
+
+## Qué queda abierto (no bloqueante, fuera de Fase 1)
+
+- **Backlog 109** — Búsqueda formal de marca + registro de dominio: **DEFERRED** por decisión explícita del propietario funcional (2026-08-07). Debe resolverse antes de Fase 11 (MVP Launch) — ver ADR-009 en `docs/DECISIONS.md`.
+- **ADR-011** tiene un disparador de revisión explícito: en cuanto se agregue una segunda cuenta con acceso de escritura, o al iniciar Fase 2 como mínimo, revisar si subir `required_approving_review_count` a 1+ ya es viable.
 
 ## Riesgos y deuda conocida
 
-- Versiones de `next`/`react`/`eslint-config-next` fijadas a `"latest"` en los `package.json` — deben congelarse a versiones exactas (`^X.Y.Z`) antes del lanzamiento, para reproducibilidad (`latest` es aceptable solo para el bootstrap inicial).
 - No hay tests todavía (unit/integration/E2E) — no hay lógica de producto que probar aún; se agregan a partir de Fase 2.
 - Con un solo proyecto Supabase (ADR-010), no existe un ambiente de staging persistente — solo branches temporales. Revisar si esto sigue siendo suficiente al acercarse a Fase 4/5 (datos reales de producto/monetización).
