@@ -262,6 +262,123 @@ Cola de qué entidad necesita revisión y cuándo — herramienta interna, **nun
 
 RLS: solo `super_admin` (lectura y escritura). Sin cron/Edge Function que la puebla o consuma automáticamente todavía — eso es Fase 9 (AI Operations & Freshness); acá solo el dato.
 
+## Dominio: affiliate (Fase 5)
+
+`affiliate_terms`/`affiliate_offers` son **append-only**, mismo patrón que `product_prices`/`product_features` (Fase 4) — "comisiones... requieren series temporales" (`PROJECT_BLUEPRINT.md` §5) aplica literalmente. Gestionados por `editor`/`admin` de cualquier site dentro del niche del vendor (no hay lectura pública — es información comercial interna, no contenido editorial).
+
+### `affiliate_programs`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| vendor_id | uuid FK → vendors(id) | |
+| name / network / program_url | text | único por `(vendor_id, name)` |
+| status | text | `draft` / `active` / `paused` / `terminated` |
+
+**Trigger `enforce_active_program_requires_terms`**: rechaza `status='active'` si no existe al menos un `affiliate_terms` para ese programa (`MONETIZATION_POLICY.md` §9: "ningún programa activo sin terms registrados").
+
+### `affiliate_terms`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| program_id | uuid FK → affiliate_programs(id) | |
+| link_format / allowed_traffic / paid_search_policy / coupon_deep_link_rules | text | |
+| trademark_bidding_allowed | boolean | |
+| source | text | **requerido** |
+| checked_at | timestamptz | **requerido**, default `now()` |
+
+Append-only: `INSERT`+`SELECT` para editor/admin del niche del vendor, sin `UPDATE` para nadie, `DELETE` solo `super_admin`.
+
+### `affiliate_offers`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| program_id | uuid FK → affiliate_programs(id) | |
+| product_id | uuid FK → products(id), nullable | **debe pertenecer al mismo niche que el vendor del programa** — cross-check explícito en `WITH CHECK` (lección de F-03, `docs/audits/P4_AUDIT.md`) |
+| commission_type | text | `percent` / `flat` / `tiered` |
+| commission_value | numeric(10,4) | `>= 0` |
+| cookie_duration_days | int | |
+| source | text | **requerido** |
+| checked_at | timestamptz | **requerido** |
+| confidence | text | default `unverified` |
+
+Append-only, mismo patrón que `affiliate_terms`.
+
+### `affiliate_links`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| program_id | uuid FK → affiliate_programs(id) | |
+| product_id / content_item_id | uuid FK, nullable | **si ambos están presentes, deben pertenecer al mismo site** — cross-check explícito |
+| url | text | |
+| link_type | text | `direct` / `deep_link` / `coupon` |
+| status | text | `draft` / `published` / `archived` |
+
+CRUD normal (no histórico) — editor/admin del niche del vendor.
+
+### `affiliate_clicks`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| click_id | text unique | clave de idempotencia |
+| affiliate_link_id | uuid FK → affiliate_links(id) | |
+| session_id / referrer / user_agent / ip_hash | text, nullable | |
+| clicked_at | timestamptz | default `now()` |
+
+RLS: sin policy de `INSERT` directo — se fuerza el paso por `record_affiliate_click()` (ver funciones abajo). Lectura: solo `super_admin` (decisión de scope de Fase 5, ver `docs/phases/P5.md` — dato financiero sin caso de uso de dashboard todavía).
+
+## Dominio: monetization (Fase 5)
+
+### `ad_slots` / `monetization_rules`
+Config interna por site (`editor`/`admin` gestionan, sin lectura pública — no existe renderer de ads todavía). `monetization_rules.page_type` incluye `auth`/`admin`/`low_value` además de los tipos de `PROJECT_BLUEPRINT.md` §7.1, precisamente para que el `CHECK constraint monetization_rules_no_ads_on_prohibited_pages` pueda impedir `'ads' = any(allowed_layers)` en esos tres — estructuralmente imposible de insertar, no solo una regla documentada (`MONETIZATION_POLICY.md` §4/§9).
+
+### `roe_scores`
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| content_item_id | uuid FK → content_items(id) | |
+| ad_ev / affiliate_ev / lead_ev / sponsor_ev | numeric(12,4) | |
+| total_expected_revenue | numeric, **generated always as** `ad_ev+affiliate_ev+lead_ev+sponsor_ev` | columna calculada, nunca se inserta directamente |
+| quality_score / monetization_score | numeric(6,2), nullable | **columnas separadas, nunca combinadas** — representación literal del firewall editorial (`MONETIZATION_POLICY.md` §2) |
+| rule_version | text | **requerido** |
+| computed_at | timestamptz | |
+
+Append-only, **`super_admin` únicamente para lectura y escritura — nunca `editor`, nunca público**, bajo ninguna circunstancia (ni siquiera un `anon` filtrado a 0 filas: no hay `GRANT` de tabla en absoluto para `anon`/`authenticated` sin rol). Exponer `monetization_score`, aunque fuera de solo lectura, crearía la apariencia de que el ranking público podría estar influenciado por él.
+
+### `sponsored_campaigns` / `sponsorship_placements`
+Gestión **admin/super_admin únicamente** (no `editor` — decisión comercial/de ventas, distinta del resto del catalog/content). `sponsorship_placements` tiene dos `CHECK` constraints estructurales: `disclosure_label` nunca puede quedar vacío (default `'Sponsored'`), y el placement debe apuntar a **exactamente uno** de `ad_slot_id`/`content_item_id` (nunca ambos, nunca ninguno) — simplifica el aislamiento de scope a un solo site por validar.
+
+## Dominio: leads (Fase 5)
+
+### `lead_forms`
+Lectura pública si `status='published'` (el visitante necesita ver el form para llenarlo). Escritura: `editor`/`admin` del site.
+
+### `lead_submissions`
+Contiene **PII real**. `INSERT` público (cualquiera puede enviar un lead a un form published) — sin `Prefer: return=representation` del lado del cliente, porque `anon` no tiene `SELECT` (ver nota en `supabase/tests/monetization_access.test.mjs`). Lectura: **solo `super_admin`** (decisión de scope, igual que `affiliate_clicks`/`roe_scores`).
+
+### `lead_routes`
+Config de enrutamiento a vendors — sin PII de leads individuales. Escritura: `editor`/`admin` del site del form, con cross-check de que `vendor_id` pertenezca al mismo niche que el site del form.
+
+### `lead_revenue`
+Append-only, mismo patrón que `product_prices`/`affiliate_offers`. `super_admin` únicamente.
+
+## Dominio: analytics (parcial — Fase 5 solo `revenue_events`)
+
+### `revenue_events`
+Ledger append-only de reconciliación. `event_id` es la clave de idempotencia (`MONETIZATION_POLICY.md` §9: "revenue reconcilia con import de prueba"). `super_admin` únicamente. El resto del dominio `analytics` (`sessions`, `events`, `page_metrics_daily`, `attribution_touchpoints`, `conversions`) es Fase 7.
+
+## Funciones de autorización adicionales (Fase 5)
+
+- `has_role_in_niche(role_name text, p_niche_id uuid) → boolean`: equivalente a `is_admin_for_niche` pero para cualquier rol, no solo `admin`. **Corrige un bug real encontrado durante el testing de Fase 5** (antes de la auditoría): las policies que resolvían el niche de un vendor/lead_form uniendo `sites` directamente fallaban para `editor`, porque `editor` no tiene ninguna policy de lectura sobre un site en estado `draft` (solo `admin`/`super_admin` vía `sites_admin_select`, o público si el site está `active`). `SECURITY DEFINER`, mismo patrón que `is_admin_for_niche`.
+- `site_niche_id(p_site_id uuid) → uuid`: resuelve el `niche_id` de un site sin depender de que el rol que llama tenga lectura RLS sobre esa fila — usado en los cross-checks de scope de `affiliate_offers`/`lead_routes`/`sponsorship_placements`. `SECURITY DEFINER`.
+
+## Funciones adicionales de Fase 5
+
+### `record_affiliate_click(p_click_id, p_affiliate_link_id, ...)`
+Punto de entrada público (`anon`) para registrar un clic, idempotente por `click_id` (`ON CONFLICT DO NOTHING`, devuelve el `id` existente si ya se había registrado). No requiere rol — cualquier visitante puede registrar un clic real; la idempotencia evita duplicados por reintentos de red o doble-clic, no es un control de autorización.
+
+### `import_revenue_events(rows jsonb)`
+Reconciliación de comisiones/reversals (backlog 507). A diferencia de `import_product_prices` (Fase 4), el chequeo de autorización (`has_role('super_admin')`) corre **una sola vez, antes de tocar cualquier fila** — no hay nada que resolver por fila antes de saber si el llamador puede llamar la función en absoluto, así que por diseño no puede repetir el hallazgo F-04 (oráculo de existencia vía mensajes de rechazo distinguibles). Idempotente por `event_id`; límite de 500 filas por lote.
+
 ## Funciones adicionales de Fase 4
 
 ### `import_product_prices(rows jsonb)`
@@ -282,3 +399,4 @@ Idempotente (`insert ... on conflict do nothing`): los 6 roles, los 3 niches (`a
 - **UI de administración/CMS no existe todavía**: `apps/web` no tiene ningún cliente de Supabase instalado (`@supabase/supabase-js`/`@supabase/ssr`), ni login, ni sesión de servidor. Backlog 204 (Admin/User route guards) sigue sin poder implementarse por esta razón concreta — ver backlog 410 (nuevo, Fase 4) para el wiring de auth que es su prerrequisito real.
 - **Patrón para futuras tablas append-only**: si una fase futura agrega otra tabla "histórico, nunca se sobrescribe" (siguiendo el patrón de `product_prices`/`product_features`), el `GRANT` a `service_role` debe excluir `UPDATE` explícitamente desde el día uno (`grant select, insert, delete on ... to service_role`, no `grant all`) — Fase 4 usó `grant all` inicialmente y tuvo que revocar `UPDATE` después de que la auditoría lo señalara (F-05, `docs/audits/P4_AUDIT.md`).
 - **Invariantes "esta FK debe apuntar a una fila con este otro campo igual"**: cuando una tabla tiene una referencia condicional como `content_items.current_version_id` (debe apuntar a una versión del MISMO item, no solo a cualquier fila válida), un trigger solo no es suficiente — se necesita una FK compuesta contra una `UNIQUE` compuesta en la tabla referenciada (patrón usado para corregir F-01). Vale la pena revisar este patrón proactivamente en Fase 5+ para cualquier referencia condicional similar (ej. `affiliate_offers` apuntando a `affiliate_programs` del mismo vendor).
+- **Nunca hacer JOIN directo a `sites` (ni a ninguna tabla con RLS restrictivo) dentro de la policy de OTRA tabla, para resolver un dato derivado (ej. niche de un site)** — la subconsulta corre con los privilegios del rol que llama, no con bypass. Encontrado durante el testing de Fase 5 (antes de la auditoría, no un hallazgo de auditor): las policies de `affiliate_programs`/`affiliate_terms`/`affiliate_offers`/`affiliate_links`/`lead_routes` unían `sites` directamente para resolver el niche de un vendor/lead_form, y fallaban silenciosamente para `editor` porque `editor` no tiene ninguna policy de lectura sobre un site `draft` (solo `admin`/`super_admin` vía `sites_admin_select`). Fix: helpers `SECURITY DEFINER` (`has_role_in_niche`, `site_niche_id`) que resuelven el dato sin pasar por la RLS del rol que llama — mismo patrón que `is_admin_for_niche` ya usaba desde Fase 2. **Regla general para Fase 6+**: si una policy necesita un dato derivado de otra tabla con RLS, resolverlo vía función `SECURITY DEFINER`, nunca vía `JOIN`/subquery directo dentro de la policy.
