@@ -58,9 +58,11 @@ RLS: cada usuario lee sus propias asignaciones; `super_admin` lee/escribe todas.
 
 RLS: cada usuario gestiona únicamente las propias.
 
+**Trigger `enforce_role_scope`** (agregado tras F-01 de `docs/audits/P2_AUDIT.md`): rechaza cualquier `insert`/`update` en `user_roles` donde `site_id` sea `NULL` (scope global) para un rol que no sea `super_admin`. Sin esto, una fila `(role='admin', site_id=null)` otorgaría admin global silenciosamente — corre incluso para escrituras vía `service_role`, como defensa en profundidad.
+
 ### Funciones de autorización (`security definer`, `search_path` fijo)
 
-- `has_role(role_name text, p_site_id uuid default null) → boolean`: ¿`auth.uid()` tiene ese rol, global o scoped a `p_site_id`?
+- `has_role(role_name text, p_site_id uuid default null) → boolean`: ¿`auth.uid()` tiene `role_name = 'super_admin'` con scope global (`site_id` null), O tiene `role_name` scoped específicamente a `p_site_id`? **Corregido tras F-01**: antes, `site_id IS NULL` matcheaba para cualquier rol (no solo `super_admin`), lo que habría permitido escalamiento global silencioso si alguna vez se delegaba la asignación de roles a un `admin` de property.
 - `is_admin_for_site(p_site_id uuid) → boolean`: `super_admin` O `admin` de ese site específico.
 - `is_admin_for_niche(p_niche_id uuid) → boolean`: `super_admin` O `admin` de algún site dentro de ese niche.
 
@@ -91,7 +93,7 @@ Propiedad desplegable (`site_id` usado en el resto del schema). MVP: 1 site por 
 | name / domain | text | |
 | status | text | `draft` / `active` / `paused` |
 
-RLS: lectura pública solo si `status = 'active'`. Escritura: `admin`/`super_admin` de ese site (`is_admin_for_site`).
+RLS: lectura pública solo si `status = 'active'` **y** el niche padre también está `active` (F-06 — evita que pausar un niche completo deje sus sites visibles por descuido). Escritura separada por operación (F-02, no una sola policy `for all`): `admin`/`super_admin` de ese site pueden `select`/`update`; **solo `super_admin` puede `insert` o `delete`** un site — un `admin` scoped a un solo site ya no puede eliminarlo (evitaba que arrastrara por `CASCADE` los `user_roles`/`site_settings` de otros usuarios de esa property).
 
 ### `categories`
 Subcategorías por nicho (ej. CRM, AI assistants).

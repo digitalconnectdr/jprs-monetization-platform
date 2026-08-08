@@ -70,9 +70,18 @@ create policy "niches_public_read_active" on public.niches
   for select
   using (status = 'active');
 
+-- Valida también que el niche padre esté activo (F-06 de docs/audits/P2_AUDIT.md):
+-- sin esto, pausar un niche completo no ocultaba sus sites si alguien olvidaba
+-- pausarlos también.
 create policy "sites_public_read_active" on public.sites
   for select
-  using (status = 'active');
+  using (
+    status = 'active'
+    and exists (
+      select 1 from public.niches n
+      where n.id = sites.niche_id and n.status = 'active'
+    )
+  );
 
 create policy "categories_public_read" on public.categories
   for select

@@ -35,6 +35,32 @@ comment on table public.user_roles is 'Asignación de roles. site_id NULL = scop
 create index user_roles_user_id_idx on public.user_roles (user_id);
 create index user_roles_site_id_idx on public.user_roles (site_id);
 
+-- Defensa en profundidad (hallazgo F-01 de docs/audits/P2_AUDIT.md): site_id NULL
+-- (scope global) solo es válido para el rol super_admin. Sin esto, insertar por error
+-- una fila (role='admin', site_id=null) otorgaría admin global silenciosamente —
+-- has_role() abajo también valida esto, pero el trigger lo bloquea a nivel de escritura,
+-- incluso si has_role() cambiara en el futuro.
+create function public.enforce_role_scope()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_role_name text;
+begin
+  select name into v_role_name from public.roles where id = new.role_id;
+  if new.site_id is null and v_role_name <> 'super_admin' then
+    raise exception 'site_id solo puede ser NULL para el rol super_admin (rol recibido: %)', v_role_name;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger user_roles_enforce_scope
+  before insert or update on public.user_roles
+  for each row execute function public.enforce_role_scope();
+
 create table public.user_preferences (
   user_id uuid primary key references auth.users(id) on delete cascade,
   locale text not null default 'en',
@@ -54,8 +80,11 @@ security definer
 set search_path = public
 as $$
 begin
+  -- raw_user_meta_data lo controla el propio usuario en el payload de signup — no
+  -- confiable, se acota longitud (F-05 de docs/audits/P2_AUDIT.md). Sigue siendo texto
+  -- no sanitizado: cualquier UI futura que lo renderice debe escapar, no solo aquí.
   insert into public.profiles (id, display_name)
-  values (new.id, new.raw_user_meta_data ->> 'display_name');
+  values (new.id, left(new.raw_user_meta_data ->> 'display_name', 120));
 
   insert into public.user_preferences (user_id)
   values (new.id);
@@ -84,10 +113,17 @@ as $$
     join public.roles r on r.id = ur.role_id
     where ur.user_id = auth.uid()
       and r.name = role_name
-      and (ur.site_id is null or ur.site_id = p_site_id)
+      and (
+        -- site_id NULL (scope global) solo cuenta para super_admin — ver F-01 de
+        -- docs/audits/P2_AUDIT.md. Cualquier otro rol con site_id NULL (no debería
+        -- existir por el trigger enforce_role_scope, pero esto es defensa en profundidad)
+        -- nunca matchea, en vez de matchear todo como antes de la corrección.
+        (r.name = 'super_admin' and ur.site_id is null)
+        or ur.site_id = p_site_id
+      )
   );
 $$;
-comment on function public.has_role is 'true si auth.uid() tiene role_name asignado globalmente (site_id null) o específicamente para p_site_id.';
+comment on function public.has_role is 'true si auth.uid() tiene role_name=super_admin (scope global, site_id null) o role_name scoped específicamente a p_site_id. Corregido tras F-01 de docs/audits/P2_AUDIT.md.';
 
 create function public.is_admin_for_site(p_site_id uuid)
 returns boolean
@@ -158,10 +194,29 @@ create policy "niches_super_admin_write" on public.niches
   using (public.has_role('super_admin'))
   with check (public.has_role('super_admin'));
 
-create policy "sites_admin_write" on public.sites
-  for all
+-- Separado en 3 policies (no "for all") — hallazgo F-02 de docs/audits/P2_AUDIT.md:
+-- un admin scoped a un solo site podía DELETE ese site, arrastrando por CASCADE los
+-- user_roles/site_settings de OTROS usuarios en esa property. DELETE queda reservado
+-- a super_admin; INSERT (crear sites nuevos) también, porque site_id todavía no existe
+-- al momento de crear la fila (is_admin_for_site(id) sería siempre false para un admin
+-- normal en un INSERT, así que solo super_admin puede crear properties nuevas de todas
+-- formas — se deja explícito en vez de implícito).
+create policy "sites_admin_select" on public.sites
+  for select
+  using (public.is_admin_for_site(id));
+
+create policy "sites_super_admin_insert" on public.sites
+  for insert
+  with check (public.has_role('super_admin'));
+
+create policy "sites_admin_update" on public.sites
+  for update
   using (public.is_admin_for_site(id))
   with check (public.is_admin_for_site(id));
+
+create policy "sites_super_admin_delete" on public.sites
+  for delete
+  using (public.has_role('super_admin'));
 
 create policy "categories_admin_write" on public.categories
   for all
