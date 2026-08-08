@@ -45,3 +45,12 @@ Formato: fecha, fase, resumen. Mantenido por A9 (Project Controller) al cierre d
 - PR #3 confirmó preview real de Vercel (`jprs-monetization-platfor-git-4bf58b-digitalconnectdrs-projects.vercel.app`, estado "Ready"), resolviendo el último hallazgo abierto (F-04). Los 4 criterios de aceptación de Fase 1 del blueprint (build reproducible, `main` protegida, preview en PR, secretos fuera del repo) verificados con evidencia independiente.
 - Fase 1 marcada **CLOSED** en `docs/PHASE_STATUS.md` y `docs/MASTER_BACKLOG.md`.
 - Único pendiente no bloqueante: backlog 109 (marca/dominio), diferido hasta antes de Fase 11. Próximo paso: iniciar Fase 2 (Data Core, Auth & RBAC).
+
+## 2026-08-08 — Fase 2 (Data Core, Auth & RBAC) CLOSED
+
+- **ADR-012**: corrige ADR-010 — Database Branching de Supabase requiere plan Pro (proyecto en FREE); migraciones se aplican directo al único proyecto post-merge, no vía preview DB.
+- Schema completo: dominios `identity` (roles, profiles, user_roles con scope por `site_id`, user_preferences), `properties` (niches, sites, categories, site_settings), `catalog` mínimo (vendors, products). RLS en 10/10 tablas desde su creación.
+- PR #4: auditoría independiente obligatoria (ADR-011) encontró 6 hallazgos (1 High: escalamiento de privilegios silencioso vía `site_id NULL` en `has_role()`; 3 Medium; 2 Low) — todos corregidos antes de mergear.
+- Al aplicar las migraciones al proyecto Supabase real por primera vez (ADR-012), `rls_access.test.mjs` reveló 2 hallazgos que ninguna revisión de código podía haber atrapado: `service_role` sin `GRANT` de tabla explícito (F-07, High — rompía cualquier operación de backend real) y un bug de aserción de test (F-08). Corregidos en PR #5, también con auditoría independiente adjunta (GO).
+- **Verificación empírica final**: 18/18 tests de acceso positivo/negativo pasan contra el proyecto real. Los 3 criterios de aceptación de Fase 2 (usuario normal no accede a datos admin, admin scope por property, RLS explícito en todas las tablas sensibles) quedan confirmados con evidencia real, no solo documentados.
+- Fase 2 marcada **CLOSED**. Deferred a Fase 3: backlog 204 (route guards, requiere rutas reales de Next.js).

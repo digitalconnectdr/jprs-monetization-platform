@@ -36,11 +36,11 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 201 | P0 | Schema identity/properties | Migration PASS | TODO |
-| 202 | P0 | Supabase Auth | Flows PASS | TODO |
-| 203 | P0 | RBAC + RLS | Negative tests PASS | TODO |
-| 204 | P0 | Admin/User route guards | E2E PASS | TODO |
-| 205 | P1 | Data dictionary | Documentado | TODO |
+| 201 | P0 | Schema identity/properties | Migration PASS | DONE — aplicado y verificado en el proyecto real, ver `docs/audits/P2_AUDIT.md` |
+| 202 | P0 | Supabase Auth | Flows PASS | DONE — trigger `handle_new_user`, signup/signin verificado en tests reales |
+| 203 | P0 | RBAC + RLS | Negative tests PASS | DONE — 18/18 tests (`supabase/tests/rls_access.test.mjs`) contra el proyecto real |
+| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED a Fase 3 — requiere rutas reales de Next.js contra las cuales aplicar guards; no existen todavía |
+| 205 | P1 | Data dictionary | Documentado | DONE — `docs/DATA_DICTIONARY.md` |
 
 ## Fase P3 — Design System & Public Shell
 

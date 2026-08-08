@@ -6,7 +6,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 |---|---|---|---|
 | 0 | Charter & Research Lock | **CLOSED** (2026-08-07) | `docs/phases/P0_REPORT.md`, `docs/audits/P0_AUDIT.md`, `CHANGELOG.md`, ADR-002 y ADR-009 ACCEPTED |
 | 1 | Repository & Delivery Foundation | **CLOSED** (2026-08-07) | `docs/phases/P1_REPORT.md`, `docs/audits/P1_AUDIT.md` — repo remoto, CI verde, `main` protegida (`enforce_admins=true`, ADR-011), Supabase (ADR-010), Vercel conectado con preview confirmado (PR #3). 109 DEFERRED (ADR-009) |
-| 2 | Data Core, Auth & RBAC | NOT STARTED | — |
+| 2 | Data Core, Auth & RBAC | **CLOSED** (2026-08-08) | `docs/phases/P2_REPORT.md`, `docs/audits/P2_AUDIT.md` — 18/18 tests de RLS contra el proyecto real, ADR-012 (sin branching). 204 DEFERRED a Fase 3 |
 | 3 | Design System & Public Shell | NOT STARTED | — |
 | 4 | CMS & Product Intelligence | NOT STARTED | — |
 | 5 | Monetization & Attribution | NOT STARTED | — |
@@ -31,3 +31,10 @@ Completado: 101, 102, 103 (ADR-010), 104, 105, 106, 107, 108, 110. Auditoría de
 
 **Deferred, no bloqueante**: 109 (búsqueda formal de marca + registro de dominio) — antes de Fase 11.
 **Disparador de revisión**: ADR-011 (control de compensación de revisión de PRs) se revisa en cuanto exista una segunda cuenta con acceso de escritura, o al iniciar Fase 2 como mínimo.
+
+## Fase 2 — cerrada 2026-08-08
+
+Completado: 201, 202, 203, 205. Dos PRs mergeados ([#4](https://github.com/digitalconnectdr/jprs-monetization-platform/pull/4), [#5](https://github.com/digitalconnectdr/jprs-monetization-platform/pull/5)), ambos con auditoría de agente independiente obligatoria (ADR-011). Auditoría inicial (`docs/audits/P2_AUDIT.md`): 6 hallazgos (1 High, 3 Medium, 2 Low). Al aplicar al proyecto real por primera vez (ADR-012, sin preview DB) se detectaron 2 hallazgos adicionales (F-07 High, F-08 Low) que ninguna revisión de código podía atrapar — corregidos y verificados empíricamente: **18/18 tests de RLS pasan contra el proyecto real**.
+
+**Deferred a Fase 3**: 204 (Admin/User route guards) — requiere rutas reales de Next.js que todavía no existen.
+**Deuda heredada**: `GRANT` a `service_role` es por-tabla, no `ALTER DEFAULT PRIVILEGES` — evaluar antes de que Fase 3 agregue tablas nuevas (ver `docs/DATA_DICTIONARY.md`).
