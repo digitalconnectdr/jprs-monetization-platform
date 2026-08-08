@@ -45,3 +45,5 @@ Completado: 301, 302, 303, 304, 305 (parcial, ver `MASTER_BACKLOG.md`), 306 (i18
 
 **Deuda heredada, re-deferred a Fase 4**: 204 (Admin/User route guards) — Fase 3 solo construyó shell público, no rutas admin/user.
 **Deuda técnica no bloqueante**: `packages/ui` sigue siendo un placeholder vacío — los tokens viven en `apps/web/src/app/globals.css` (un solo consumidor hasta ahora); se evalúa moverlos a `packages/ui` cuando exista una segunda app.
+
+**Actualización posterior al cierre (2026-08-08)**: se agregó francés (`fr`) como 5to idioma del shell público (backlog 309) — no reabre la fase, solo ejercita la extensibilidad de i18n que ADR-013 ya había diseñado. Ver `CHANGELOG.md`.

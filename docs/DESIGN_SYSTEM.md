@@ -70,13 +70,13 @@ Anti-patrones explícitamente evitados (checklist `impeccable`): sin side-stripe
 
 ## 7. Internacionalización (i18n)
 
-Requisito agregado a mitad de Fase 3 por el propietario funcional (no estaba en el blueprint original, que asumía audiencia US/inglés) — primero EN+ES, luego ampliado a EN+ES+PT+HI.
+Requisito agregado a mitad de Fase 3 por el propietario funcional (no estaba en el blueprint original, que asumía audiencia US/inglés) — primero EN+ES, ampliado a EN+ES+PT+HI antes del cierre de fase, y a EN+ES+PT+HI+FR después del cierre (backlog 309), ejercitando la extensibilidad descrita en §7.3.
 
 ### 7.1 Arquitectura
 
-- **Enrutamiento por segmento de URL**: `/en`, `/es`, `/pt`, `/hi` — todas las rutas viven bajo `app/[locale]/...`. No hay subdominios ni dominios separados por idioma.
-- **`apps/web/src/middleware.ts`**: exporta `locales`, `Locale`, `defaultLocale` (`"en"`), `localeNames` (nombres nativos para el switcher). Redirige cualquier ruta sin prefijo de locale: cookie `locale` (si es válida) → si no, primer idioma soportado en `Accept-Language` → si no, `defaultLocale`.
-- **Diccionarios tipados**: `apps/web/src/lib/i18n/dictionary.ts` define el type `Dictionary` (única fuente de verdad de qué strings deben existir). `en.ts`/`es.ts`/`pt.ts`/`hi.ts` implementan ese type completo — TypeScript falla el build si a un diccionario le falta un campo, así que no puede haber una traducción a medias sin que `typecheck` lo detecte.
+- **Enrutamiento por segmento de URL**: `/en`, `/es`, `/pt`, `/hi`, `/fr` — todas las rutas viven bajo `app/[locale]/...`. No hay subdominios ni dominios separados por idioma.
+- **`apps/web/src/lib/i18n/locales.ts`**: exporta `locales`, `Locale`, `defaultLocale` (`"en"`), `localeNames` (nombres nativos para el switcher). `apps/web/src/middleware.ts` importa de aquí y solo contiene la función de redirección — separado deliberadamente para que Client Components (ej. el language switcher) no dependan de un archivo de convención especial de Next.js como módulo de valores (hallazgo F-02, `docs/audits/P3_AUDIT.md`). El middleware redirige cualquier ruta sin prefijo de locale: cookie `locale` (si es válida) → si no, primer idioma soportado en `Accept-Language` → si no, `defaultLocale`.
+- **Diccionarios tipados**: `apps/web/src/lib/i18n/dictionary.ts` define el type `Dictionary` (única fuente de verdad de qué strings deben existir). `en.ts`/`es.ts`/`pt.ts`/`hi.ts`/`fr.ts` implementan ese type completo — TypeScript falla el build si a un diccionario le falta un campo, así que no puede haber una traducción a medias sin que `typecheck` lo detecte.
 - **`get-dictionary.ts`**: `getDictionary(locale)` retorna el diccionario correspondiente; `t(template, vars)` interpola placeholders `{brand}` (usado donde el nombre de marca aparece embebido en una oración traducida, ver ADR-013).
 - **`lib/niches.ts`**: separa datos estructurales no-traducibles (`nicheStructures`: slug, accentVar, launched) de copy traducible (`dictionary.niches[slug]`) — `getNiches(dictionary)` combina ambos. Esto es intencional: cuando Fase 4 reemplace estos datos por `public.niches`/`public.sites` reales de Supabase, solo cambia la fuente de `nicheStructures`, el copy sigue viniendo del diccionario.
 
@@ -84,15 +84,17 @@ Requisito agregado a mitad de Fase 3 por el propietario funcional (no estaba en 
 
 Cualquier string nuevo visible al usuario en el shell público debe:
 1. Agregarse al type `Dictionary` (`dictionary.ts`).
-2. Traducirse en los 4 archivos de locale — TypeScript falla el `typecheck` si falta alguno.
+2. Traducirse en los 5 archivos de locale — TypeScript falla el `typecheck` si falta alguno.
 3. Nunca hardcodearse directamente en un componente/página (ver hallazgo corregido en el reporte de fase: la etiqueta "Last reviewed" en `legal-page.tsx` quedó hardcodeada en inglés durante la migración y se detectó recién al verificar visualmente cada locale en el navegador — el `typecheck` no lo atrapa porque es un string literal válido, no un campo de diccionario faltante).
 
-### 7.3 Cómo agregar un 5to idioma
+### 7.3 Cómo agregar un idioma adicional
 
-1. Agregar el código a `locales` en `middleware.ts` (+ nombre nativo en `localeNames`).
+1. Agregar el código a `locales` en `lib/i18n/locales.ts` (+ nombre nativo en `localeNames`).
 2. Crear `apps/web/src/lib/i18n/{locale}.ts` implementando el type `Dictionary` completo.
 3. Registrarlo en `dictionaries` dentro de `get-dictionary.ts`.
 4. `npm run typecheck --workspace=apps/web` confirma que no falta ningún campo.
+
+Este flujo no toca ningún componente — es exactamente lo que se ejecutó para agregar francés (`fr`) después del cierre de Fase 3 (backlog 309, `CHANGELOG.md` 2026-08-08).
 
 ### 7.4 Decisión de no usar una librería de i18n
 

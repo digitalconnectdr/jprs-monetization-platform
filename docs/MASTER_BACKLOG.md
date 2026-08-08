@@ -52,6 +52,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 304 | P1 | Motion guidelines | Reduced-motion PASS | DONE — `prefers-reduced-motion: reduce` global en `globals.css`; transiciones limitadas a color/opacity en hover/focus (sin motion de entrada, no había contenido dinámico que lo justificara) |
 | 305 | P0 | Mobile comparison patterns | UX PASS | DONE (parcial, por scope real de Fase 3) — patrones de lista/comparación aplicados a Discover y vertical hub; patrones de tabla comparativa completa se diseñan en Fase 4 cuando exista contenido real de producto |
 | 306 | P0 | Internacionalización del shell público (EN/ES/PT/HI) — agregado a mitad de fase por instrucción explícita del propietario funcional, fuera del scope original del blueprint (ver ADR-013) | 4 idiomas navegables completos, verificado en navegador | DONE — `apps/web/src/lib/i18n/`, `middleware.ts`, `docs/DESIGN_SYSTEM.md` §7 |
+| 309 | P1 | Agregar francés (fr) como 5to idioma del shell público — solicitado después del cierre de Fase 3, ejercita la extensibilidad prevista en ADR-013 | Idioma navegable completo, `typecheck` confirma diccionario completo, verificado en navegador | DONE — `apps/web/src/lib/i18n/fr.ts`, registrado en `locales.ts`/`get-dictionary.ts` |
 
 ## Fase P4 — CMS & Product Intelligence
 

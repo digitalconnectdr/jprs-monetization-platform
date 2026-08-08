@@ -64,3 +64,8 @@ Formato: fecha, fase, resumen. Mantenido por A9 (Project Controller) al cierre d
 - `docs/DESIGN_SYSTEM.md` creado documentando tokens, tipografía, accesibilidad y arquitectura de i18n.
 - Auditoría independiente de cierre ejecutada (`docs/audits/P3_AUDIT.md`): 8 hallazgos (0 Critical/High, 4 Medium, 4 Low). 6 corregidos antes de mergear (meta description localizada, contraste de `--color-border`, matcher del middleware, extracción de constantes de locale, traducción incompleta en `hi.ts`, cierre de menú móvil con Escape); 2 diferidos a Fase 4 con razón documentada (backlog 407, 408). Veredicto final: **GO**.
 - Fase 3 marcada **CLOSED**. Backlog 204 (Admin/User route guards), que Fase 2 había diferido "a Fase 3", se re-difiere a **Fase 4** — Fase 3 no creó rutas admin/user, solo shell público.
+
+## 2026-08-08 — Francés (fr) agregado como 5to idioma (backlog 309)
+
+- Post-cierre de Fase 3: el propietario funcional pidió agregar francés al shell público. Se creó `apps/web/src/lib/i18n/fr.ts` (diccionario completo) y se registró en `locales.ts`/`get-dictionary.ts` — sin tocar ningún componente, ejercitando exactamente la extensibilidad que ADR-013 diseñó para agregar idiomas.
+- `typecheck`/`lint` limpios; verificado en navegador (`/fr`, `/fr/privacy`): contenido, meta description y language switcher correctamente en francés.
