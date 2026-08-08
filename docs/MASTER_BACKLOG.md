@@ -39,7 +39,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 201 | P0 | Schema identity/properties | Migration PASS | DONE — aplicado y verificado en el proyecto real, ver `docs/audits/P2_AUDIT.md` |
 | 202 | P0 | Supabase Auth | Flows PASS | DONE — trigger `handle_new_user`, signup/signin verificado en tests reales |
 | 203 | P0 | RBAC + RLS | Negative tests PASS | DONE — 18/18 tests (`supabase/tests/rls_access.test.mjs`) contra el proyecto real |
-| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED a Fase 4 — Fase 3 solo construyó el shell público (Home/Discover/vertical hub/Search/legal); no existen rutas admin/user todavía. Fase 4 (CMS & Product Intelligence) es donde se crean por primera vez |
+| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED — Fase 4 completó el schema/RLS que los guards protegerían, pero no el wiring de auth en `apps/web` (ver 409, su prerrequisito real). Se implementa en cuanto 409 esté resuelto, no atado a un número de fase fijo |
 | 205 | P1 | Data dictionary | Documentado | DONE — `docs/DATA_DICTIONARY.md` |
 
 ## Fase P3 — Design System & Public Shell
@@ -58,12 +58,13 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 401 | P0 | Catalog/vendor/product CRUD | Integration PASS | TODO |
-| 402 | P0 | Product sources + checked_at | Validation PASS | TODO |
-| 403 | P0 | Content workflow/versioning | Workflow PASS | TODO |
-| 404 | P0 | Price/feature history | History preserved | TODO |
-| 405 | P1 | Bulk import validation | Invalid rows rejected | TODO |
-| 406 | P0 | Freshness queue | Stale item visible | TODO |
+| 401 | P0 | Catalog/vendor/product CRUD | Integration PASS | DONE — `product_variants`/`product_features`/`product_prices`/`product_media` (completa el shell de vendors/products de Fase 2), 29/29 tests contra el proyecto real, ver `docs/audits/P4_AUDIT.md` |
+| 402 | P0 | Product sources + checked_at | Validation PASS | DONE — `source`/`checked_at`/`confidence` obligatorios en `product_features`/`product_prices`, `confidence` default `unverified` (F-08) |
+| 403 | P0 | Content workflow/versioning | Workflow PASS | DONE — `content_items`/`content_versions`/`content_blocks`/`content_product_links`/`content_sources`, trigger `enforce_publish_requires_approved_version` (ADR-005) corregido tras F-01 (Critical) de la auditoría |
+| 404 | P0 | Price/feature history | History preserved | DONE — `product_prices`/`product_features` append-only (sin `UPDATE` para ningún rol de aplicación ni `service_role`, F-05) |
+| 405 | P1 | Bulk import validation | Invalid rows rejected | DONE — función `import_product_prices(jsonb)`, límite de 500 filas (F-07), sin oráculo de existencia (F-04) |
+| 406 | P0 | Freshness queue | Stale item visible | DONE — `freshness_checks` (admin-only), sin cron/Edge Function todavía (eso es Fase 9) |
+| 409 | P0 | Wiring de cliente Supabase (`@supabase/ssr`) + login/sesión de servidor en `apps/web` | Sesión persistente, login/logout funcional | TODO — prerrequisito real de 204; `apps/web` no tiene ningún cliente de Supabase instalado (ver `docs/phases/P4.md` "Explícitamente fuera de scope") |
 | 407 | P1 | Migrar `apps/web/src/middleware.ts` a la convención `proxy.ts` (Next.js 16.3 marca `middleware` como deprecated) | Build sin warning de deprecación, routing de locale sin regresión | TODO — hallazgo F-02 de `docs/audits/P3_AUDIT.md`, diferido explícitamente en Fase 3 por falta de documentación del framework disponible en el entorno para confirmar el contrato de `proxy.ts` sin riesgo |
 | 408 | P1 | `not-found.tsx` localizado bajo `app/[locale]/` (hoy usa el 404 genérico de Next.js en inglés fijo) | 404 traducido en los 4 idiomas | TODO — hallazgo F-06 de `docs/audits/P3_AUDIT.md`, diferido porque requiere decidir cómo acceder al locale correcto desde una ruta que Next.js renderiza fuera del árbol normal de `params` |
 
