@@ -1,4 +1,4 @@
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 import type { Dictionary } from "./dictionary";
 import { en } from "./en";
 import { es } from "./es";

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useState, useId, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { brand } from "@platform/shared";
 import { getNiches } from "@/lib/niches";
 import type { Dictionary } from "@/lib/i18n/dictionary";
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 
 export function SiteHeader({
@@ -19,6 +19,19 @@ export function SiteHeader({
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const searchInputId = useId();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   const navLinks = [
     { href: `/${locale}/discover`, label: dictionary.nav.discover },
@@ -86,6 +99,7 @@ export function SiteHeader({
         </div>
 
         <button
+          ref={menuButtonRef}
           type="button"
           className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink md:hidden"
           aria-expanded={menuOpen}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { brand } from "@platform/shared";
 import { LegalPage } from "@/components/legal/legal-page";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 
 export async function generateMetadata({
   params,
@@ -11,7 +11,11 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: getDictionary(locale).legal.affiliateDisclosure.metaTitle };
+  const d = getDictionary(locale).legal.affiliateDisclosure;
+  return {
+    title: d.metaTitle,
+    description: t(d.metaDescription, { brand: brand.name }),
+  };
 }
 
 export default async function AffiliateDisclosurePage({

@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { locales, localeNames, type Locale } from "@/middleware";
+import { locales, localeNames, type Locale } from "@/lib/i18n/locales";
 
 function stripLocale(pathname: string, locale: Locale): string {
   const prefix = `/${locale}`;

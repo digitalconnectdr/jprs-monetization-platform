@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-export const locales = ["en", "es", "pt", "hi"] as const;
-export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "en";
-
-export const localeNames: Record<Locale, string> = {
-  en: "English",
-  es: "Español",
-  pt: "Português",
-  hi: "हिन्दी",
-};
+import { locales, defaultLocale, type Locale } from "@/lib/i18n/locales";
 
 function getLocaleFromAcceptLanguage(request: NextRequest): Locale {
   const header = request.headers.get("accept-language");
@@ -50,8 +40,12 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Excluye archivos internos de Next.js y assets estáticos.
+     * Excluye archivos internos de Next.js, convenciones estáticas de la raíz
+     * de app/ (robots.txt, sitemap.xml, manifest.json) y extensiones de
+     * archivo estático comunes — evita que Fase 4+ agregue apps/web/public/
+     * y esos archivos queden con prefijo de locale por accidente (F-03,
+     * docs/audits/P3_AUDIT.md).
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml|manifest\\.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|txt|xml|json)$).*)",
   ],
 };

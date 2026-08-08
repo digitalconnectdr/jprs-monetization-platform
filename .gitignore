@@ -2,6 +2,9 @@
 node_modules/
 .pnpm-store/
 
+# Estado local de agentes (worktrees de auditoría, etc.) — nunca se commitea
+.claude/
+
 # Next.js
 .next/
 out/

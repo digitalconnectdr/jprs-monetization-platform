@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getNiches } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 
 export async function generateMetadata({
   params,

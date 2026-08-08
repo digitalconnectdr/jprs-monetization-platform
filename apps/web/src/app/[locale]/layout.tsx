@@ -5,7 +5,7 @@ import { brand } from "@platform/shared";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
-import { locales, type Locale } from "@/middleware";
+import { locales, type Locale } from "@/lib/i18n/locales";
 import "../globals.css";
 
 const sourceSerif = Source_Serif_4({

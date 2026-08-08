@@ -35,6 +35,8 @@ export const es: Dictionary = {
   },
   home: {
     metaTitleSuffix: "Decide con evidencia, no con suposiciones",
+    metaDescription:
+      "{brand} compara software empresarial, viajes y tecnología de consumo con metodología visible y fuentes citadas — no es otro blog de afiliados.",
     h1: "Decide con evidencia, no con suposiciones.",
     intro:
       "{brand} compara software, viajes y tecnología de consumo como lo haría un analista cuidadoso — metodología visible, fuentes citadas y una línea clara entre lo que recomendamos y aquello por lo que nos pagan.",
@@ -97,6 +99,8 @@ export const es: Dictionary = {
   legal: {
     about: {
       metaTitle: "Acerca de y metodología",
+      metaDescription:
+        "Cómo evalúa y clasifica {brand} sus recomendaciones — metodología visible, fuentes citadas y la línea entre lo editorial y lo patrocinado.",
       title: "Acerca de y metodología",
       lastUpdated: "agosto de 2026",
       whatIsHeading: "Qué es {brand}",
@@ -122,6 +126,8 @@ export const es: Dictionary = {
     },
     editorialPolicy: {
       metaTitle: "Política editorial",
+      metaDescription:
+        "Los estándares editoriales que rigen cada recomendación de {brand}, independientes de relaciones comerciales.",
       title: "Política editorial",
       lastUpdated: "agosto de 2026",
       independenceHeading: "Independencia editorial",
@@ -142,6 +148,8 @@ export const es: Dictionary = {
     },
     affiliateDisclosure: {
       metaTitle: "Divulgación de afiliados",
+      metaDescription:
+        "Cómo genera ingresos {brand} mediante comisiones de afiliados, publicidad display y posiciones patrocinadas — y qué es lo que la comisión nunca decide.",
       title: "Divulgación de afiliados",
       lastUpdated: "agosto de 2026",
       howHeading: "Cómo generamos ingresos",
@@ -162,6 +170,8 @@ export const es: Dictionary = {
     },
     privacy: {
       metaTitle: "Política de privacidad",
+      metaDescription:
+        "Qué recopila {brand}, por qué, y cómo se protege — un borrador de trabajo antes del lanzamiento público.",
       title: "Política de privacidad",
       lastUpdated: "agosto de 2026",
       draftNotice:
@@ -181,6 +191,8 @@ export const es: Dictionary = {
     },
     terms: {
       metaTitle: "Términos de servicio",
+      metaDescription:
+        "Los términos que rigen el uso de {brand} — un borrador de trabajo antes del lanzamiento público.",
       title: "Términos de servicio",
       lastUpdated: "agosto de 2026",
       draftNotice:

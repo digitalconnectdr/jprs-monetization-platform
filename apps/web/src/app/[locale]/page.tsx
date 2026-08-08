@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { brand } from "@platform/shared";
 import { getNiches } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 
 export async function generateMetadata({
   params,
@@ -14,6 +14,7 @@ export async function generateMetadata({
   const dictionary = getDictionary(locale);
   return {
     title: `${brand.name} — ${dictionary.home.metaTitleSuffix}`,
+    description: t(dictionary.home.metaDescription, { brand: brand.name }),
   };
 }
 

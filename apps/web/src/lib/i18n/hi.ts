@@ -8,7 +8,7 @@ export const hi: Dictionary = {
     searchLabel: "उत्पाद, तुलनाएं या गाइड खोजें",
     searchPlaceholder: "तुलनाएं, उत्पाद खोजें…",
     searchButton: "खोजें",
-    backToDiscover: "← Discover पर वापस जाएं",
+    backToDiscover: "← डिस्कवर पर वापस जाएं",
     languageSwitcherLabel: "भाषा",
     lastReviewedLabel: "अंतिम समीक्षा",
   },
@@ -34,6 +34,8 @@ export const hi: Dictionary = {
   },
   home: {
     metaTitleSuffix: "अनुमान नहीं, प्रमाण के आधार पर निर्णय लें",
+    metaDescription:
+      "{brand} व्यावसायिक सॉफ्टवेयर, यात्रा और उपभोक्ता तकनीक की तुलना स्पष्ट कार्यप्रणाली और उद्धृत स्रोतों के साथ करता है — सिर्फ एक और एफिलिएट ब्लॉग नहीं।",
     h1: "अनुमान नहीं, प्रमाण के आधार पर निर्णय लें।",
     intro:
       "{brand} सॉफ्टवेयर, यात्रा और उपभोक्ता टेक्नोलॉजी की तुलना एक सावधान विश्लेषक की तरह करता है — स्पष्ट कार्यप्रणाली, उद्धृत स्रोत, और हम क्या सुझाते हैं व किससे हमें भुगतान मिलता है, इनके बीच साफ रेखा।",
@@ -95,6 +97,8 @@ export const hi: Dictionary = {
   legal: {
     about: {
       metaTitle: "परिचय और कार्यप्रणाली",
+      metaDescription:
+        "{brand} अपने सुझावों का मूल्यांकन और रैंकिंग कैसे करता है — स्पष्ट कार्यप्रणाली, उद्धृत स्रोत, और संपादकीय व प्रायोजित सामग्री के बीच की रेखा।",
       title: "परिचय और कार्यप्रणाली",
       lastUpdated: "अगस्त 2026",
       whatIsHeading: "{brand} क्या है",
@@ -120,6 +124,8 @@ export const hi: Dictionary = {
     },
     editorialPolicy: {
       metaTitle: "संपादकीय नीति",
+      metaDescription:
+        "वे संपादकीय मानक जो {brand} के हर सुझाव को नियंत्रित करते हैं, व्यावसायिक संबंधों से स्वतंत्र।",
       title: "संपादकीय नीति",
       lastUpdated: "अगस्त 2026",
       independenceHeading: "संपादकीय स्वतंत्रता",
@@ -140,6 +146,8 @@ export const hi: Dictionary = {
     },
     affiliateDisclosure: {
       metaTitle: "एफिलिएट प्रकटीकरण",
+      metaDescription:
+        "{brand} एफिलिएट कमीशन, डिस्प्ले विज्ञापन और प्रायोजित स्थितियों के माध्यम से राजस्व कैसे अर्जित करता है — और कमीशन कभी क्या तय नहीं करता।",
       title: "एफिलिएट प्रकटीकरण",
       lastUpdated: "अगस्त 2026",
       howHeading: "हम राजस्व कैसे अर्जित करते हैं",
@@ -159,6 +167,8 @@ export const hi: Dictionary = {
     },
     privacy: {
       metaTitle: "गोपनीयता नीति",
+      metaDescription:
+        "{brand} क्या एकत्र करता है, क्यों, और इसे कैसे सुरक्षित रखा जाता है — सार्वजनिक लॉन्च से पहले का एक कार्यशील मसौदा।",
       title: "गोपनीयता नीति",
       lastUpdated: "अगस्त 2026",
       draftNotice:
@@ -178,6 +188,8 @@ export const hi: Dictionary = {
     },
     terms: {
       metaTitle: "सेवा की शर्तें",
+      metaDescription:
+        "वे शर्तें जो {brand} के उपयोग को नियंत्रित करती हैं — सार्वजनिक लॉन्च से पहले का एक कार्यशील मसौदा।",
       title: "सेवा की शर्तें",
       lastUpdated: "अगस्त 2026",
       draftNotice:

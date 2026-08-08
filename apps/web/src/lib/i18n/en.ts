@@ -35,6 +35,8 @@ export const en: Dictionary = {
   },
   home: {
     metaTitleSuffix: "Decide with evidence, not guesswork",
+    metaDescription:
+      "{brand} compares business software, travel, and consumer tech with visible methodology and cited sources — not another affiliate blog.",
     h1: "Decide with evidence, not guesswork.",
     intro:
       "{brand} compares software, travel, and consumer tech the way a careful analyst would — visible methodology, cited sources, and a hard line between what we recommend and what we get paid for.",
@@ -97,6 +99,8 @@ export const en: Dictionary = {
   legal: {
     about: {
       metaTitle: "About & Methodology",
+      metaDescription:
+        "How {brand} evaluates and ranks recommendations — visible methodology, cited sources, and the line between editorial and sponsored content.",
       title: "About & Methodology",
       lastUpdated: "August 2026",
       whatIsHeading: "What {brand} is",
@@ -122,6 +126,8 @@ export const en: Dictionary = {
     },
     editorialPolicy: {
       metaTitle: "Editorial Policy",
+      metaDescription:
+        "The editorial standards that govern every {brand} recommendation, independent of commercial relationships.",
       title: "Editorial Policy",
       lastUpdated: "August 2026",
       independenceHeading: "Editorial independence",
@@ -142,6 +148,8 @@ export const en: Dictionary = {
     },
     affiliateDisclosure: {
       metaTitle: "Affiliate Disclosure",
+      metaDescription:
+        "How {brand} makes money through affiliate commissions, display advertising, and sponsored placements — and what commission never decides.",
       title: "Affiliate Disclosure",
       lastUpdated: "August 2026",
       howHeading: "How we make money",
@@ -162,6 +170,8 @@ export const en: Dictionary = {
     },
     privacy: {
       metaTitle: "Privacy Policy",
+      metaDescription:
+        "What {brand} collects, why, and how it's protected — a working draft ahead of public launch.",
       title: "Privacy Policy",
       lastUpdated: "August 2026",
       draftNotice:
@@ -181,6 +191,8 @@ export const en: Dictionary = {
     },
     terms: {
       metaTitle: "Terms of Service",
+      metaDescription:
+        "The terms that govern use of {brand} — a working draft ahead of public launch.",
       title: "Terms of Service",
       lastUpdated: "August 2026",
       draftNotice:

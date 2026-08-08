@@ -35,6 +35,8 @@ export const pt: Dictionary = {
   },
   home: {
     metaTitleSuffix: "Decida com evidências, não com suposições",
+    metaDescription:
+      "A {brand} compara software empresarial, viagens e tecnologia de consumo com metodologia visível e fontes citadas — não é mais um blog de afiliados.",
     h1: "Decida com evidências, não com suposições.",
     intro:
       "A {brand} compara softwares, viagens e tecnologia de consumo como faria um analista cuidadoso — metodologia visível, fontes citadas e uma linha clara entre o que recomendamos e aquilo pelo qual somos pagos.",
@@ -97,6 +99,8 @@ export const pt: Dictionary = {
   legal: {
     about: {
       metaTitle: "Sobre e metodologia",
+      metaDescription:
+        "Como a {brand} avalia e classifica suas recomendações — metodologia visível, fontes citadas e a linha entre o editorial e o patrocinado.",
       title: "Sobre e metodologia",
       lastUpdated: "agosto de 2026",
       whatIsHeading: "O que é a {brand}",
@@ -122,6 +126,8 @@ export const pt: Dictionary = {
     },
     editorialPolicy: {
       metaTitle: "Política editorial",
+      metaDescription:
+        "Os padrões editoriais que regem cada recomendação da {brand}, independentes de relações comerciais.",
       title: "Política editorial",
       lastUpdated: "agosto de 2026",
       independenceHeading: "Independência editorial",
@@ -142,6 +148,8 @@ export const pt: Dictionary = {
     },
     affiliateDisclosure: {
       metaTitle: "Divulgação de afiliados",
+      metaDescription:
+        "Como a {brand} gera receita por meio de comissões de afiliados, publicidade display e posições patrocinadas — e o que a comissão nunca decide.",
       title: "Divulgação de afiliados",
       lastUpdated: "agosto de 2026",
       howHeading: "Como geramos receita",
@@ -162,6 +170,8 @@ export const pt: Dictionary = {
     },
     privacy: {
       metaTitle: "Política de privacidade",
+      metaDescription:
+        "O que a {brand} coleta, por quê, e como é protegido — um rascunho de trabalho antes do lançamento público.",
       title: "Política de privacidade",
       lastUpdated: "agosto de 2026",
       draftNotice:
@@ -181,6 +191,8 @@ export const pt: Dictionary = {
     },
     terms: {
       metaTitle: "Termos de serviço",
+      metaDescription:
+        "Os termos que regem o uso da {brand} — um rascunho de trabalho antes do lançamento público.",
       title: "Termos de serviço",
       lastUpdated: "agosto de 2026",
       draftNotice:

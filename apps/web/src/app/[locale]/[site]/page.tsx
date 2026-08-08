@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { nicheStructures, getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
-import { locales, type Locale } from "@/middleware";
+import { locales, type Locale } from "@/lib/i18n/locales";
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>

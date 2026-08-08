@@ -63,6 +63,8 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 404 | P0 | Price/feature history | History preserved | TODO |
 | 405 | P1 | Bulk import validation | Invalid rows rejected | TODO |
 | 406 | P0 | Freshness queue | Stale item visible | TODO |
+| 407 | P1 | Migrar `apps/web/src/middleware.ts` a la convención `proxy.ts` (Next.js 16.3 marca `middleware` como deprecated) | Build sin warning de deprecación, routing de locale sin regresión | TODO — hallazgo F-02 de `docs/audits/P3_AUDIT.md`, diferido explícitamente en Fase 3 por falta de documentación del framework disponible en el entorno para confirmar el contrato de `proxy.ts` sin riesgo |
+| 408 | P1 | `not-found.tsx` localizado bajo `app/[locale]/` (hoy usa el 404 genérico de Next.js en inglés fijo) | 404 traducido en los 4 idiomas | TODO — hallazgo F-06 de `docs/audits/P3_AUDIT.md`, diferido porque requiere decidir cómo acceder al locale correcto desde una ruta que Next.js renderiza fuera del árbol normal de `params` |
 
 ## Fase P5 — Monetization & Attribution
 

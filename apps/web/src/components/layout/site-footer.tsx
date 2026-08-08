@@ -2,7 +2,7 @@ import Link from "next/link";
 import { brand } from "@platform/shared";
 import { getNiches } from "@/lib/niches";
 import type { Dictionary } from "@/lib/i18n/dictionary";
-import type { Locale } from "@/middleware";
+import type { Locale } from "@/lib/i18n/locales";
 
 export function SiteFooter({
   locale,

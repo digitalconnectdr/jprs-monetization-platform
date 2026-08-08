@@ -38,6 +38,7 @@ export type Dictionary = {
   };
   home: {
     metaTitleSuffix: string;
+    metaDescription: string;
     h1: string;
     intro: string;
     verticalsHeading: string;
@@ -76,6 +77,7 @@ export type Dictionary = {
   legal: {
     about: {
       metaTitle: string;
+      metaDescription: string;
       title: string;
       lastUpdated: string;
       whatIsHeading: string;
@@ -93,6 +95,7 @@ export type Dictionary = {
     };
     editorialPolicy: {
       metaTitle: string;
+      metaDescription: string;
       title: string;
       lastUpdated: string;
       independenceHeading: string;
@@ -108,6 +111,7 @@ export type Dictionary = {
     };
     affiliateDisclosure: {
       metaTitle: string;
+      metaDescription: string;
       title: string;
       lastUpdated: string;
       howHeading: string;
@@ -123,6 +127,7 @@ export type Dictionary = {
     };
     privacy: {
       metaTitle: string;
+      metaDescription: string;
       title: string;
       lastUpdated: string;
       draftNotice: string;
@@ -137,6 +142,7 @@ export type Dictionary = {
     };
     terms: {
       metaTitle: string;
+      metaDescription: string;
       title: string;
       lastUpdated: string;
       draftNotice: string;
