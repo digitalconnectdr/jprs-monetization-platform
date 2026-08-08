@@ -310,6 +310,68 @@ async function main() {
     });
     check("el trigger PERMITE publicar una vez que la versión está approved", publishAfterApproval.status === 200 || publishAfterApproval.status === 204, JSON.stringify(publishAfterApproval));
 
+    // --- F-01 (docs/audits/P4_AUDIT.md): hijack de current_version_id entre items ---
+    // Un segundo content_item (Z), con su propia versión SIN aprobar, no debe poder
+    // "tomar prestada" la versión approved de otro item (contentItemId/draftVersionId)
+    // para publicarse — el trigger debe validar que la versión pertenezca al MISMO item.
+    const hijackItem = await rest("content_items", {
+      key: editorUser.accessToken,
+      method: "POST",
+      body: { site_id: softwareSiteId, content_type: "review", slug: `p4-hijack-${stamp}`, title: "P4 Hijack Attempt", status: "draft" },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    const hijackItemId = hijackItem.json?.[0]?.id;
+    if (hijackItemId) cleanup.contentItemIds.push(hijackItemId);
+
+    const hijackPublish = await rest(`content_items?id=eq.${hijackItemId}`, {
+      key: editorUser.accessToken,
+      method: "PATCH",
+      body: { current_version_id: draftVersionId, status: "published" },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    check(
+      "F-01: el trigger RECHAZA publicar un content_item apuntando a la versión approved de OTRO content_item",
+      hijackPublish.status >= 400,
+      JSON.stringify(hijackPublish)
+    );
+
+    // --- F-02/F-03 (docs/audits/P4_AUDIT.md): content_product_links cross-site ---
+    const travelDraftProduct = await rest("products", {
+      key: SERVICE_KEY,
+      method: "POST",
+      body: { site_id: travelSiteId, slug: `p4-travel-draft-${stamp}`, name: "P4 Travel Draft Product", status: "draft" },
+    });
+    const travelDraftProductId = travelDraftProduct.json?.[0]?.id;
+    if (travelDraftProductId) cleanup.productIds.push(travelDraftProductId);
+
+    const crossSiteLink = await rest("content_product_links", {
+      key: editorUser.accessToken,
+      method: "POST",
+      body: { content_item_id: contentItemId, product_id: travelDraftProductId, role: "mentioned" },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    check(
+      "F-03: editor de software-ai NO puede vincular un producto de OTRO site (travel) a su contenido",
+      crossSiteLink.status === 401 || crossSiteLink.status === 403,
+      JSON.stringify(crossSiteLink)
+    );
+
+    // F-02: aunque se fuerce el link vía service_role (aislando la policy de LECTURA de
+    // la de escritura), un producto draft del mismo site vinculado NO debe filtrarse a anon.
+    const forcedDraftLink = await rest("content_product_links", {
+      key: SERVICE_KEY,
+      method: "POST",
+      body: { content_item_id: contentItemId, product_id: draftProductId, role: "mentioned" },
+    });
+    check("setup F-02: link forzado vía service_role creado", forcedDraftLink.status === 201, JSON.stringify(forcedDraftLink));
+
+    const anonReadDraftLink = await rest(`content_product_links?select=id&content_item_id=eq.${contentItemId}&product_id=eq.${draftProductId}`, { key: ANON_KEY });
+    check(
+      "F-02: anon NO ve un content_product_link cuyo producto vinculado sigue en draft",
+      anonReadDraftLink.status === 200 && anonReadDraftLink.json.length === 0,
+      JSON.stringify(anonReadDraftLink)
+    );
+
     // --- lectura pública ve la versión live de contenido published ---
     const anonReadPublishedContent = await rest(`content_items?select=id,status&id=eq.${contentItemId}`, { key: ANON_KEY });
     check(
@@ -360,6 +422,30 @@ async function main() {
       "import_product_prices rechaza filas de un site donde el llamador no tiene rol (admin de travel intentando software-ai)",
       importUnauthorized.status === 200 && importUnauthorizedRows[0]?.status === "rejected",
       JSON.stringify(importUnauthorized)
+    );
+
+    // --- F-04 (docs/audits/P4_AUDIT.md): el mensaje de rechazo ya no distingue entre
+    // "producto no existe" y "sin autorización" — un usuario sin ningún rol no puede
+    // usarlo como oráculo de existencia de product_id ajenos.
+    const oracleTest = await rest("rpc/import_product_prices", {
+      key: normalUser.accessToken,
+      method: "POST",
+      body: {
+        rows: [
+          { product_id: publishedProductId, amount: "1.00", currency: "USD", source: "oracle test (producto real, sin acceso)" },
+          { product_id: "00000000-0000-0000-0000-000000000000", amount: "1.00", currency: "USD", source: "oracle test (producto inexistente)" },
+        ],
+      },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    const oracleRows = Array.isArray(oracleTest.json) ? oracleTest.json : [];
+    check(
+      "F-04: el motivo de rechazo es IDÉNTICO para 'producto existe sin acceso' y 'producto no existe' (ya no es oráculo)",
+      oracleTest.status === 200 &&
+        oracleRows.length === 2 &&
+        oracleRows.every((r) => r.status === "rejected") &&
+        oracleRows[0]?.reason === oracleRows[1]?.reason,
+      JSON.stringify(oracleTest)
     );
 
     // --- freshness_checks: admin-only ---
