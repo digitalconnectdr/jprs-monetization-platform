@@ -180,6 +180,8 @@ export type Dictionary = {
     entryPlanColumn: string;
     priceColumn: string;
     freeTierColumn: string;
+    billingModelColumn: string;
+    integrationsColumn: string;
     noSelection: string;
     esimComparatorTitle: string;
     esimComparatorIntro: string;

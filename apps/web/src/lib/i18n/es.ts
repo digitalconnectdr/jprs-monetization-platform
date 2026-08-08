@@ -278,6 +278,8 @@ export const es: Dictionary = {
     entryPlanColumn: "Plan de entrada",
     priceColumn: "Precio inicial",
     freeTierColumn: "Plan gratuito",
+    billingModelColumn: "Facturación",
+    integrationsColumn: "Integraciones",
     noSelection: "Selecciona al menos un CRM arriba para ver una comparación.",
     esimComparatorTitle: "Comparador de planes eSIM",
     esimComparatorIntro: "Selecciona los proveedores de eSIM que estás evaluando para comparar precio de entrada, modelo de datos y cobertura lado a lado.",

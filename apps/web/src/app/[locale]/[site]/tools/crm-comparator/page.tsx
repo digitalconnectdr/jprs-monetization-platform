@@ -53,6 +53,8 @@ export default async function CrmComparatorPage({
             entryPlanColumn: dictionary.tools.entryPlanColumn,
             priceColumn: dictionary.tools.priceColumn,
             freeTierColumn: dictionary.tools.freeTierColumn,
+            billingModelColumn: dictionary.tools.billingModelColumn,
+            integrationsColumn: dictionary.tools.integrationsColumn,
             noSelection: dictionary.tools.noSelection,
             sourceLabel: dictionary.catalog.sourceLabel,
           }}

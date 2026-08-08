@@ -86,7 +86,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
 | 601 | P0 | Software/AI taxonomy | Approved | DONE — 6 categorías sembradas en `public.categories` (CRM, AI Assistants, Automation, SEO & Marketing, Website & E-commerce, Productivity) |
-| 602 | P0 | Catalog seed | Verified | DONE (parcial) — 5 vendors/products reales sembrados en 2 de 6 categorías (CRM, AI Assistants), cada precio/feature con `source`+`checked_at` real. Ver `docs/phases/P6A_REPORT.md` sobre por qué es parcial |
+| 602 | P0 | Catalog seed | Verified | DONE (parcial) — 5 vendors/products reales sembrados en 2 de 6 categorías (CRM, AI Assistants), cada precio/feature con `source`+`checked_at` real. Ver `docs/phases/P6A_REPORT.md` sobre por qué es parcial. Enriquecido post-cierre (2026-08-08) con `billing_model`/`marketplace_integrations`/`seat_minimum`/`api_access`/`team_plan` — ver addendum en `docs/phases/P6A_REPORT.md` |
 | 603 | P0 | Best/VS/Review templates | QA PASS | DONE — categoría (Best X), perfil de producto, y guía/comparación (VS), todas renderizando datos reales, verificadas en navegador mobile/tablet/desktop |
 | 604 | P0 | Software tool v1 | E2E PASS | DONE — CRM Pricing Comparator, interactivo, verificado con toggle real de checkboxes |
 | 605 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 12-18 target) — 1 comparación real (HubSpot CRM vs Freshsales vs monday CRM), `pending_editorial_review`, no auto-publicada. Resto del lote es backlog explícito, no se declara completo por aproximación — ver `docs/phases/P6A_REPORT.md` |

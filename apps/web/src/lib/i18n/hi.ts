@@ -275,6 +275,8 @@ export const hi: Dictionary = {
     entryPlanColumn: "प्रवेश प्लान",
     priceColumn: "शुरुआती कीमत",
     freeTierColumn: "मुफ़्त प्लान",
+    billingModelColumn: "बिलिंग",
+    integrationsColumn: "इंटीग्रेशन",
     noSelection: "तुलना देखने के लिए ऊपर कम से कम एक CRM चुनें।",
     esimComparatorTitle: "eSIM डेटा प्लान तुलनाकर्ता",
     esimComparatorIntro: "जिन eSIM प्रदाताओं का आप मूल्यांकन कर रहे हैं उन्हें चुनें ताकि शुरुआती मूल्य, डेटा मॉडल और कवरेज की साथ-साथ तुलना कर सकें।",

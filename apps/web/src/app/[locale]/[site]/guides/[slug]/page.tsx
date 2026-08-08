@@ -104,6 +104,21 @@ function ProsConsBlock({ productName, pros, cons }: { productName: string; pros:
   );
 }
 
+function VerdictsBlock({ items }: { items: { useCase: string; pick: string; reason: string }[] }) {
+  return (
+    <div className="flex flex-col gap-4">
+      {items.map((v) => (
+        <div key={v.useCase} className="rounded-lg border border-border bg-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{v.useCase}</p>
+          <p className="mt-1.5 text-sm text-ink">
+            <span className="font-semibold">{v.pick}</span> — {v.reason}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default async function GuidePage({ params }: { params: Promise<RouteParams> }) {
   const { locale, site, slug } = await params;
   const dictionary = getDictionary(locale);
@@ -139,6 +154,9 @@ export default async function GuidePage({ params }: { params: Promise<RouteParam
                 dictionary={dictionary}
               />
             );
+          }
+          if (block.blockType === "verdicts") {
+            return <VerdictsBlock key={i} items={(data.items as { useCase: string; pick: string; reason: string }[]) ?? []} />;
           }
           if (block.blockType === "pros_cons") {
             return (

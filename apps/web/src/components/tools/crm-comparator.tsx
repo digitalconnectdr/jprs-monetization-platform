@@ -13,6 +13,8 @@ export function CrmComparator({
     entryPlanColumn: string;
     priceColumn: string;
     freeTierColumn: string;
+    billingModelColumn: string;
+    integrationsColumn: string;
     noSelection: string;
     sourceLabel: string;
   };
@@ -58,13 +60,15 @@ export function CrmComparator({
         <p className="mt-8 text-sm text-muted">{labels.noSelection}</p>
       ) : (
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[480px] border-collapse text-sm">
+          <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="py-2 pr-4 font-semibold text-ink"> </th>
                 <th className="py-2 pr-4 font-semibold text-ink">{labels.entryPlanColumn}</th>
                 <th className="py-2 pr-4 font-semibold text-ink">{labels.priceColumn}</th>
                 <th className="py-2 pr-4 font-semibold text-ink">{labels.freeTierColumn}</th>
+                <th className="py-2 pr-4 font-semibold text-ink">{labels.billingModelColumn}</th>
+                <th className="py-2 pr-4 font-semibold text-ink">{labels.integrationsColumn}</th>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +80,8 @@ export function CrmComparator({
                     {product.latestPrice ? `$${product.latestPrice.amount.toFixed(0)}/mo` : "—"}
                   </td>
                   <td className="py-3 pr-4 text-ink">{featureValue(product, "free_tier") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "billing_model") ?? "—"}</td>
+                  <td className="py-3 pr-4 text-ink">{featureValue(product, "marketplace_integrations") ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
