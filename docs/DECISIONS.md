@@ -16,6 +16,7 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 | ADR-010 | Un solo proyecto Supabase (con Database Branching vía GitHub) en lugar de 3 proyectos separados dev/staging/prod. | ACCEPTED |
 | ADR-011 | Control de compensación para revisión de PRs mientras exista una sola cuenta con acceso al repo (excepción explícita a ADR-006). | ACCEPTED — TEMPORAL, con disparador de revisión |
 | ADR-012 | Corrección de ADR-010: Database Branching requiere plan Pro de Supabase (el proyecto está en FREE) — migraciones se aplican directo al proyecto único vía PR + CLI, sin preview DB por ahora. | ACCEPTED |
+| ADR-013 | Sitio público en 4 idiomas (EN/ES/PT/HI) vía enrutamiento por segmento de URL y diccionarios TypeScript tipados, sin librería de i18n externa. | ACCEPTED |
 
 ## Detalle
 
@@ -107,3 +108,16 @@ Fuente: ADR-001 a ADR-008 provienen del blueprint original (`.docx`, sección "D
 - Este ADR no revierte ADR-010 en su decisión principal (un solo proyecto Supabase en vez de 3) — solo corrige el mecanismo de aislamiento por rama, que no está disponible.
 
 **Disparador de revisión**: si se decide subir a plan Pro de Supabase (decisión de costo del propietario funcional), este ADR se supera con uno nuevo que reactive el flujo de branching descrito originalmente en ADR-010.
+
+### ADR-013 — Internacionalización del sitio público: 4 idiomas vía diccionarios tipados
+**Contexto**: el blueprint original no especificaba el idioma del sitio público; la implementación inicial de Fase 3 asumió inglés (audiencia US). A mitad de fase, el propietario funcional pidió explícitamente que el sitio soporte español además de inglés, y en un segundo mensaje amplió el requisito a portugués e hindi — 4 idiomas en total.
+
+**Decisión**: enrutamiento por segmento de URL (`/en`, `/es`, `/pt`, `/hi`) vía `apps/web/src/middleware.ts`, sin dependencia externa de i18n (no `next-intl` ni similar). Cada idioma es un diccionario TypeScript que implementa un type `Dictionary` compartido (`apps/web/src/lib/i18n/dictionary.ts`) — TypeScript falla el build si un diccionario queda incompleto, lo que reemplaza la necesidad de un linter de traducciones dedicado. Detección de idioma: cookie `locale` (fijada por el selector manual) → header `Accept-Language` → default `en`.
+
+**Consecuencias**:
+- Todo string visible al usuario en el shell público vive en el diccionario; ningún componente puede hardcodear texto en un solo idioma sin que sea una desviación explícita (se encontró y corrigió un caso real durante la fase — ver `docs/phases/P3_REPORT.md`).
+- `brand.tagline` (`packages/shared/src/branding.ts`) queda como fallback en inglés únicamente, para metadata donde no hay contexto de locale — el copy real por página vive en los diccionarios, no en `branding.ts`.
+- Agregar un nuevo idioma no requiere tocar código de componentes: solo agregar el código a `locales`, crear el diccionario completo, y registrarlo — `typecheck` valida completitud automáticamente.
+- No se adoptó una librería de i18n (`next-intl`, etc.) porque el catálogo de strings del shell público es pequeño y no involucra pluralización compleja ni formato de fecha/número dependiente de locale todavía.
+
+**Disparador de revisión**: si Fase 4+ (CMS/contenido editorial) requiere traducir contenido editorial real (comparativas, guías) — no solo el shell — reevaluar si el patrón de diccionario a mano sigue siendo viable o conviene una plataforma de gestión de traducciones.

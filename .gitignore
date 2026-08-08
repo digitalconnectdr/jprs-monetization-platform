@@ -2,6 +2,9 @@
 node_modules/
 .pnpm-store/
 
+# Estado local de agentes (worktrees de auditoría, etc.) — nunca se commitea
+.claude/
+
 # Next.js
 .next/
 out/
@@ -40,6 +43,7 @@ Thumbs.db
 apps/*/AGENTS.md
 apps/*/CLAUDE.md
 apps/web/dev_output.txt
+apps/web/dev_p3.txt
 
 # Testing
 coverage/

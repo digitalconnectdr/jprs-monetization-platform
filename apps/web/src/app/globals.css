@@ -1,3 +1,79 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — Fase 3 (Design System & Public Shell).
+ * Paleta compuesta a partir del seed de marca (oklch(0.600 0.130 160.0), verde)
+ * per impeccable/scripts/palette.mjs. Mood: "sello de notario / verde de libro
+ * contable" — evidencia y confianza, no ambiente inmersivo, por eso bg es
+ * blanco puro. Ver docs/DESIGN_SYSTEM.md para el razonamiento completo.
+ */
+@theme {
+  /* ---- Color: núcleo de marca ---- */
+  --color-bg: oklch(1 0 0);
+  --color-surface: oklch(0.97 0.004 160);
+  --color-surface-hover: oklch(0.945 0.006 160);
+  --color-border: oklch(0.63 0.008 160);
+  --color-ink: oklch(0.19 0.006 160);
+  --color-muted: oklch(0.5 0.008 160);
+
+  --color-primary: oklch(0.42 0.11 160);
+  --color-primary-hover: oklch(0.36 0.11 160);
+  --color-primary-ink: oklch(1 0 0);
+
+  --color-accent: oklch(0.54 0.14 75);
+  --color-accent-ink: oklch(1 0 0);
+
+  --color-danger: oklch(0.55 0.19 25);
+  --color-danger-ink: oklch(1 0 0);
+
+  /* ---- Color: acento secundario por vertical (ADR: "un solo sistema, tres acentos") ---- */
+  --color-niche-software: oklch(0.48 0.09 230);
+  --color-niche-travel: oklch(0.55 0.13 35);
+  --color-niche-tech: oklch(0.5 0.1 200);
+
+  /* ---- Tipografía ---- */
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-public-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.55;
+  --text-xl: clamp(1.5rem, 1.15rem + 1.2vw, 1.953rem);
+  --text-xl--line-height: 1.25;
+  --text-2xl: clamp(1.875rem, 1.4rem + 1.8vw, 2.441rem);
+  --text-2xl--line-height: 1.15;
+  --text-3xl: clamp(2.25rem, 1.5rem + 2.8vw, 3.5rem);
+  --text-3xl--line-height: 1.05;
+
+  /* ---- Spacing rhythm: múltiplos de la line-height base (16px × 1.65 ≈ 26px → 0.25rem/4px como unidad atómica, ritmo en 1.625rem) ---- */
+  --spacing-rhythm: 1.625rem;
+
+  /* ---- Radios: sutiles, no pill-everything ---- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* ---- z-index semántico (layout.md) ---- */
+  --z-index-dropdown: 20;
+  --z-index-sticky: 30;
+  --z-index-modal-backdrop: 40;
+  --z-index-modal: 50;
+  --z-index-toast: 60;
+  --z-index-tooltip: 70;
+
+  /* ---- Motion ---- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+}
+
 :root {
   color-scheme: light;
 }
@@ -6,7 +82,86 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-kerning: normal;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Reduced motion: obligatorio, no opcional (PRODUCT.md > Accessibility & Inclusion) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Foco visible consistente — nunca `outline: none` sin reemplazo */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Prose para páginas legales — max-width en ch, ritmo vertical consistente */
+.prose-legal {
+  max-width: 70ch;
+}
+
+.prose-legal h2 {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: var(--spacing-rhythm);
+  margin-bottom: calc(var(--spacing-rhythm) * 0.4);
+}
+
+.prose-legal h2:first-child {
+  margin-top: 0;
+}
+
+.prose-legal p {
+  color: var(--color-ink);
+  line-height: 1.65;
+  margin-bottom: calc(var(--spacing-rhythm) * 0.6);
+}
+
+.prose-legal ul {
+  margin-bottom: calc(var(--spacing-rhythm) * 0.6);
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.prose-legal li {
+  color: var(--color-ink);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.prose-legal a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

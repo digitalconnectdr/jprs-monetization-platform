@@ -39,18 +39,19 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 201 | P0 | Schema identity/properties | Migration PASS | DONE — aplicado y verificado en el proyecto real, ver `docs/audits/P2_AUDIT.md` |
 | 202 | P0 | Supabase Auth | Flows PASS | DONE — trigger `handle_new_user`, signup/signin verificado en tests reales |
 | 203 | P0 | RBAC + RLS | Negative tests PASS | DONE — 18/18 tests (`supabase/tests/rls_access.test.mjs`) contra el proyecto real |
-| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED a Fase 3 — requiere rutas reales de Next.js contra las cuales aplicar guards; no existen todavía |
+| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED a Fase 4 — Fase 3 solo construyó el shell público (Home/Discover/vertical hub/Search/legal); no existen rutas admin/user todavía. Fase 4 (CMS & Product Intelligence) es donde se crean por primera vez |
 | 205 | P1 | Data dictionary | Documentado | DONE — `docs/DATA_DICTIONARY.md` |
 
 ## Fase P3 — Design System & Public Shell
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 301 | P0 | Design tokens propios | UI review PASS | TODO |
-| 302 | P0 | Navigation + search shell | Responsive PASS | TODO |
-| 303 | P0 | Core page templates | A11y PASS | TODO |
-| 304 | P1 | Motion guidelines | Reduced-motion PASS | TODO |
-| 305 | P0 | Mobile comparison patterns | UX PASS | TODO |
+| 301 | P0 | Design tokens propios | UI review PASS | DONE — `apps/web/src/app/globals.css` (Tailwind v4 `@theme`, OKLCH), documentado en `docs/DESIGN_SYSTEM.md` |
+| 302 | P0 | Navigation + search shell | Responsive PASS | DONE — header/footer/búsqueda, verificado mobile/tablet/desktop en navegador |
+| 303 | P0 | Core page templates | A11y PASS | DONE — Home, Discover, vertical hub, Search, 5 páginas legales; skip-link, focus-visible, reduced-motion, contraste AA |
+| 304 | P1 | Motion guidelines | Reduced-motion PASS | DONE — `prefers-reduced-motion: reduce` global en `globals.css`; transiciones limitadas a color/opacity en hover/focus (sin motion de entrada, no había contenido dinámico que lo justificara) |
+| 305 | P0 | Mobile comparison patterns | UX PASS | DONE (parcial, por scope real de Fase 3) — patrones de lista/comparación aplicados a Discover y vertical hub; patrones de tabla comparativa completa se diseñan en Fase 4 cuando exista contenido real de producto |
+| 306 | P0 | Internacionalización del shell público (EN/ES/PT/HI) — agregado a mitad de fase por instrucción explícita del propietario funcional, fuera del scope original del blueprint (ver ADR-013) | 4 idiomas navegables completos, verificado en navegador | DONE — `apps/web/src/lib/i18n/`, `middleware.ts`, `docs/DESIGN_SYSTEM.md` §7 |
 
 ## Fase P4 — CMS & Product Intelligence
 
@@ -62,6 +63,8 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 404 | P0 | Price/feature history | History preserved | TODO |
 | 405 | P1 | Bulk import validation | Invalid rows rejected | TODO |
 | 406 | P0 | Freshness queue | Stale item visible | TODO |
+| 407 | P1 | Migrar `apps/web/src/middleware.ts` a la convención `proxy.ts` (Next.js 16.3 marca `middleware` como deprecated) | Build sin warning de deprecación, routing de locale sin regresión | TODO — hallazgo F-02 de `docs/audits/P3_AUDIT.md`, diferido explícitamente en Fase 3 por falta de documentación del framework disponible en el entorno para confirmar el contrato de `proxy.ts` sin riesgo |
+| 408 | P1 | `not-found.tsx` localizado bajo `app/[locale]/` (hoy usa el 404 genérico de Next.js en inglés fijo) | 404 traducido en los 4 idiomas | TODO — hallazgo F-06 de `docs/audits/P3_AUDIT.md`, diferido porque requiere decidir cómo acceder al locale correcto desde una ruta que Next.js renderiza fuera del árbol normal de `params` |
 
 ## Fase P5 — Monetization & Attribution
 
