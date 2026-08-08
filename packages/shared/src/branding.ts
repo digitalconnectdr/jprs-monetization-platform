@@ -20,8 +20,8 @@ export const brand = {
   /** Dominio de producción. Vacío hasta que se registre (backlog ID 109). */
   domain: "",
 
-  /** Descripción corta para metadata/SEO por defecto (se sobreescribe por vertical/página). */
-  tagline: "Plataforma de descubrimiento, comparación y decisión",
+  /** Descripción corta de fallback para metadata/SEO cuando no hay copy localizado disponible. El sitio público es multi-idioma (EN/ES/PT/HI) — el copy real por página vive en src/lib/i18n/{locale}.ts. */
+  tagline: "Discovery, comparison, and decision platform",
 } as const;
 
 export type Brand = typeof brand;

@@ -54,3 +54,12 @@ Formato: fecha, fase, resumen. Mantenido por A9 (Project Controller) al cierre d
 - Al aplicar las migraciones al proyecto Supabase real por primera vez (ADR-012), `rls_access.test.mjs` reveló 2 hallazgos que ninguna revisión de código podía haber atrapado: `service_role` sin `GRANT` de tabla explícito (F-07, High — rompía cualquier operación de backend real) y un bug de aserción de test (F-08). Corregidos en PR #5, también con auditoría independiente adjunta (GO).
 - **Verificación empírica final**: 18/18 tests de acceso positivo/negativo pasan contra el proyecto real. Los 3 criterios de aceptación de Fase 2 (usuario normal no accede a datos admin, admin scope por property, RLS explícito en todas las tablas sensibles) quedan confirmados con evidencia real, no solo documentados.
 - Fase 2 marcada **CLOSED**. Deferred a Fase 3: backlog 204 (route guards, requiere rutas reales de Next.js).
+
+## 2026-08-08 — Fase 3 (Design System & Public Shell) CLOSED
+
+- Shell público completo construido con la skill `/impeccable` (instrucción explícita del propietario funcional): design tokens OKLCH (`apps/web/src/app/globals.css`), header/footer/búsqueda responsive, templates de Home, Discover, vertical hub (`/[site]`), Search y 5 páginas legales.
+- **Requisito agregado a mitad de fase**: el propietario funcional pidió que el sitio público soporte español además de inglés, y luego amplió el requisito a portugués e hindi — 4 idiomas totales. Se diseñó **ADR-013**: enrutamiento por segmento de URL (`/en`/`/es`/`/pt`/`/hi`) vía `middleware.ts`, diccionarios TypeScript tipados (`apps/web/src/lib/i18n/`) sin librería de i18n externa. Todas las rutas migradas de `app/*` a `app/[locale]/*`.
+- Hallazgo corregido durante la propia migración: la etiqueta "Last reviewed" en las páginas legales quedó hardcodeada en inglés (no lo atrapa `typecheck`, solo la inspección visual por locale) — agregado `common.lastReviewedLabel` al diccionario y corregido en las 5 páginas legales × 4 idiomas.
+- Verificación en navegador (mobile 375px/tablet 768px/desktop) contra los 4 locales: sin mezcla de idiomas, `<html lang>` correcto, redirección de `/` respeta cookie de idioma sobre `Accept-Language`, menú móvil y language switcher funcionales. `typecheck`/`lint` en verde.
+- `docs/DESIGN_SYSTEM.md` creado documentando tokens, tipografía, accesibilidad y arquitectura de i18n.
+- Fase 3 marcada **CLOSED**. Backlog 204 (Admin/User route guards), que Fase 2 había diferido "a Fase 3", se re-difiere a **Fase 4** — Fase 3 no creó rutas admin/user, solo shell público.
