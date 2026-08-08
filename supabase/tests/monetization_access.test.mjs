@@ -347,7 +347,58 @@ async function main() {
       );
     }
 
+    // --- F-01 (docs/audits/P5_AUDIT.md, High): site_niche_id/has_role_in_niche NO
+    // deben ser llamables sin ninguna sesión (PostgreSQL otorga EXECUTE a PUBLIC por
+    // defecto; el GRANT explícito a authenticated/service_role no revoca eso).
+    const anonSiteNicheCall = await rest("rpc/site_niche_id", {
+      key: ANON_KEY,
+      method: "POST",
+      body: { p_site_id: softwareSiteId },
+    });
+    check(
+      "F-01: anon (sin sesión) NO puede llamar rpc/site_niche_id",
+      anonSiteNicheCall.status === 401 || anonSiteNicheCall.status === 403,
+      JSON.stringify(anonSiteNicheCall)
+    );
+
+    const anonHasRoleInNicheCall = await rest("rpc/has_role_in_niche", {
+      key: ANON_KEY,
+      method: "POST",
+      body: { role_name: "editor", p_niche_id: softwareNicheId },
+    });
+    check(
+      "F-01: anon (sin sesión) NO puede llamar rpc/has_role_in_niche",
+      anonHasRoleInNicheCall.status === 401 || anonHasRoleInNicheCall.status === 403,
+      JSON.stringify(anonHasRoleInNicheCall)
+    );
+
     // ================= MONETIZATION =================
+    // --- F-02 (docs/audits/P5_AUDIT.md, Low): 'Ads'/'ADS'/' ads' no deben poder
+    // evadir la prohibición de ads en page_type=auth/admin/low_value.
+    const caseVariantAdsRule = await rest("monetization_rules", {
+      key: editorUser.accessToken,
+      method: "POST",
+      body: { site_id: softwareSiteId, page_type: "admin", allowed_layers: ["Ads"] },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    check(
+      "F-02: el vocabulario de allowed_layers RECHAZA 'Ads' (variante de mayúsculas) en cualquier page_type",
+      caseVariantAdsRule.status >= 400,
+      JSON.stringify(caseVariantAdsRule)
+    );
+
+    const whitespaceAdsRule = await rest("monetization_rules", {
+      key: editorUser.accessToken,
+      method: "POST",
+      body: { site_id: softwareSiteId, page_type: "low_value", allowed_layers: [" ads"] },
+      extraHeaders: { apikey: ANON_KEY },
+    });
+    check(
+      "F-02: el vocabulario de allowed_layers RECHAZA ' ads' (con espacio) en cualquier page_type",
+      whitespaceAdsRule.status >= 400,
+      JSON.stringify(whitespaceAdsRule)
+    );
+
     const prohibitedAdsRule = await rest("monetization_rules", {
       key: editorUser.accessToken,
       method: "POST",

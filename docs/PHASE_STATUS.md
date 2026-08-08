@@ -9,7 +9,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 2 | Data Core, Auth & RBAC | **CLOSED** (2026-08-08) | `docs/phases/P2_REPORT.md`, `docs/audits/P2_AUDIT.md` — 18/18 tests de RLS contra el proyecto real, ADR-012 (sin branching). 204 DEFERRED a Fase 3 |
 | 3 | Design System & Public Shell | **CLOSED** (2026-08-08) | `docs/phases/P3_REPORT.md`, `docs/audits/P3_AUDIT.md` — shell público completo (Home/Discover/vertical hub/Search/5 legales), design tokens OKLCH, i18n 4 idiomas (EN/ES/PT/HI, ADR-013). 204 re-DEFERRED a Fase 4 |
 | 4 | CMS & Product Intelligence | **CLOSED** (2026-08-08) | `docs/phases/P4_REPORT.md`, `docs/audits/P4_AUDIT.md` — catalog completo (variants/features/prices/media, append-only), content workflow con enforcement de ADR-005, freshness queue, bulk import. Auditoría inicial NO-GO (1 Critical + 2 High), corregido y verificado: 29/29 tests contra el proyecto real. Backlog 409 (nuevo) es prerrequisito real de 204, que se re-DEFERRED sin atarlo a una fase fija |
-| 5 | Monetization & Attribution | NOT STARTED | — |
+| 5 | Monetization & Attribution | **CLOSED** (2026-08-08) | `docs/phases/P5_REPORT.md`, `docs/audits/P5_AUDIT.md` — affiliate/monetization/leads/revenue_events completos, firewall editorial en `roe_scores`, disclosure obligatorio. Auditoría inicial GO CON CONDICIONES (1 High + 1 Low), corregido y verificado: 45/45 tests contra el proyecto real |
 | 6A | Vertical 1: Software & AI | NOT STARTED | — |
 | 6B | Vertical 2: Travel | NOT STARTED | — |
 | 6C | Vertical 3: Consumer Tech | NOT STARTED | — |
@@ -56,3 +56,13 @@ Completado: 401, 402, 403, 404, 405, 406. Catalog completo (`product_variants`/`
 
 **Deferred, sin fase fija**: 204 (Admin/User route guards) sigue bloqueado por la falta de wiring de cliente Supabase/sesión en `apps/web` — nuevo backlog 409 documenta ese prerrequisito explícitamente.
 **Deuda heredada de Fase 3, sin tocar** (Fase 4 no modificó `apps/web`): 407 (migración `middleware.ts`→`proxy.ts`), 408 (`not-found.tsx` localizado).
+
+## Fase 5 — cerrada 2026-08-08
+
+Completado: 501, 502, 503, 504, 505, 506, 507. Dominios `affiliate` (programs/terms/offers/links/clicks), `monetization` (ad_slots/rules/roe_scores/sponsored_campaigns/placements), `leads` (forms/submissions/routes/revenue), `revenue_events` + import.
+
+**Auditoría de cierre obligatoria (ADR-011 A3 + matriz de independencia A7)**: veredicto inicial **GO CON CONDICIONES** (`docs/audits/P5_AUDIT.md`) — 1 hallazgo High (F-01: dos funciones `SECURITY DEFINER` nuevas quedaron llamables sin sesión por un `GRANT`/`REVOKE` incompleto, una explotable de forma real) y 1 Low (F-02: `CHECK` de `monetization_rules` evadible por variantes de mayúsculas/espacios). Como las migraciones ya estaban aplicadas al único proyecto real (ADR-012), F-01 quedaba explotable en producción — corregido de inmediato (`revoke execute ... from public`, vocabulario fijo para `allowed_layers`). Verificado con 45/45 tests contra el proyecto real. Veredicto final: **GO**.
+
+**Bug real encontrado y corregido durante el desarrollo** (antes de la auditoría): policies que unían `sites` directamente fallaban para `editor` en sites `draft` — corregido con funciones `SECURITY DEFINER` (`has_role_in_niche`, `site_niche_id`), documentado como regla general en `docs/DATA_DICTIONARY.md`.
+
+**Deferred, sin fase fija**: backlog 411 (revisión sistemática de `GRANT`/`REVOKE EXECUTE` en funciones `SECURITY DEFINER` de Fases 2/4). 204/409 (route guards/wiring de auth) siguen sin resolver.
