@@ -72,13 +72,14 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 501 | P0 | Affiliate programs/offers/terms | CRUD PASS | TODO |
-| 502 | P0 | Affiliate click attribution | Dedup PASS | TODO |
-| 503 | P0 | Ad slot/rule engine | Policy tests PASS | TODO |
-| 504 | P0 | Lead form/routing model | Secure flow PASS | TODO |
-| 505 | P0 | Revenue events | Reconcile PASS | TODO |
-| 506 | P0 | Disclosure/Sponsored labels | Policy review PASS | TODO |
-| 507 | P1 | Import commissions/reversals | Import PASS | TODO |
+| 501 | P0 | Affiliate programs/offers/terms | CRUD PASS | DONE — `affiliate_programs`/`affiliate_terms`/`affiliate_offers`, trigger que exige terms antes de activar, 45/45 tests contra el proyecto real, ver `docs/audits/P5_AUDIT.md` |
+| 502 | P0 | Affiliate click attribution | Dedup PASS | DONE — `record_affiliate_click()`, idempotente por `click_id` (verificado bajo concurrencia real por el auditor) |
+| 503 | P0 | Ad slot/rule engine | Policy tests PASS | DONE — `monetization_rules` con `CHECK` estructural (vocabulario fijo tras F-02) que impide `ads` en `auth`/`admin`/`low_value` |
+| 504 | P0 | Lead form/routing model | Secure flow PASS | DONE — `lead_forms`/`lead_submissions` (PII, super_admin-only)/`lead_routes` con cross-check de niche |
+| 505 | P0 | Revenue events | Reconcile PASS | DONE — `revenue_events` + `import_revenue_events()`, idempotente por `event_id` (verificado con duplicado dentro del mismo lote) |
+| 506 | P0 | Disclosure/Sponsored labels | Policy review PASS | DONE — `sponsorship_placements.disclosure_label` nunca vacío (`CHECK`, cubre whitespace y `NULL` explícito) |
+| 507 | P1 | Import commissions/reversals | Import PASS | DONE — `import_revenue_events()` |
+| 411 | P1 | Revisión sistemática de `GRANT`/`REVOKE EXECUTE` en funciones `SECURITY DEFINER` de Fases 2/4 (`has_role`, `is_admin_for_site`, `is_admin_for_niche`, `import_product_prices`) | Confirmado sin gap explotable, o corregido | TODO — hallazgo F-01 de `docs/audits/P5_AUDIT.md`; ninguna es explotable de forma independiente hoy, pero requiere verificar que ninguna policy de lectura pública dependa del privilegio implícito de `PUBLIC` antes de revocarlo |
 
 ## Fase P6A — Vertical 1: Business Software & AI
 
