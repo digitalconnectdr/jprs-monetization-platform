@@ -98,11 +98,14 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 611 | P0 | Travel taxonomy/data | Approved | TODO |
-| 612 | P0 | Travel templates | QA PASS | TODO |
-| 613 | P0 | Travel tool v1 | E2E PASS | TODO |
-| 614 | P0 | Content batch v1 | Editorial PASS | TODO |
-| 615 | P1 | Seasonality rules | Jobs PASS | TODO |
+| 611 | P0 | Travel taxonomy/data | Approved | DONE (parcial) — 6 categorías sembradas (Hotels, Destinations, Itineraries, eSIM & connectivity, Luggage, Travel tech); catálogo real solo en 1 de 6 (eSIM & connectivity, 3 productos). Ver `docs/phases/P6B_REPORT.md` sobre por qué Hotels/Luggage quedan fuera |
+| 612 | P0 | Travel templates | QA PASS | DONE — reutiliza templates genéricos de categoría/perfil/comparación de Fase 6A sin cambios estructurales; se corrigió un bug retroactivo (sufijo `/month` hardcodeado) descubierto al extender a un catálogo no-mensual |
+| 613 | P0 | Travel tool v1 | E2E PASS | DONE — eSIM Data Plan Comparator, interactivo, verificado en navegador |
+| 614 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 10-15 target) — 1 comparación real (Airalo vs Holafly vs Nomad eSIM), `pending_editorial_review`, no auto-publicada |
+| 615 | P1 | Seasonality rules | Jobs PASS | TODO — requiere datos estacionales reales por destino, no existen todavía |
+| 616 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6B | Decisión humana registrada | TODO — requiere al propietario funcional; el agente no se auto-aprueba (ADR-005), mismo patrón que backlog 606 |
+| 617 | P0 | Completar el resto del seed editorial de Travel (Hotels, Destinations, Itineraries, Luggage, Travel tech) | Editorial PASS | TODO — Hotels requiere antes una decisión de producto sobre cómo modelar precio dinámico (no encaja en `product_prices` tal cual); Luggage requiere fuentes de vendor más consistentes que las probadas (Away/Samsonite) |
+| 618 | P1 | Conectar `affiliate_links` reales a las páginas de producto de Travel | Disclosure + tracking funcionando | TODO — requiere aprobación real de programas de afiliados (`MONETIZATION_POLICY.md` §3), fuera del alcance de un agente autónomo |
 
 ## Fase P6C — Vertical 3: Consumer Tech & Smart Home
 

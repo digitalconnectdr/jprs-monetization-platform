@@ -5,6 +5,7 @@ import { createPublicSupabaseClient, getProductsForCategory } from "@platform/db
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
+import { priceSuffix } from "@/lib/catalog-price";
 
 export const dynamic = "force-dynamic";
 
@@ -65,8 +66,8 @@ export default async function CategoryPage({
                 </span>
                 {product.latestPrice && (
                   <span className="shrink-0 text-sm text-ink sm:text-right">
-                    {dictionary.catalog.startingAt} ${product.latestPrice.amount.toFixed(0)}
-                    {dictionary.catalog.perMonth}
+                    {dictionary.catalog.startingAt} ${product.latestPrice.amount.toFixed(2)}
+                    {priceSuffix(dictionary, product.latestPrice.priceType)}
                   </span>
                 )}
               </Link>

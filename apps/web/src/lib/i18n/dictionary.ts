@@ -162,6 +162,7 @@ export type Dictionary = {
   catalog: {
     startingAt: string;
     perMonth: string;
+    perYear: string;
     visitWebsite: string;
     viewDetails: string;
     backToCategory: string;
@@ -180,5 +181,10 @@ export type Dictionary = {
     priceColumn: string;
     freeTierColumn: string;
     noSelection: string;
+    esimComparatorTitle: string;
+    esimComparatorIntro: string;
+    dataModelColumn: string;
+    largestPlanColumn: string;
+    coverageColumn: string;
   };
 };
