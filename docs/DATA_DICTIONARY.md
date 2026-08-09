@@ -184,9 +184,9 @@ RLS: lectura pública si el producto padre está `published`. `INSERT`: `editor`
 | source | text | **requerido** |
 | checked_at | timestamptz | **requerido**, default `now()` |
 | confidence | text | `verified` / `estimated` / `unverified`, default `unverified` (F-08) |
-| expires_at | timestamptz, nullable | Solo `price_type='sale'`; al vencer queda como historial pero RLS lo excluye de la lectura pública (Fase 6C) |
+| expires_at | timestamptz, nullable | Obligatorio cuando `price_type='sale'` y nulo en todo otro tipo; al vencer queda como historial pero RLS lo excluye de la lectura pública (Fase 6C) |
 
-RLS: igual patrón que `product_features`, con una condición adicional para ofertas: lectura pública si el producto está `published` **y** `expires_at` es nulo o futuro. Por tanto, una fila `sale` vencida se conserva para auditoría pero no puede consultarse por `anon`. `INSERT`: editor/admin del site; sin `UPDATE` para nadie incluido `service_role`; `DELETE` solo `super_admin`.
+RLS: igual patrón que `product_features`, con una condición adicional para ofertas: lectura pública si el producto está `published` y, si la fila es `sale`, su `expires_at` sigue en el futuro. Por tanto, una fila `sale` vencida — o inválida sin vencimiento — se conserva para auditoría pero no puede consultarse por `anon`. `INSERT`: editor/admin del site; sin `UPDATE` para nadie incluido `service_role`; `DELETE` solo `super_admin`.
 
 ### `product_media`
 | Columna | Tipo | Notas |
@@ -383,7 +383,7 @@ Reconciliación de comisiones/reversals (backlog 507). A diferencia de `import_p
 ## Funciones adicionales de Fase 4
 
 ### `import_product_prices(rows jsonb)`
-Bulk import con validación fila-por-fila (backlog 405) — recibe un array JSON de filas candidatas a `product_prices` (máximo 500 por llamada, corregido tras F-07), valida cada una (`product_id` existe y el llamador tiene autorización sobre su site, `amount >= 0`, `currency` de 3 letras, `price_type` válido, `source` no vacío, `confidence` válido, default `unverified` tras F-08) y devuelve una tabla `(row_index, status, reason, price_id)` por fila: `accepted` con el `id` insertado, o `rejected` con el motivo — sin abortar el lote completo si una fila falla.
+Bulk import con validación fila-por-fila (backlog 405) — recibe un array JSON de filas candidatas a `product_prices` (máximo 500 por llamada, corregido tras F-07), valida cada una (`product_id` existe y el llamador tiene autorización sobre su site, `amount >= 0`, `currency` de 3 letras, `price_type` válido, `source` no vacío, `confidence` válido, default `unverified` tras F-08). Para `price_type='sale'`, `expires_at` es obligatorio; se rechaza si aparece en otro tipo. Devuelve una tabla `(row_index, status, reason, price_id)` por fila: `accepted` con el `id` insertado, o `rejected` con el motivo — sin abortar el lote completo si una fila falla.
 
 `SECURITY DEFINER`, pero la autorización **no se delega al bypass de RLS**: la función valida explícitamente `has_role('editor', site_id) or is_admin_for_site(site_id)` para el site del producto de cada fila, usando `auth.uid()` del llamador — exactamente la misma regla que aplicaría RLS normal. **Corregido tras F-04 de `docs/audits/P4_AUDIT.md` (Medium)**: la versión original resolvía la existencia del `product_id` *antes* del chequeo de autorización y devolvía motivos de rechazo distinguibles ("no existe" vs "sin autorización"), permitiendo que cualquier `authenticated` sin ningún rol usara la función como oráculo de existencia de productos ajenos — ambos casos ahora devuelven el mismo motivo genérico. Sin endpoint HTTP propio todavía (se llama vía RPC de PostgREST); exponerlo en una ruta de Next.js requiere la misma auth de admin que la UI de CMS, diferida (ver `docs/phases/P4.md`).
 

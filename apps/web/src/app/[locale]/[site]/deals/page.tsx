@@ -8,6 +8,23 @@ import { getNicheBySiteSlug } from "@/lib/niches";
 
 export const dynamic = "force-dynamic";
 
+function formatPrice(locale: Locale, amount: number, currency: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+  }).format(amount);
+}
+
+function getSafeSourceHost(source: string): string | null {
+  try {
+    const url = new URL(source);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.hostname : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
   const { locale } = await params;
   return { title: getDictionary(locale).catalog.dealsTitle };
@@ -39,7 +56,19 @@ export default async function DealsPage({ params }: { params: Promise<{ locale: 
                 <p className="font-serif text-xl font-semibold text-ink">{deal.name}</p>
                 {deal.vendorName && <p className="mt-1 text-sm text-muted">{deal.vendorName}</p>}
                 <p className="mt-2 text-sm text-ink">
-                  ${deal.latestPrice.amount.toFixed(2)} · {dictionary.catalog.dealEnds}: {new Date(deal.latestPrice.expiresAt).toLocaleDateString(locale)}
+                  {formatPrice(locale, deal.latestPrice.amount, deal.latestPrice.currency)} · {dictionary.catalog.dealEnds}: {new Date(deal.latestPrice.expiresAt).toLocaleDateString(locale)}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  {dictionary.catalog.sourceLabel}:{" "}
+                  {getSafeSourceHost(deal.latestPrice.source) ? (
+                    <a href={deal.latestPrice.source} target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2">
+                      {getSafeSourceHost(deal.latestPrice.source)}
+                    </a>
+                  ) : (
+                    <span>{deal.latestPrice.source}</span>
+                  )}
+                  {" · "}
+                  {dictionary.catalog.lastCheckedLabel}: {new Date(deal.latestPrice.checkedAt).toLocaleDateString(locale)}
                 </p>
               </div>
               <Link

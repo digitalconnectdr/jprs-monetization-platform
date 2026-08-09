@@ -32,13 +32,14 @@ if (!URL_BASE || !ANON_KEY || !SERVICE_KEY) {
   process.exit(1);
 }
 
-async function rest(pathAndQuery, { key, method = "GET", body } = {}) {
+async function rest(pathAndQuery, { key, method = "GET", body, extraHeaders = {} } = {}) {
   const response = await fetch(`${URL_BASE}/rest/v1/${pathAndQuery}`, {
     method,
     headers: {
       apikey: key,
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
+      ...extraHeaders,
       ...(method === "POST" ? { Prefer: "return=representation" } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -50,6 +51,34 @@ async function rest(pathAndQuery, { key, method = "GET", body } = {}) {
     // Empty body is expected for cleanup requests.
   }
   return { status: response.status, json };
+}
+
+async function createAndSignInTestUser(email, password) {
+  const created = await fetch(`${URL_BASE}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password, email_confirm: true }),
+  }).then((response) => response.json());
+
+  const signedIn = await fetch(`${URL_BASE}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  }).then((response) => response.json());
+
+  return { userId: created.id, accessToken: signedIn.access_token };
+}
+
+async function deleteTestUser(userId) {
+  if (!userId) return;
+  await fetch(`${URL_BASE}/auth/v1/admin/users/${userId}`, {
+    method: "DELETE",
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+  });
 }
 
 let pass = 0;
@@ -69,6 +98,8 @@ async function main() {
   let productId;
   let expiredPriceId;
   let activePriceId;
+  let importedPriceId;
+  let importAdminUserId;
 
   try {
     const site = await rest("sites?select=id&slug=eq.software-ai", { key: SERVICE_KEY });
@@ -134,10 +165,94 @@ async function main() {
       },
     });
     check("la base rechaza expires_at para un precio que no es sale", invalidExpiry.status >= 400, JSON.stringify(invalidExpiry));
+
+    const missingExpiry = await rest("product_prices", {
+      key: SERVICE_KEY,
+      method: "POST",
+      body: {
+        product_id: productId,
+        price_type: "sale",
+        amount: "70.00",
+        currency: "USD",
+        source: "https://example.test/missing-expiry",
+      },
+    });
+    check("la base rechaza una oferta sale sin expires_at", missingExpiry.status >= 400, JSON.stringify(missingExpiry));
+
+    const importAdmin = await createAndSignInTestUser(`p6c-import-${stamp}@example.com`, "TestPassword123!");
+    importAdminUserId = importAdmin.userId;
+    const adminRole = await rest("roles?select=id&name=eq.admin", { key: SERVICE_KEY });
+    const adminRoleId = adminRole.json?.[0]?.id;
+    const roleAssignment = await rest("user_roles", {
+      key: SERVICE_KEY,
+      method: "POST",
+      body: { user_id: importAdmin.userId, role_id: adminRoleId, site_id: siteId },
+    });
+    check(
+      "setup: admin autenticado para probar import_product_prices",
+      Boolean(importAdmin.accessToken) && Boolean(adminRoleId) && roleAssignment.status === 201,
+      JSON.stringify({ importAdmin: { userId: importAdmin.userId }, adminRole, roleAssignment })
+    );
+
+    const importedDeal = await rest("rpc/import_product_prices", {
+      key: importAdmin.accessToken,
+      extraHeaders: { apikey: ANON_KEY },
+      method: "POST",
+      body: {
+        rows: [
+          {
+            product_id: productId,
+            price_type: "sale",
+            amount: "69.00",
+            currency: "USD",
+            source: "https://example.test/imported-sale",
+            expires_at: "2099-01-01T00:00:00.000Z",
+          },
+        ],
+      },
+    });
+    importedPriceId = importedDeal.json?.[0]?.price_id;
+    check(
+      "import_product_prices acepta y conserva expires_at para sale",
+      importedDeal.status === 200 && importedDeal.json?.[0]?.status === "accepted" && Boolean(importedPriceId),
+      JSON.stringify(importedDeal)
+    );
+
+    const importedStored = await rest(`product_prices?select=expires_at&id=eq.${importedPriceId}`, { key: SERVICE_KEY });
+    check(
+      "import_product_prices persiste el vencimiento de la oferta",
+      importedStored.status === 200 && Boolean(importedStored.json?.[0]?.expires_at) && new Date(importedStored.json[0].expires_at).toISOString() === "2099-01-01T00:00:00.000Z",
+      JSON.stringify(importedStored)
+    );
+
+    const invalidImportedDeal = await rest("rpc/import_product_prices", {
+      key: importAdmin.accessToken,
+      extraHeaders: { apikey: ANON_KEY },
+      method: "POST",
+      body: {
+        rows: [
+          {
+            product_id: productId,
+            price_type: "sale",
+            amount: "68.00",
+            currency: "USD",
+            source: "https://example.test/imported-missing-expiry",
+          },
+        ],
+      },
+    });
+    check(
+      "import_product_prices rechaza sale sin expires_at",
+      invalidImportedDeal.status === 200 && invalidImportedDeal.json?.[0]?.status === "rejected",
+      JSON.stringify(invalidImportedDeal)
+    );
   } finally {
+    if (importedPriceId) await rest(`product_prices?id=eq.${importedPriceId}`, { key: SERVICE_KEY, method: "DELETE" });
     if (expiredPriceId) await rest(`product_prices?id=eq.${expiredPriceId}`, { key: SERVICE_KEY, method: "DELETE" });
     if (activePriceId) await rest(`product_prices?id=eq.${activePriceId}`, { key: SERVICE_KEY, method: "DELETE" });
     if (productId) await rest(`products?id=eq.${productId}`, { key: SERVICE_KEY, method: "DELETE" });
+    if (importAdminUserId) await rest(`user_roles?user_id=eq.${importAdminUserId}`, { key: SERVICE_KEY, method: "DELETE" });
+    await deleteTestUser(importAdminUserId);
   }
 
   console.log(`\n${pass} pasaron, ${fail} fallaron.`);

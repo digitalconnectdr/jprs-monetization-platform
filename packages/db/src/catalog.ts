@@ -104,7 +104,7 @@ export async function getProductsForCategory(
     .from("product_prices")
     .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
     .in("product_id", productIds)
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .or(`price_type.neq.sale,expires_at.gt.${new Date().toISOString()}`)
     .order("checked_at", { ascending: false });
 
   const latestPrices = latestByProductId(prices ?? []);
@@ -150,7 +150,7 @@ export async function getProduct(client: SupabaseClient, siteSlug: string, produ
       .from("product_prices")
       .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
       .eq("product_id", product.id)
-      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .or(`price_type.neq.sale,expires_at.gt.${new Date().toISOString()}`)
       .order("checked_at", { ascending: false })
       .limit(1),
     client
