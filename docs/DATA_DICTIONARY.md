@@ -184,8 +184,9 @@ RLS: lectura pública si el producto padre está `published`. `INSERT`: `editor`
 | source | text | **requerido** |
 | checked_at | timestamptz | **requerido**, default `now()` |
 | confidence | text | `verified` / `estimated` / `unverified`, default `unverified` (F-08) |
+| expires_at | timestamptz, nullable | Solo `price_type='sale'`; al vencer queda como historial pero RLS lo excluye de la lectura pública (Fase 6C) |
 
-RLS: igual patrón que `product_features` (lectura pública si producto published, `INSERT` editor/admin del site, sin `UPDATE` para nadie incluido `service_role`, `DELETE` solo `super_admin`).
+RLS: igual patrón que `product_features`, con una condición adicional para ofertas: lectura pública si el producto está `published` **y** `expires_at` es nulo o futuro. Por tanto, una fila `sale` vencida se conserva para auditoría pero no puede consultarse por `anon`. `INSERT`: editor/admin del site; sin `UPDATE` para nadie incluido `service_role`; `DELETE` solo `super_admin`.
 
 ### `product_media`
 | Columna | Tipo | Notas |
