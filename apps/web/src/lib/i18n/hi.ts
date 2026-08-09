@@ -288,6 +288,7 @@ export const hi: Dictionary = {
     dataModelColumn: "डेटा मॉडल",
     largestPlanColumn: "सबसे बड़ा प्लान",
     coverageColumn: "कवरेज",
+    swipeToCompare: "तुलना के सभी कॉलम देखने के लिए क्षैतिज रूप से स्क्रॉल करें।",
     meshWifiFinderTitle: "मेश Wi-Fi फाइंडर",
     meshWifiFinderIntro: "अपने घर की ज़रूरत के नेटवर्क फीचर्स के अनुसार प्रकाशित मेश सिस्टम फ़िल्टर करें। नतीजे प्रकाशित स्पेसिफिकेशन से मेल खाते हैं; वे संपादकीय रैंकिंग नहीं हैं।",
     requireWifi7: "Wi-Fi 7 आवश्यक है",

@@ -192,6 +192,7 @@ export type Dictionary = {
     dataModelColumn: string;
     largestPlanColumn: string;
     coverageColumn: string;
+    swipeToCompare: string;
     meshWifiFinderTitle: string;
     meshWifiFinderIntro: string;
     requireWifi7: string;

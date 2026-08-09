@@ -291,6 +291,7 @@ export const fr: Dictionary = {
     dataModelColumn: "Modèle de données",
     largestPlanColumn: "Plus grand forfait",
     coverageColumn: "Couverture",
+    swipeToCompare: "Faites défiler horizontalement pour voir toutes les colonnes de comparaison.",
     meshWifiFinderTitle: "Sélecteur de Wi-Fi maillé",
     meshWifiFinderIntro: "Filtrez les systèmes maillés publiés selon les fonctions réseau dont votre domicile a besoin. Les résultats correspondent aux caractéristiques publiées ; ce n’est pas un classement éditorial.",
     requireWifi7: "Exiger le Wi-Fi 7",

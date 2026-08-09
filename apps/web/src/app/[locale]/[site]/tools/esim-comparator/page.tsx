@@ -55,6 +55,7 @@ export default async function EsimComparatorPage({
             dataModelColumn: dictionary.tools.dataModelColumn,
             largestPlanColumn: dictionary.tools.largestPlanColumn,
             coverageColumn: dictionary.tools.coverageColumn,
+            swipeToCompare: dictionary.tools.swipeToCompare,
             noSelection: dictionary.tools.noSelection,
             sourceLabel: dictionary.catalog.sourceLabel,
           }}

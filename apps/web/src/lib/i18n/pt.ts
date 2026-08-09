@@ -291,6 +291,7 @@ export const pt: Dictionary = {
     dataModelColumn: "Modelo de dados",
     largestPlanColumn: "Maior plano",
     coverageColumn: "Cobertura",
+    swipeToCompare: "Deslize horizontalmente para ver todas as colunas da comparação.",
     meshWifiFinderTitle: "Localizador de Wi-Fi mesh",
     meshWifiFinderIntro: "Filtre sistemas mesh publicados pelos recursos de rede que sua casa precisa. Os resultados correspondem às especificações publicadas; não são uma classificação editorial.",
     requireWifi7: "Exigir Wi-Fi 7",

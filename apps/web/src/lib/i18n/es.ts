@@ -291,6 +291,7 @@ export const es: Dictionary = {
     dataModelColumn: "Modelo de datos",
     largestPlanColumn: "Plan más grande",
     coverageColumn: "Cobertura",
+    swipeToCompare: "Desliza horizontalmente para ver todas las columnas de la comparación.",
     meshWifiFinderTitle: "Buscador de Wi-Fi mallado",
     meshWifiFinderIntro: "Filtra los sistemas mesh publicados según las características de red que necesita tu hogar. Los resultados coinciden con especificaciones publicadas; no son un ranking editorial.",
     requireWifi7: "Requerir Wi-Fi 7",
