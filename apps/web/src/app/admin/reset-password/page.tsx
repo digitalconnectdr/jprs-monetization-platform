@@ -6,9 +6,11 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 /**
  * Destino del link de recuperación generado por Admin API (`create_super_admin.mjs`,
- * backlog 409). El SDK de Supabase detecta el token en la URL automáticamente al
- * cargar esta página y establece una sesión temporal — de ahí `updateUser({password})`
- * ya funciona sin pedir la contraseña anterior. El agente nunca ve ni elige el valor.
+ * backlog 409). El link llega con `#access_token=...&refresh_token=...` (implicit
+ * grant) en el hash — `@supabase/ssr`'s browser client NO lo auto-detecta como sí
+ * hacía el `supabase-js` clásico, así que esta página lo parsea manualmente y llama
+ * `setSession()` para establecer la sesión temporal antes de permitir
+ * `updateUser({password})`. El agente nunca ve ni elige el valor de la contraseña.
  */
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -19,14 +21,38 @@ export default function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const client = createBrowserSupabaseClient();
-    client.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setReady(true);
-      } else {
-        setError("This link is invalid or has expired. Ask for a new one.");
+    // `@supabase/ssr`'s browser client no auto-detecta el token del hash del link de
+    // recovery (implicit grant) el mismo modo que el `supabase-js` clásico — se
+    // parsea manualmente y se establece la sesión de forma explícita con setSession().
+    // Envuelto en una función async propia (en vez de setState directo en el cuerpo
+    // del efecto) para cumplir react-hooks/set-state-in-effect.
+    async function establishSession() {
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+      const params = new URLSearchParams(hash);
+      const errorDescription = params.get("error_description");
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+
+      if (errorDescription) {
+        setError(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
+        return;
       }
-    });
+      if (!accessToken || !refreshToken) {
+        setError("This link is invalid or has expired. Ask for a new one.");
+        return;
+      }
+
+      const client = createBrowserSupabaseClient();
+      const { error: sessionError } = await client.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      if (sessionError) {
+        setError(sessionError.message);
+        return;
+      }
+      window.history.replaceState(null, "", window.location.pathname);
+      setReady(true);
+    }
+
+    establishSession();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
