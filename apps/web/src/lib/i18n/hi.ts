@@ -86,6 +86,7 @@ export const hi: Dictionary = {
   },
   search: {
     metaTitle: "खोजें",
+    metaDescription: "Decidero के सभी वर्टिकल में तुलनाएं और प्रोडक्ट प्रोफ़ाइल खोजें।",
     h1: "खोजें",
     submitLabel: "खोजें",
     emptyPrompt:
@@ -274,6 +275,10 @@ export const hi: Dictionary = {
     dealEnds: "ऑफ़र समाप्त होता है",
     wasLabel: "पहले",
     saveLabel: "{percent}% बचाएं",
+    categoryMetaDescription: "{niche} में {category} विकल्पों की तुलना करें: वास्तविक कीमतें, फ़ीचर और स्रोत, नियमित रूप से अपडेट किए गए।",
+    productMetaDescription: "{vendor} का {product}: कीमत, फ़ीचर और स्रोत — उद्धृत और दिनांकित।",
+    productMetaDescriptionNoVendor: "{product}: कीमत, फ़ीचर और स्रोत — उद्धृत और दिनांकित।",
+    breadcrumbHome: "होम",
   },
   tools: {
     crmComparatorTitle: "CRM मूल्य तुलनाकर्ता",

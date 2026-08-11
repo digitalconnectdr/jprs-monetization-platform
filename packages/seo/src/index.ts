@@ -1,2 +1,3 @@
-// metadata/schema/sitemaps/feeds. Implementación real en Fase 8.
-export {};
+export { getSiteUrl } from "./site-url";
+export { buildAlternates, LOCALES, type SeoLocale } from "./metadata";
+export { organizationSchema, websiteSchema, breadcrumbListSchema, productSchema } from "./schema";

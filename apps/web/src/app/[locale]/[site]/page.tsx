@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { buildAlternates } from "@platform/seo";
 import { nicheStructures, getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { locales, type Locale } from "@/lib/i18n/locales";
@@ -23,6 +24,7 @@ export async function generateMetadata({
   return {
     title: niche.name,
     description: niche.description,
+    alternates: buildAlternates(site, locale),
   };
 }
 

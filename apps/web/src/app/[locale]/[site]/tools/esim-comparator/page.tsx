@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getProductsForCategory, getProduct } from "@platform/db";
+import { buildAlternates } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
@@ -13,9 +14,13 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: Locale; site: string }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, site } = await params;
   const dictionary = getDictionary(locale);
-  return { title: dictionary.tools.esimComparatorTitle };
+  return {
+    title: dictionary.tools.esimComparatorTitle,
+    description: dictionary.tools.esimComparatorIntro,
+    alternates: buildAlternates(`${site}/tools/esim-comparator`, locale),
+  };
 }
 
 export default async function EsimComparatorPage({

@@ -138,12 +138,14 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 801 | P0 | Metadata/canonical/robots | SEO audit PASS | TODO |
-| 802 | P0 | Sitemaps per property | Validated | TODO |
-| 803 | P0 | Structured data | Validator PASS | TODO |
-| 804 | P0 | Internal linking/breadcrumbs | Crawl PASS | TODO |
-| 805 | P1 | Newsletter/preferences | E2E PASS | TODO |
-| 806 | P1 | Social content workflow | Playbook ready | TODO |
+| 801 | P0 | Metadata/canonical/robots | SEO audit PASS | DONE — `app/robots.ts`, `description`+`canonical`+`hreflang` (5 locales + x-default) en las 16 páginas del shell público, `/search` marcado `noindex` (no ejecuta búsqueda real todavía) |
+| 802 | P0 | Sitemaps per property | Validated | DONE — `app/sitemap.ts` dinámico, 47 URLs verificadas (shell + catálogo real de las 3 verticales), excluye correctamente contenido no publicado |
+| 803 | P0 | Structured data | Validator PASS | DONE — `Organization`/`WebSite` sitewide, `Product` en perfiles con precio real, `BreadcrumbList` en categoría/producto/guía/deals — verificado en el HTML servido |
+| 804 | P0 | Internal linking/breadcrumbs | Crawl PASS | DONE — componente `Breadcrumb` (fuente única para UI visible + JSON-LD), reemplaza los links "← Volver" de un solo nivel |
+| 805 | P1 | Newsletter/preferences | E2E PASS | TODO — canal de distribución, no señal de descubribilidad; fuera del scope de esta sesión |
+| 806 | P1 | Social content workflow | Playbook ready | TODO — ídem 805 |
+| 807 | P1 | Reactivar indexación de `/search` cuando exista búsqueda real | Sin noindex, resultados reales | TODO |
+| 808 | P1 | `Article`/`Review` JSON-LD para contenido editorial publicado | Schema validado en contenido real | TODO — depende de que se resuelva 606/616/626 (aprobación humana) primero |
 
 ## Fase P9 — AI Operations & Freshness
 

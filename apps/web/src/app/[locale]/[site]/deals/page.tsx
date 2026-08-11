@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getActiveDeals, type ProductDeal } from "@platform/db";
+import { buildAlternates } from "@platform/seo";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
 import { getNicheBySiteSlug } from "@/lib/niches";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +34,14 @@ function savingsPercent(deal: ProductDeal): number | null {
   return Math.round((1 - deal.latestPrice.amount / deal.listPrice.amount) * 100);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return { title: getDictionary(locale).catalog.dealsTitle };
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; site: string }> }): Promise<Metadata> {
+  const { locale, site } = await params;
+  const dictionary = getDictionary(locale);
+  return {
+    title: dictionary.catalog.dealsTitle,
+    description: dictionary.catalog.dealsIntro,
+    alternates: buildAlternates(`${site}/deals`, locale),
+  };
 }
 
 export default async function DealsPage({ params }: { params: Promise<{ locale: Locale; site: string }> }) {
@@ -47,7 +54,14 @@ export default async function DealsPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-      <p className="text-sm font-medium" style={{ color: niche.accentVar }}>
+      <Breadcrumb
+        items={[
+          { name: dictionary.catalog.breadcrumbHome, href: `/${locale}` },
+          { name: niche.name, href: `/${locale}/${site}` },
+          { name: dictionary.catalog.dealsTitle, href: `/${locale}/${site}/deals` },
+        ]}
+      />
+      <p className="mt-4 text-sm font-medium" style={{ color: niche.accentVar }}>
         {niche.name}
       </p>
       <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{dictionary.catalog.dealsTitle}</h1>

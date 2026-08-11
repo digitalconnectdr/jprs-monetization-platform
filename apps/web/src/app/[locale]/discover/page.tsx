@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildAlternates } from "@platform/seo";
 import { getNiches } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
@@ -14,6 +15,7 @@ export async function generateMetadata({
   return {
     title: dictionary.discover.metaTitle,
     description: dictionary.discover.metaDescription,
+    alternates: buildAlternates("discover", locale),
   };
 }
 

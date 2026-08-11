@@ -81,6 +81,26 @@ export async function getCategoriesForNiche(client: SupabaseClient, nicheSlug: s
   return data ?? [];
 }
 
+/** Slug + categoría de todo producto published de un site — usado por app/sitemap.ts (Fase 8, backlog 802). */
+export async function listPublishedProductSlugs(
+  client: SupabaseClient,
+  siteSlug: string
+): Promise<{ productSlug: string; categorySlug: string }[]> {
+  const siteId = await getSiteId(client, siteSlug);
+  if (!siteId) return [];
+
+  const { data } = await client
+    .from("products")
+    .select("slug,category:categories(slug)")
+    .eq("site_id", siteId)
+    .eq("status", "published");
+
+  return (data ?? []).flatMap((row) => {
+    const category = Array.isArray(row.category) ? row.category[0] : row.category;
+    return category?.slug ? [{ productSlug: row.slug, categorySlug: category.slug }] : [];
+  });
+}
+
 export async function getProductsForCategory(
   client: SupabaseClient,
   siteSlug: string,

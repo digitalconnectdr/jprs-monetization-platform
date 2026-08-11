@@ -1,22 +1,30 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getProduct } from "@platform/db";
+import { buildAlternates, getSiteUrl, productSchema } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
 import { priceSuffix } from "@/lib/catalog-price";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
 
 type RouteParams = { locale: Locale; site: string; category: string; product: string };
 
 export async function generateMetadata({ params }: { params: Promise<RouteParams> }): Promise<Metadata> {
-  const { site, product } = await params;
+  const { locale, site, category, product } = await params;
+  const dictionary = getDictionary(locale);
   const client = createPublicSupabaseClient();
   const detail = await getProduct(client, site, product);
   if (!detail) return {};
-  return { title: `${detail.name}${detail.vendorName ? ` — ${detail.vendorName}` : ""}` };
+  return {
+    title: `${detail.name}${detail.vendorName ? ` — ${detail.vendorName}` : ""}`,
+    description: detail.vendorName
+      ? t(dictionary.catalog.productMetaDescription, { product: detail.name, vendor: detail.vendorName })
+      : t(dictionary.catalog.productMetaDescriptionNoVendor, { product: detail.name }),
+    alternates: buildAlternates(`${site}/${category}/${product}`, locale),
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
@@ -31,9 +39,32 @@ export default async function ProductPage({ params }: { params: Promise<RoutePar
   const detail = await getProduct(client, site, product);
   if (!detail) notFound();
 
+  const siteUrl = getSiteUrl();
+  const productUrl = `${siteUrl}/${locale}/${site}/${category}/${product}`;
+  const schema = productSchema({
+    name: detail.name,
+    description: detail.vendorName
+      ? t(dictionary.catalog.productMetaDescription, { product: detail.name, vendor: detail.vendorName })
+      : t(dictionary.catalog.productMetaDescriptionNoVendor, { product: detail.name }),
+    url: productUrl,
+    brand: detail.vendorName,
+    price: detail.latestPrice?.amount ?? null,
+    priceCurrency: detail.latestPrice?.currency ?? null,
+    priceValidUntil: detail.latestPrice?.expiresAt ?? null,
+  });
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-      <p className="text-sm font-medium" style={{ color: niche.accentVar }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <Breadcrumb
+        items={[
+          { name: dictionary.catalog.breadcrumbHome, href: `/${locale}` },
+          { name: niche.name, href: `/${locale}/${site}` },
+          { name: categoryCopy.name, href: `/${locale}/${site}/${category}` },
+          { name: detail.name, href: `/${locale}/${site}/${category}/${product}` },
+        ]}
+      />
+      <p className="mt-4 text-sm font-medium" style={{ color: niche.accentVar }}>
         {categoryCopy.name}
       </p>
       <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{detail.name}</h1>
@@ -93,12 +124,6 @@ export default async function ProductPage({ params }: { params: Promise<RoutePar
       )}
 
       <p className="mt-10 text-xs leading-relaxed text-muted">{dictionary.catalog.methodologyNote}</p>
-
-      <p className="mt-14 border-t border-border pt-8 text-sm text-muted">
-        <Link href={`/${locale}/${site}/${category}`} className="text-ink underline underline-offset-2">
-          {t(dictionary.catalog.backToCategory, { category: categoryCopy.name })}
-        </Link>
-      </p>
     </div>
   );
 }

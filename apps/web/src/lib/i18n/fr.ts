@@ -88,6 +88,7 @@ export const fr: Dictionary = {
   },
   search: {
     metaTitle: "Rechercher",
+    metaDescription: "Recherchez des comparaisons et des fiches produit dans les verticales de Decidero.",
     h1: "Rechercher",
     submitLabel: "Rechercher",
     emptyPrompt:
@@ -277,6 +278,10 @@ export const fr: Dictionary = {
     dealEnds: "L’offre se termine",
     wasLabel: "Avant",
     saveLabel: "Économisez {percent}%",
+    categoryMetaDescription: "Comparez les options {category} dans {niche} : prix, caractéristiques et sources réelles, mis à jour régulièrement.",
+    productMetaDescription: "{product} par {vendor} : prix, caractéristiques et sources — citées et datées.",
+    productMetaDescriptionNoVendor: "{product} : prix, caractéristiques et sources — citées et datées.",
+    breadcrumbHome: "Accueil",
   },
   tools: {
     crmComparatorTitle: "Comparateur de prix CRM",

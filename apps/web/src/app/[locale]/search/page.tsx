@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildAlternates } from "@platform/seo";
 import { getNiches } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
@@ -13,6 +14,12 @@ export async function generateMetadata({
   const dictionary = getDictionary(locale);
   return {
     title: dictionary.search.metaTitle,
+    description: dictionary.search.metaDescription,
+    alternates: buildAlternates("search", locale),
+    // La búsqueda todavía no ejecuta una consulta real contra el catálogo (siempre
+    // muestra "sin resultados") — indexar /search?q=* generaría contenido delgado
+    // sin valor único para cada query. Se reactiva cuando exista búsqueda real.
+    robots: { index: false, follow: true },
   };
 }
 

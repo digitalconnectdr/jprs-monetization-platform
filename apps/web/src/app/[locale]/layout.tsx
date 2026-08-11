@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Source_Serif_4, Public_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import { brand } from "@platform/shared";
+import { getSiteUrl, organizationSchema, websiteSchema } from "@platform/seo";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
@@ -26,6 +27,7 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: brand.name,
     template: `%s — ${brand.name}`,
@@ -45,9 +47,14 @@ export default async function LocaleLayout({
   const locale = rawLocale as Locale;
   const dictionary = getDictionary(locale);
 
+  const orgSchema = organizationSchema({ name: brand.name, description: brand.tagline });
+  const siteSchema = websiteSchema({ name: brand.name });
+
   return (
     <html lang={locale} className={`${sourceSerif.variable} ${publicSans.variable}`}>
       <body className="flex min-h-screen flex-col">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
         <AnalyticsBeacon locale={locale} />
         <a
           href="#main-content"

@@ -22,6 +22,15 @@ export type ContentDetail = {
   linkedProductIds: string[];
 };
 
+/** Slugs de contenido published de un site — usado por app/sitemap.ts (Fase 8, backlog 802). */
+export async function listPublishedContentSlugs(client: SupabaseClient, siteSlug: string): Promise<string[]> {
+  const { data: site } = await client.from("sites").select("id").eq("slug", siteSlug).maybeSingle();
+  if (!site) return [];
+
+  const { data } = await client.from("content_items").select("slug").eq("site_id", site.id).eq("status", "published");
+  return (data ?? []).map((row) => row.slug);
+}
+
 /** Solo lee content_items status=published — coherente con la policy RLS pública (Fase 4). */
 export async function getPublishedContentItem(
   client: SupabaseClient,
