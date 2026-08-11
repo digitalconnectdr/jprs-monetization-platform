@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { brand } from "@platform/shared";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { locales, type Locale } from "@/lib/i18n/locales";
 import "../globals.css";
@@ -47,6 +48,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${sourceSerif.variable} ${publicSans.variable}`}>
       <body className="flex min-h-screen flex-col">
+        <AnalyticsBeacon locale={locale} />
         <a
           href="#main-content"
           className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-tooltip focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-4 focus-visible:py-2 focus-visible:text-primary-ink"

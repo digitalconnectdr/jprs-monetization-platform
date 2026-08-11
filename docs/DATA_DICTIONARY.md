@@ -362,10 +362,20 @@ Config de enrutamiento a vendors — sin PII de leads individuales. Escritura: `
 ### `lead_revenue`
 Append-only, mismo patrón que `product_prices`/`affiliate_offers`. `super_admin` únicamente.
 
-## Dominio: analytics (parcial — Fase 5 solo `revenue_events`)
+## Dominio: analytics (Fase 5 `revenue_events` + Fase 7 `analytics_events`/`roe_scores`)
 
 ### `revenue_events`
-Ledger append-only de reconciliación. `event_id` es la clave de idempotencia (`MONETIZATION_POLICY.md` §9: "revenue reconcilia con import de prueba"). `super_admin` únicamente. El resto del dominio `analytics` (`sessions`, `events`, `page_metrics_daily`, `attribution_touchpoints`, `conversions`) es Fase 7.
+Ledger append-only de reconciliación. `event_id` es la clave de idempotencia (`MONETIZATION_POLICY.md` §9: "revenue reconcilia con import de prueba"). `super_admin` únicamente.
+
+### `analytics_events` (Fase 7, backlog 701)
+Ledger append-only, una sola tabla genérica para los 9 tipos de evento de `KPI_TREE.md` §3 (`page_view`, `product_impression`, `affiliate_click`, `comparison_add`, `save_product`, `lead_start`, `lead_submit`, `conversion`, `ad_revenue_daily`, `newsletter_signup`) — `event_type` + `payload jsonb`, en vez de una tabla por tipo. **Decisión de diseño distinta a lo que Fase 5 anticipaba** (`sessions`/`events`/`page_metrics_daily`/`attribution_touchpoints`/`conversions` como tablas separadas): para el volumen y las queries de un v1 sin tráfico real todavía, una tabla + `event_type` es más simple y suficiente; se separa en tablas dedicadas cuando el volumen o la forma de las queries de reporting lo justifiquen (backlog nuevo, sin fecha fija).
+
+`event_id` es la clave de idempotencia. **Sin policy de `INSERT` directo** — se escribe únicamente vía `record_analytics_event(...)` (`SECURITY DEFINER`, mismo patrón que `record_affiliate_click`), que valida `event_type` contra el vocabulario fijo y hace `ON CONFLICT (event_id) DO NOTHING`. Lectura: `analyst`/`admin` de su propio site, o `super_admin` (cualquier site) — nunca público, son datos de comportamiento de visitantes.
+
+Solo `page_view` está cableado end-to-end desde `apps/web` (`AnalyticsBeacon`, cliente, emite en cada navegación vía `usePathname()`). `site_id` queda `null` en los eventos emitidos por el cliente — resolver el slug de la URL a un `uuid` real añadiría un roundtrip extra por página; `payload.site_slug` alcanza para agrupar en un v1. El resto de tipos de evento tiene el schema listo pero no está cableado en la UI todavía (`affiliate_click` real requiere `affiliate_links` conectados — 608/618/628, todos TODO).
+
+### `roe_scores` (Fase 5, poblado por primera vez en Fase 7)
+`compute_structural_roe_scores()` (backlog 705, `SECURITY DEFINER`, **`EXECUTE` revocado de `PUBLIC`**, solo `service_role`) calcula `quality_score` por `content_item_id` a partir de completitud/frescura del catálogo vinculado (¿tiene precio?, ¿tiene features con fuente?, ¿qué tan reciente es `checked_at`?) — **no** la fórmula de ROE del blueprint (`Expected Revenue per Session`), que requiere `P(click)`/`P(conversion)` reales inexistentes sin tráfico. `rule_version='structural_readiness_v1'` distingue explícitamente este score del ROE real; `monetization_score` y las columnas `*_ev` quedan en su default (`null`/`0`) — calcularlas requiere señales de afiliados/tráfico que tampoco existen todavía. Se recalcula (no se sobreescribe) cuando el catálogo cambie — es append-only, como el resto de `roe_scores`.
 
 ## Funciones de autorización adicionales (Fase 5)
 

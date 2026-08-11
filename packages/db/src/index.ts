@@ -3,3 +3,4 @@
 export { createPublicSupabaseClient } from "./client";
 export * from "./catalog";
 export * from "./content";
+export * from "./analytics";
