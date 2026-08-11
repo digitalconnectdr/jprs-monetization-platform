@@ -41,8 +41,8 @@ export const nicheStructures: NicheStructure[] = [
     slug: "consumer-tech-smart-home",
     siteSlug: "consumer-tech",
     accentVar: "var(--color-niche-tech)",
-    launched: false,
-    categorySlugs: [],
+    launched: true,
+    categorySlugs: ["smart-home", "networking", "audio", "monitors", "accessories", "home-office", "creator-gear"],
   },
 ];
 

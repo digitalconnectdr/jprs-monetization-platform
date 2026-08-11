@@ -8,6 +8,7 @@ export type LatestPrice = {
   priceType: string;
   checkedAt: string;
   source: string;
+  expiresAt: string | null;
 };
 
 export type ProductSummary = {
@@ -29,6 +30,11 @@ export type ProductFeatureRow = {
 
 export type ProductDetail = ProductSummary & {
   features: ProductFeatureRow[];
+};
+
+export type ProductDeal = ProductSummary & {
+  categorySlug: string;
+  latestPrice: LatestPrice & { expiresAt: string };
 };
 
 async function getSiteId(client: SupabaseClient, siteSlug: string): Promise<string | null> {
@@ -96,8 +102,9 @@ export async function getProductsForCategory(
   const productIds = products.map((p) => p.id);
   const { data: prices } = await client
     .from("product_prices")
-    .select("product_id,amount,currency,price_type,checked_at,source")
+    .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
     .in("product_id", productIds)
+    .or(`price_type.neq.sale,expires_at.gt.${new Date().toISOString()}`)
     .order("checked_at", { ascending: false });
 
   const latestPrices = latestByProductId(prices ?? []);
@@ -118,6 +125,7 @@ export async function getProductsForCategory(
             priceType: price.price_type,
             checkedAt: price.checked_at,
             source: price.source,
+            expiresAt: price.expires_at,
           }
         : null,
     };
@@ -140,8 +148,9 @@ export async function getProduct(client: SupabaseClient, siteSlug: string, produ
   const [{ data: prices }, { data: features }] = await Promise.all([
     client
       .from("product_prices")
-      .select("product_id,amount,currency,price_type,checked_at,source")
+      .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
       .eq("product_id", product.id)
+      .or(`price_type.neq.sale,expires_at.gt.${new Date().toISOString()}`)
       .order("checked_at", { ascending: false })
       .limit(1),
     client
@@ -181,8 +190,64 @@ export async function getProduct(client: SupabaseClient, siteSlug: string, produ
           priceType: price.price_type,
           checkedAt: price.checked_at,
           source: price.source,
+          expiresAt: price.expires_at,
         }
       : null,
     features: latestFeatures,
   };
+}
+
+/**
+ * Ofertas activas: una sale vencida queda en el ledger para auditoría, pero no puede
+ * aparecer al visitante. RLS aplica el mismo filtro para impedir su lectura directa.
+ */
+export async function getActiveDeals(client: SupabaseClient, siteSlug: string): Promise<ProductDeal[]> {
+  const siteNiche = await getSiteNicheId(client, siteSlug);
+  if (!siteNiche) return [];
+
+  const { data: products } = await client
+    .from("products")
+    .select("id,slug,name,category:categories(slug),vendor:vendors(name,website_url)")
+    .eq("site_id", siteNiche.siteId)
+    .eq("status", "published")
+    .order("name");
+
+  if (!products || products.length === 0) return [];
+
+  const productIds = products.map((product) => product.id);
+  const { data: prices } = await client
+    .from("product_prices")
+    .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
+    .in("product_id", productIds)
+    .eq("price_type", "sale")
+    .gt("expires_at", new Date().toISOString())
+    .order("checked_at", { ascending: false });
+
+  const latestPrices = latestByProductId(prices ?? []);
+
+  return products.flatMap((product) => {
+    const price = latestPrices.get(product.id);
+    const category = Array.isArray(product.category) ? product.category[0] : product.category;
+    const vendor = Array.isArray(product.vendor) ? product.vendor[0] : product.vendor;
+    if (!price?.expires_at || !category?.slug) return [];
+
+    return [
+      {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        categorySlug: category.slug,
+        vendorName: vendor?.name ?? null,
+        vendorWebsiteUrl: vendor?.website_url ?? null,
+        latestPrice: {
+          amount: Number(price.amount),
+          currency: price.currency,
+          priceType: price.price_type,
+          checkedAt: price.checked_at,
+          source: price.source,
+          expiresAt: price.expires_at,
+        },
+      },
+    ];
+  });
 }

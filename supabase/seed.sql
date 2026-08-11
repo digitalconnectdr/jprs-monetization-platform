@@ -65,3 +65,19 @@ select id, slug, name from public.niches, (values
 ) as cat(slug, name)
 where niches.slug = 'travel-smart-travel'
 on conflict (niche_id, slug) do nothing;
+
+-- Categorías de consumer-tech-smart-home (Fase 6C, backlog 621). El blueprint
+-- define siete; `creator-gear` se incorpora ahora al shell multiidioma en lugar
+-- de silenciarlo por el listado incompleto que había quedado en Fase 3.
+insert into public.categories (niche_id, slug, name)
+select id, slug, name from public.niches, (values
+  ('smart-home', 'Smart home'),
+  ('networking', 'Networking'),
+  ('audio', 'Audio'),
+  ('monitors', 'Monitors'),
+  ('accessories', 'Accessories'),
+  ('home-office', 'Home office'),
+  ('creator-gear', 'Creator gear')
+) as cat(slug, name)
+where niches.slug = 'consumer-tech-smart-home'
+on conflict (niche_id, slug) do nothing;

@@ -12,7 +12,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 5 | Monetization & Attribution | **CLOSED** (2026-08-08) | `docs/phases/P5_REPORT.md`, `docs/audits/P5_AUDIT.md` — affiliate/monetization/leads/revenue_events completos, firewall editorial en `roe_scores`, disclosure obligatorio. Auditoría inicial GO CON CONDICIONES (1 High + 1 Low), corregido y verificado: 45/45 tests contra el proyecto real |
 | 6A | Vertical 1: Software & AI | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6A_REPORT.md` — taxonomía + 5 productos reales sembrados (CRM, AI Assistants) + templates + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 12-18 páginas target) — backlog 606/607/608 |
 | 6B | Vertical 2: Travel | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6B_REPORT.md` — taxonomía (6 categorías) + 3 productos reales sembrados (eSIM & connectivity) + templates reutilizados + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 6 categorías con catálogo real) — backlog 615/616/617/618 |
-| 6C | Vertical 3: Consumer Tech | NOT STARTED | — |
+| 6C | Vertical 3: Consumer Tech | **IN PROGRESS** (2026-08-09) | `docs/phases/P6C.md` — networking catalog, finder and expiry-safe deal model in preparation; requires review before closure |
 | 7 | Admin Analytics & ROE v1 | NOT STARTED | — |
 | 8 | Growth/Search/Distribution | NOT STARTED | — |
 | 9 | AI Operations & Freshness | NOT STARTED | — |

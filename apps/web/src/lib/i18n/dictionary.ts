@@ -172,6 +172,10 @@ export type Dictionary = {
     featuresHeading: string;
     pricingHeading: string;
     methodologyNote: string;
+    dealsTitle: string;
+    dealsIntro: string;
+    noActiveDeals: string;
+    dealEnds: string;
   };
   tools: {
     crmComparatorTitle: string;
@@ -188,5 +192,14 @@ export type Dictionary = {
     dataModelColumn: string;
     largestPlanColumn: string;
     coverageColumn: string;
+    swipeToCompare: string;
+    meshWifiFinderTitle: string;
+    meshWifiFinderIntro: string;
+    requireWifi7: string;
+    requireMultiGig: string;
+    requireSmartHomeHub: string;
+    matchingProductsHeading: string;
+    noMatchingProducts: string;
+    finderMethodology: string;
   };
 };

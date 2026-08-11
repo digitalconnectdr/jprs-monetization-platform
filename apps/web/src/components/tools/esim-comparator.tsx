@@ -15,6 +15,7 @@ export function EsimComparator({
     dataModelColumn: string;
     largestPlanColumn: string;
     coverageColumn: string;
+    swipeToCompare: string;
     noSelection: string;
     sourceLabel: string;
   };
@@ -59,8 +60,10 @@ export function EsimComparator({
       {selectedProducts.length === 0 ? (
         <p className="mt-8 text-sm text-muted">{labels.noSelection}</p>
       ) : (
-        <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+        <>
+          <p className="mt-6 text-xs text-muted md:hidden">{labels.swipeToCompare}</p>
+          <div className="mt-3 overflow-x-auto md:mt-8">
+            <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="py-2 pr-4 font-semibold text-ink"> </th>
@@ -85,8 +88,9 @@ export function EsimComparator({
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
