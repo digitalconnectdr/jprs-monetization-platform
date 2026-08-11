@@ -12,7 +12,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 5 | Monetization & Attribution | **CLOSED** (2026-08-08) | `docs/phases/P5_REPORT.md`, `docs/audits/P5_AUDIT.md` — affiliate/monetization/leads/revenue_events completos, firewall editorial en `roe_scores`, disclosure obligatorio. Auditoría inicial GO CON CONDICIONES (1 High + 1 Low), corregido y verificado: 45/45 tests contra el proyecto real |
 | 6A | Vertical 1: Software & AI | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6A_REPORT.md` — taxonomía + 5 productos reales sembrados (CRM, AI Assistants) + templates + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 12-18 páginas target) — backlog 606/607/608 |
 | 6B | Vertical 2: Travel | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6B_REPORT.md` — taxonomía (6 categorías) + 3 productos reales sembrados (eSIM & connectivity) + templates reutilizados + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 6 categorías con catálogo real) — backlog 615/616/617/618 |
-| 6C | Vertical 3: Consumer Tech | **IN PROGRESS** (2026-08-09) | `docs/phases/P6C.md` — networking catalog, finder and expiry-safe deal model in preparation; requires review before closure |
+| 6C | Vertical 3: Consumer Tech | **CLOSED (v1 parcial)** (2026-08-09) | `docs/phases/P6C_REPORT.md` — 7 categorías + 3 productos reales sembrados (Networking) + templates + Mesh Wi-Fi Finder + `/deals` con expiración de ofertas (10/10 tests) + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Desarrollado por Codex (PR #13), revisado y cerrado por Claude Code — backlog 626/627/628/629 |
 | 7 | Admin Analytics & ROE v1 | NOT STARTED | — |
 | 8 | Growth/Search/Distribution | NOT STARTED | — |
 | 9 | AI Operations & Freshness | NOT STARTED | — |
@@ -88,3 +88,13 @@ Completado: 611 (taxonomía, 6 categorías), 611/612 (seed parcial: 3 productos 
 **Deferred, sin fase fija**: backlog 615 (seasonality rules), 616 (aprobar/rechazar contenido pendiente de esta fase), 617 (resto del seed editorial de Travel), 618 (`affiliate_links` reales). Backlog 606 (Fase 6A) sigue abierto también.
 
 **Actualización posterior al cierre de Fase 6A (2026-08-08)**: a pedido del propietario funcional, se enriqueció el catálogo de los 5 productos ya sembrados (`billing_model`, `marketplace_integrations`, `seat_minimum`, `api_access`, `team_plan`), se amplió el CRM Pricing Comparator a 5 columnas, y se creó una versión 2 (más rica, con veredictos "mejor para X caso de uso") del artículo pendiente — sigue sin publicar (ADR-005). No reabre Fase 6A. Ver addendum en `docs/phases/P6A_REPORT.md` y `CHANGELOG.md`.
+
+## Fase 6C — cerrada 2026-08-09 (v1 parcial)
+
+Desarrollada por Codex (PR #13: taxonomía de 7 categorías incluyendo "Creator gear", catálogo real de 3 sistemas mesh en Networking, `product_prices.expires_at` con RLS que excluye ofertas vencidas, `Mesh Wi-Fi Finder`, ruta `/deals`, 1 pieza de contenido pendiente). Codex se auto-auditó (`docs/audits/P6C_AUDIT.md`): encontró 7 hallazgos (3 High) y los corrigió antes de abrir el PR.
+
+Claude Code revisó el PR de forma independiente antes de mergear (ADR-011: la fase toca RLS/schema) — sin hallazgos adicionales bloqueantes — y tras el merge aplicó la migración y el seed al proyecto Supabase real (ADR-012), corrió `supabase/tests/deal_expiration.test.mjs` (10/10 pasaron), hizo QA en navegador, y cerró la fase formalmente. Ver `docs/phases/P6C_REPORT.md` para el detalle completo del reparto de trabajo entre ambos agentes.
+
+**Bloqueo del clasificador de permisos**: tanto el merge del PR como `supabase db push --linked` fueron bloqueados por el clasificador del entorno del agente, incluso con confirmación explícita del propietario funcional en el chat — el merge se resolvió con un reintento, pero el `db push` requirió que el propietario funcional lo ejecutara él mismo desde su terminal.
+
+**Deferred, sin fase fija**: backlog 626 (aprobar/rechazar contenido pendiente), 627 (resto del catálogo de Consumer Tech — 6 de 7 categorías), 628 (`affiliate_links` reales), 629 (sembrar una oferta `sale` real y vigente — se investigó activamente sin encontrar una verificable al cierre; se hizo una demostración temporal de `/deals` con un producto de prueba, eliminado inmediatamente después, a pedido del propietario funcional).

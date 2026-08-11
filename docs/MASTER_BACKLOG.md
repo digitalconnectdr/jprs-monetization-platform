@@ -111,11 +111,15 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 621 | P0 | Consumer Tech taxonomy/specs | Approved | TODO |
-| 622 | P0 | Commerce templates | QA PASS | TODO |
-| 623 | P0 | Finder/compatibility tool | E2E PASS | TODO |
-| 624 | P0 | Deal expiration | Job PASS | TODO |
-| 625 | P0 | Content batch v1 | Editorial PASS | TODO |
+| 621 | P0 | Consumer Tech taxonomy/specs | Approved | DONE (parcial) — 7 categorías sembradas (incluye "Creator gear", que faltaba desde Fase 3); catálogo real solo en 1 de 7 (Networking, 3 productos). Ver `docs/phases/P6C_REPORT.md` |
+| 622 | P0 | Commerce templates | QA PASS | DONE — reutiliza templates de categoría/perfil de Fase 6A; nueva ruta `/deals` que solo lista ofertas `sale` vigentes |
+| 623 | P0 | Finder/compatibility tool | E2E PASS | DONE — Mesh Wi-Fi Finder, filtro por Wi-Fi 7/multi-gig/hub, verificado interactivo en navegador |
+| 624 | P0 | Deal expiration | Job PASS | DONE — `product_prices.expires_at` obligatorio para `price_type='sale'`, RLS excluye ofertas vencidas, `import_product_prices` actualizada. 10/10 tests contra el proyecto real (`supabase/tests/deal_expiration.test.mjs`) |
+| 625 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 8-12 target) — 1 comparación real (eero 7 vs Nest Wifi Pro vs Deco BE63), `pending_editorial_review`, no auto-publicada |
+| 626 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6C | Decisión humana registrada | TODO — mismo patrón que 606/616 |
+| 627 | P0 | Completar el resto del catálogo de Consumer Tech (Smart home, Audio, Monitors, Accessories, Home office, Creator gear) | Editorial PASS | TODO — 6 de 7 categorías sin productos |
+| 628 | P1 | Conectar `affiliate_links` reales a las páginas de producto de Consumer Tech | Disclosure + tracking funcionando | TODO — mismo motivo que 608/618 |
+| 629 | P1 | Sembrar al menos 1 oferta `sale` real y vigente (con `expires_at` verificable) para que `/deals` muestre datos reales | Oferta real visible en `/deals` | TODO — investigado activamente (eero/Nest/Deco BE63 en eero.com, Google Store, Best Buy, Amazon), sin resultado verificable al momento del cierre; ver `docs/phases/P6C_REPORT.md` |
 
 ## Fase P7 — Admin Analytics & ROE v1
 
