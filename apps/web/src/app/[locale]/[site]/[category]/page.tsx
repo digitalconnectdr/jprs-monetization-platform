@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getProductsForCategory } from "@platform/db";
+import { buildAlternates } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
 import { priceSuffix } from "@/lib/catalog-price";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,11 @@ export async function generateMetadata({
   const niche = getNicheBySiteSlug(dictionary, site);
   const categoryCopy = niche?.categories.find((c) => c.slug === category);
   if (!niche || !categoryCopy) return {};
-  return { title: `${categoryCopy.name} — ${niche.name}` };
+  return {
+    title: `${categoryCopy.name} — ${niche.name}`,
+    description: t(dictionary.catalog.categoryMetaDescription, { category: categoryCopy.name, niche: niche.name }),
+    alternates: buildAlternates(`${site}/${category}`, locale),
+  };
 }
 
 export default async function CategoryPage({
@@ -39,7 +45,14 @@ export default async function CategoryPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-      <p className="text-sm font-medium" style={{ color: niche.accentVar }}>
+      <Breadcrumb
+        items={[
+          { name: dictionary.catalog.breadcrumbHome, href: `/${locale}` },
+          { name: niche.name, href: `/${locale}/${site}` },
+          { name: categoryCopy.name, href: `/${locale}/${site}/${category}` },
+        ]}
+      />
+      <p className="mt-4 text-sm font-medium" style={{ color: niche.accentVar }}>
         {niche.name}
       </p>
       <h1 className="mt-2 max-w-2xl font-serif text-3xl font-semibold text-ink">
@@ -77,12 +90,6 @@ export default async function CategoryPage({
       )}
 
       <p className="mt-10 text-xs leading-relaxed text-muted">{dictionary.catalog.methodologyNote}</p>
-
-      <p className="mt-14 border-t border-border pt-8 text-sm text-muted">
-        <Link href={`/${locale}/${site}`} className="text-ink underline underline-offset-2">
-          {t(dictionary.catalog.backToCategory, { category: niche.name })}
-        </Link>
-      </p>
     </div>
   );
 }

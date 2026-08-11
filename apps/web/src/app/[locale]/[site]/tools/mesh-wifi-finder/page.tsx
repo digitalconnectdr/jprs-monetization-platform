@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getProduct, getProductsForCategory } from "@platform/db";
+import { buildAlternates } from "@platform/seo";
 import { MeshWifiFinder } from "@/components/tools/mesh-wifi-finder";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
@@ -8,9 +9,14 @@ import { getNicheBySiteSlug } from "@/lib/niches";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return { title: getDictionary(locale).tools.meshWifiFinderTitle };
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; site: string }> }): Promise<Metadata> {
+  const { locale, site } = await params;
+  const dictionary = getDictionary(locale);
+  return {
+    title: dictionary.tools.meshWifiFinderTitle,
+    description: dictionary.tools.meshWifiFinderIntro,
+    alternates: buildAlternates(`${site}/tools/mesh-wifi-finder`, locale),
+  };
 }
 
 export default async function MeshWifiFinderPage({

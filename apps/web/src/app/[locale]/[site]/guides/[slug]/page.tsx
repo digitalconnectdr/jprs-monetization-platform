@@ -2,22 +2,36 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createPublicSupabaseClient, getPublishedContentItem, getProduct } from "@platform/db";
+import { buildAlternates } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
 import { priceSuffix } from "@/lib/catalog-price";
 import type { Dictionary } from "@/lib/i18n/dictionary";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
 
 type RouteParams = { locale: Locale; site: string; slug: string };
 
+/** Descripción real: el propio texto de intro del artículo, truncado a longitud de meta description — nunca texto inventado aparte. */
+function introExcerpt(item: { blocks: { blockType: string; blockData: Record<string, unknown> }[] }): string | undefined {
+  const intro = item.blocks.find((b) => b.blockType === "intro");
+  const text = intro ? String(intro.blockData.text ?? "") : "";
+  if (!text) return undefined;
+  return text.length > 160 ? `${text.slice(0, 157)}...` : text;
+}
+
 export async function generateMetadata({ params }: { params: Promise<RouteParams> }): Promise<Metadata> {
-  const { site, slug } = await params;
+  const { locale, site, slug } = await params;
   const client = createPublicSupabaseClient();
   const item = await getPublishedContentItem(client, site, slug);
   if (!item) return {};
-  return { title: item.title };
+  return {
+    title: item.title,
+    description: introExcerpt(item),
+    alternates: buildAlternates(`${site}/guides/${slug}`, locale),
+  };
 }
 
 function IntroBlock({ text }: { text: string }) {
@@ -131,7 +145,14 @@ export default async function GuidePage({ params }: { params: Promise<RouteParam
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-      <p className="text-sm font-medium" style={{ color: niche.accentVar }}>
+      <Breadcrumb
+        items={[
+          { name: dictionary.catalog.breadcrumbHome, href: `/${locale}` },
+          { name: niche.name, href: `/${locale}/${site}` },
+          { name: item.title, href: `/${locale}/${site}/guides/${slug}` },
+        ]}
+      />
+      <p className="mt-4 text-sm font-medium" style={{ color: niche.accentVar }}>
         {niche.name}
       </p>
       <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{item.title}</h1>

@@ -14,7 +14,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 6B | Vertical 2: Travel | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6B_REPORT.md` — taxonomía (6 categorías) + 3 productos reales sembrados (eSIM & connectivity) + templates reutilizados + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 6 categorías con catálogo real) — backlog 615/616/617/618 |
 | 6C | Vertical 3: Consumer Tech | **CLOSED (v1 parcial)** (2026-08-09) | `docs/phases/P6C_REPORT.md` — 7 categorías + 3 productos reales sembrados (Networking) + templates + Mesh Wi-Fi Finder + `/deals` con expiración de ofertas (10/10 tests) + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Desarrollado por Codex (PR #13), revisado y cerrado por Claude Code — backlog 626/627/628/629 |
 | 7 | Admin Analytics & ROE v1 | **CLOSED (v1 parcial)** (2026-08-11) | `docs/phases/P7_REPORT.md` — `analytics_events` real (`page_view` cableado end-to-end, verificado), ROE v1 estructural (`compute_structural_roe_scores()`, 3 content_items). UI del dashboard NO construida (bloqueada por backlog 409, sin auth/sesión) — backlog 706/707/708 |
-| 8 | Growth/Search/Distribution | NOT STARTED | — |
+| 8 | Growth/Search/Distribution | **CLOSED (v1 parcial)** (2026-08-11) | `docs/phases/P8_REPORT.md` — robots.txt/sitemap dinámico (47 URLs)/metadata profunda (16 páginas, 5 locales)/structured data (Organization/WebSite/Product/BreadcrumbList) — verificado en HTML real servido. 805/806 (newsletter/social) fuera de scope — backlog 807/808 |
 | 9 | AI Operations & Freshness | NOT STARTED | — |
 | 10 | Hardening & Compliance | NOT STARTED | — |
 | 11 | MVP Launch + 10K Gate | NOT STARTED | — |
@@ -106,3 +106,15 @@ Completado: 701 (`analytics_events` real, `page_view` cableado end-to-end desde 
 **Dos bloqueos reales definieron el scope, documentados desde el inicio en `docs/phases/P7.md`**: (1) la UI del dashboard administrativo (702-704, 706 originales) no se construyó — `apps/web` no tiene wiring de auth/sesión (backlog 409, TODO desde Fase 4), y una UI de admin sin gate de sesión real sería una fuga de datos de negocio; (2) el ROE real del blueprint (fórmula `Ad EV + Affiliate EV + Lead EV + Sponsor EV`) requiere tráfico real que no existe — el proyecto sigue pre-lanzamiento. Se construyó en su lugar la base de datos real (event schema + ROE estructural), dejando la UI y el ROE completo para cuando esos prerrequisitos se resuelvan.
 
 **Deferred, sin fase fija**: backlog 706 (UI del dashboard, bloqueado por 409 — el candidato más claro para la siguiente sesión), 707 (cablear el resto de tipos de evento), 708 (ROE real, requiere tráfico post-lanzamiento). Backlog 409 sigue siendo el bloqueador transversal más importante del proyecto en este punto.
+
+## Fase 8 — cerrada 2026-08-11 (v1 parcial)
+
+A pedido explícito del propietario funcional (revisar cada página para maximizar descubribilidad en buscadores/LLMs). Completado: 801 (robots.txt + metadata profunda con canonical/hreflang en las 16 páginas del shell), 802 (sitemap dinámico, 47 URLs, excluye correctamente contenido no publicado), 803 (JSON-LD real: Organization/WebSite sitewide, Product con precio real en perfiles, BreadcrumbList), 804 (componente `Breadcrumb` — fuente única para navegación visible y schema estructurado).
+
+**Hallazgo real durante la revisión**: `/search` no ejecuta ninguna búsqueda real contra el catálogo (siempre "sin resultados") — indexarlo generaría contenido delgado; se marcó `noindex, follow` explícitamente, documentado como reversible cuando exista búsqueda real (backlog 807).
+
+**Decisión técnica**: la URL base para canonical/sitemap/hreflang se resuelve vía `NEXT_PUBLIC_SITE_URL` → `VERCEL_PROJECT_PRODUCTION_URL` (automática de Vercel) → localhost, nunca hardcodeada — backlog 109 (dominio propio) sigue siendo la única dependencia real pendiente, y el cambio cuando se resuelva es de una sola variable de entorno.
+
+**Deferred, sin fase fija**: 805/806 (newsletter, social content workflow — canales de distribución, no descubribilidad), 807 (reactivar indexación de `/search`), 808 (Article/Review JSON-LD, depende de aprobación editorial 606/616/626).
+
+**Práctica establecida hacia adelante**: toda página nueva se revisa contra la misma checklist (description real, canonical+hreflang, BreadcrumbList si aplica, schema.org de la entidad si aplica, inclusión en sitemap o noindex explícito) antes de darse por completa — ver `docs/phases/P8_REPORT.md` para el detalle.

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { brand } from "@platform/shared";
+import { buildAlternates } from "@platform/seo";
 import { LegalPage } from "@/components/legal/legal-page";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
@@ -14,6 +15,7 @@ export async function generateMetadata({
   return {
     title: d.metaTitle,
     description: t(d.metaDescription, { brand: brand.name }),
+    alternates: buildAlternates("editorial-policy", locale),
   };
 }
 

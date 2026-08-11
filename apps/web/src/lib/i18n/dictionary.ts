@@ -68,6 +68,7 @@ export type Dictionary = {
   };
   search: {
     metaTitle: string;
+    metaDescription: string;
     h1: string;
     submitLabel: string;
     emptyPrompt: string;
@@ -178,6 +179,10 @@ export type Dictionary = {
     dealEnds: string;
     wasLabel: string;
     saveLabel: string;
+    categoryMetaDescription: string;
+    productMetaDescription: string;
+    productMetaDescriptionNoVendor: string;
+    breadcrumbHome: string;
   };
   tools: {
     crmComparatorTitle: string;
