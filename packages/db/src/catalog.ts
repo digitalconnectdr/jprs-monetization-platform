@@ -35,6 +35,8 @@ export type ProductDetail = ProductSummary & {
 export type ProductDeal = ProductSummary & {
   categorySlug: string;
   latestPrice: LatestPrice & { expiresAt: string };
+  /** Precio de referencia (price_type='list' más reciente) para mostrar "antes/ahora" — null si el producto nunca tuvo un precio de lista sembrado. */
+  listPrice: LatestPrice | null;
 };
 
 async function getSiteId(client: SupabaseClient, siteSlug: string): Promise<string | null> {
@@ -225,8 +227,20 @@ export async function getActiveDeals(client: SupabaseClient, siteSlug: string): 
 
   const latestPrices = latestByProductId(prices ?? []);
 
+  // Precio de referencia para "antes/ahora": el 'list' más reciente del mismo producto
+  // (no 'starting_at'/'subscription_*' — no son comparables como "precio regular").
+  const { data: listPrices } = await client
+    .from("product_prices")
+    .select("product_id,amount,currency,price_type,checked_at,source,expires_at")
+    .in("product_id", productIds)
+    .eq("price_type", "list")
+    .order("checked_at", { ascending: false });
+
+  const latestListPrices = latestByProductId(listPrices ?? []);
+
   return products.flatMap((product) => {
     const price = latestPrices.get(product.id);
+    const listPrice = latestListPrices.get(product.id);
     const category = Array.isArray(product.category) ? product.category[0] : product.category;
     const vendor = Array.isArray(product.vendor) ? product.vendor[0] : product.vendor;
     if (!price?.expires_at || !category?.slug) return [];
@@ -247,6 +261,16 @@ export async function getActiveDeals(client: SupabaseClient, siteSlug: string): 
           source: price.source,
           expiresAt: price.expires_at,
         },
+        listPrice: listPrice
+          ? {
+              amount: Number(listPrice.amount),
+              currency: listPrice.currency,
+              priceType: listPrice.price_type,
+              checkedAt: listPrice.checked_at,
+              source: listPrice.source,
+              expiresAt: listPrice.expires_at,
+            }
+          : null,
       },
     ];
   });

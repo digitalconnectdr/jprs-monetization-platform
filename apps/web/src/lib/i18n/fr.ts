@@ -275,6 +275,8 @@ export const fr: Dictionary = {
     dealsIntro: "Seules les offres avec une date de fin publiée encore à venir apparaissent ici. Les offres expirées restent dans notre historique, sans jamais être présentées comme actuelles.",
     noActiveDeals: "Il n’y a aucune offre en cours dans cette verticale pour le moment.",
     dealEnds: "L’offre se termine",
+    wasLabel: "Avant",
+    saveLabel: "Économisez {percent}%",
   },
   tools: {
     crmComparatorTitle: "Comparateur de prix CRM",
