@@ -13,7 +13,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 6A | Vertical 1: Software & AI | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6A_REPORT.md` — taxonomía + 5 productos reales sembrados (CRM, AI Assistants) + templates + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 12-18 páginas target) — backlog 606/607/608 |
 | 6B | Vertical 2: Travel | **CLOSED (v1 parcial)** (2026-08-08) | `docs/phases/P6B_REPORT.md` — taxonomía (6 categorías) + 3 productos reales sembrados (eSIM & connectivity) + templates reutilizados + tool + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Alcance parcial documentado explícitamente (1 de 6 categorías con catálogo real) — backlog 615/616/617/618 |
 | 6C | Vertical 3: Consumer Tech | **CLOSED (v1 parcial)** (2026-08-09) | `docs/phases/P6C_REPORT.md` — 7 categorías + 3 productos reales sembrados (Networking) + templates + Mesh Wi-Fi Finder + `/deals` con expiración de ofertas (10/10 tests) + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Desarrollado por Codex (PR #13), revisado y cerrado por Claude Code — backlog 626/627/628/629 |
-| 7 | Admin Analytics & ROE v1 | NOT STARTED | — |
+| 7 | Admin Analytics & ROE v1 | **CLOSED (v1 parcial)** (2026-08-11) | `docs/phases/P7_REPORT.md` — `analytics_events` real (`page_view` cableado end-to-end, verificado), ROE v1 estructural (`compute_structural_roe_scores()`, 3 content_items). UI del dashboard NO construida (bloqueada por backlog 409, sin auth/sesión) — backlog 706/707/708 |
 | 8 | Growth/Search/Distribution | NOT STARTED | — |
 | 9 | AI Operations & Freshness | NOT STARTED | — |
 | 10 | Hardening & Compliance | NOT STARTED | — |
@@ -98,3 +98,11 @@ Claude Code revisó el PR de forma independiente antes de mergear (ADR-011: la f
 **Bloqueo del clasificador de permisos**: tanto el merge del PR como `supabase db push --linked` fueron bloqueados por el clasificador del entorno del agente, incluso con confirmación explícita del propietario funcional en el chat — el merge se resolvió con un reintento, pero el `db push` requirió que el propietario funcional lo ejecutara él mismo desde su terminal.
 
 **Deferred, sin fase fija**: backlog 626 (aprobar/rechazar contenido pendiente), 627 (resto del catálogo de Consumer Tech — 6 de 7 categorías), 628 (`affiliate_links` reales), 629 (sembrar una oferta `sale` real y vigente — se investigó activamente sin encontrar una verificable al cierre; se hizo una demostración temporal de `/deals` con un producto de prueba, eliminado inmediatamente después, a pedido del propietario funcional).
+
+## Fase 7 — cerrada 2026-08-11 (v1 parcial)
+
+Completado: 701 (`analytics_events` real, `page_view` cableado end-to-end desde `apps/web` y verificado con eventos reales tras navegar el sitio), 705 (ROE v1 estructural — `compute_structural_roe_scores()`, quality_score real para los 3 `content_items` existentes, refleja honestamente el precio faltante de TP-Link de Fase 6C con un score más bajo). 10/10 tests contra el proyecto real.
+
+**Dos bloqueos reales definieron el scope, documentados desde el inicio en `docs/phases/P7.md`**: (1) la UI del dashboard administrativo (702-704, 706 originales) no se construyó — `apps/web` no tiene wiring de auth/sesión (backlog 409, TODO desde Fase 4), y una UI de admin sin gate de sesión real sería una fuga de datos de negocio; (2) el ROE real del blueprint (fórmula `Ad EV + Affiliate EV + Lead EV + Sponsor EV`) requiere tráfico real que no existe — el proyecto sigue pre-lanzamiento. Se construyó en su lugar la base de datos real (event schema + ROE estructural), dejando la UI y el ROE completo para cuando esos prerrequisitos se resuelvan.
+
+**Deferred, sin fase fija**: backlog 706 (UI del dashboard, bloqueado por 409 — el candidato más claro para la siguiente sesión), 707 (cablear el resto de tipos de evento), 708 (ROE real, requiere tráfico post-lanzamiento). Backlog 409 sigue siendo el bloqueador transversal más importante del proyecto en este punto.

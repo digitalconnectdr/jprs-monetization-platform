@@ -125,12 +125,14 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
-| 701 | P0 | Executive dashboard | Reconcile PASS | TODO |
-| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO |
-| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO |
-| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO |
-| 705 | P0 | ROE v1 rules | Unit tests PASS | TODO |
-| 706 | P1 | Ops alerts | Alert test PASS | TODO |
+| 701 | P0 | Event schema + ingesta real | Reconcile PASS | DONE — `analytics_events` (9 tipos de `KPI_TREE.md` §3), `record_analytics_event()` idempotente, `page_view` cableado end-to-end desde `apps/web` y verificado con eventos reales. 10/10 tests contra el proyecto real |
+| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO — bloqueado por backlog 409 (sin auth/sesión en `apps/web`, ver 706) |
+| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO — bloqueado por backlog 409 |
+| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO — bloqueado por backlog 409 |
+| 705 | P0 | ROE v1 rules | Unit tests PASS | DONE (parcial) — `compute_structural_roe_scores()`, score estructural (completitud/frescura de catálogo) para los 3 `content_items` existentes, explícitamente NO la fórmula real de ROE (requiere tráfico real que no existe — ver 708) |
+| 706 | P1 | Ops alerts | Alert test PASS | TODO — reinterpretado: el ítem original de "alerts" del blueprint se reagrupa junto con el resto de la UI del dashboard (702-704), todos bloqueados por 409. La UI del dashboard administrativo completo es el próximo hito claro tras resolver 409 |
+| 707 | P1 | Cablear el resto de tipos de evento en la UI real (`product_impression`, `affiliate_click`, `comparison_add`, `save_product`, `lead_start`/`submit`, `conversion`, `ad_revenue_daily`, `newsletter_signup`) | Eventos reales verificados | TODO — varios dependen de trabajo que tampoco existe (afiliados reales 608/618/628, cuentas de usuario) |
+| 708 | P1 | ROE real (fórmula completa del blueprint: Ad EV + Affiliate EV + Lead EV + Sponsor EV) | Fórmula validada con tráfico real | TODO — requiere tráfico real post-lanzamiento (Fase 11+), no antes |
 
 ## Fase P8 — Growth/Search/Distribution
 
