@@ -176,6 +176,8 @@ export type Dictionary = {
     dealsIntro: string;
     noActiveDeals: string;
     dealEnds: string;
+    wasLabel: string;
+    saveLabel: string;
   };
   tools: {
     crmComparatorTitle: string;
