@@ -15,6 +15,7 @@ Mantenido por A9 (Project Controller). Refleja el estado real de cada fase — n
 | 6C | Vertical 3: Consumer Tech | **CLOSED (v1 parcial)** (2026-08-09) | `docs/phases/P6C_REPORT.md` — 7 categorías + 3 productos reales sembrados (Networking) + templates + Mesh Wi-Fi Finder + `/deals` con expiración de ofertas (10/10 tests) + 1 pieza de contenido en `pending_editorial_review`. Site activado (`draft`→`active`). Desarrollado por Codex (PR #13), revisado y cerrado por Claude Code — backlog 626/627/628/629 |
 | 7 | Admin Analytics & ROE v1 | **CLOSED (v1 parcial)** (2026-08-11) | `docs/phases/P7_REPORT.md` — `analytics_events` real (`page_view` cableado end-to-end, verificado), ROE v1 estructural (`compute_structural_roe_scores()`, 3 content_items). UI del dashboard NO construida (bloqueada por backlog 409, sin auth/sesión) — backlog 706/707/708 |
 | 8 | Growth/Search/Distribution | **CLOSED (v1 parcial)** (2026-08-11) | `docs/phases/P8_REPORT.md` — robots.txt/sitemap dinámico (47 URLs)/metadata profunda (16 páginas, 5 locales)/structured data (Organization/WebSite/Product/BreadcrumbList) — verificado en HTML real servido. 805/806 (newsletter/social) fuera de scope — backlog 807/808 |
+| 409/706 | Auth admin + Executive dashboard | **CLOSED** (2026-08-11) | `docs/phases/P409_REPORT.md` — `@supabase/ssr`, login/logout/ruta protegida en `/admin`, dashboard Executive con datos reales. 10/10 tests contra el proyecto real. Corrigió un GRANT faltante real en `revenue_events` (Fase 5) — backlog 410/412/413 |
 | 9 | AI Operations & Freshness | NOT STARTED | — |
 | 10 | Hardening & Compliance | NOT STARTED | — |
 | 11 | MVP Launch + 10K Gate | NOT STARTED | — |
@@ -118,3 +119,13 @@ A pedido explícito del propietario funcional (revisar cada página para maximiz
 **Deferred, sin fase fija**: 805/806 (newsletter, social content workflow — canales de distribución, no descubribilidad), 807 (reactivar indexación de `/search`), 808 (Article/Review JSON-LD, depende de aprobación editorial 606/616/626).
 
 **Práctica establecida hacia adelante**: toda página nueva se revisa contra la misma checklist (description real, canonical+hreflang, BreadcrumbList si aplica, schema.org de la entidad si aplica, inclusión en sitemap o noindex explícito) antes de darse por completa — ver `docs/phases/P8_REPORT.md` para el detalle.
+
+## Backlog 409/706 — cerrado 2026-08-11
+
+A pedido explícito del propietario funcional, resolviendo el bloqueador transversal más importante del proyecto en este punto. `@supabase/ssr` instalado (versión fijada), `/admin` (fuera de `[locale]`, herramienta interna) con login/logout reales y ruta protegida (sin sesión → login; con sesión sin rol calificado → "access denied", nunca un loop). Dashboard Executive (706, primer módulo real de `KPI_TREE.md` §5) con datos reales de `revenue_events`/`analytics_events`, consultados con el cliente de **sesión** del usuario (RLS real).
+
+**Hallazgo real durante la verificación**: `revenue_events` (Fase 5) tenía la policy RLS correcta pero le faltaba el `GRANT SELECT` a `authenticated` — inalcanzable hasta que existió una sesión real autenticada consultándola (todo el desarrollo previo usó `service_role`/`anon`). Corregido con una migración correctiva aplicada al proyecto real, re-verificado: 10/10 tests.
+
+Cuenta `super_admin` real creada para el propietario funcional vía Admin API — el agente generó y asignó el rol, pero nunca vio ni eligió la contraseña (link de recuperación real, el propietario funcional la estableció él mismo en `/admin/reset-password`).
+
+**Deferred, sin fase fija**: backlog 410 (resolver `site_id` en `analytics_events` para que analyst/admin de site también puedan usar el dashboard), 412 (resto de módulos del dashboard: Ads/Affiliate/Products/Content/Acquisition/Users/Operations), 413 (UI de gestión de roles). Backlog 411 (revisión sistemática de GRANT) reforzado por el hallazgo real de esta sesión.
