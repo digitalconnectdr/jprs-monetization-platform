@@ -1,0 +1,109 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+
+/**
+ * Destino del link de recuperación generado por Admin API (`create_super_admin.mjs`,
+ * backlog 409). El SDK de Supabase detecta el token en la URL automáticamente al
+ * cargar esta página y establece una sesión temporal — de ahí `updateUser({password})`
+ * ya funciona sin pedir la contraseña anterior. El agente nunca ve ni elige el valor.
+ */
+export default function ResetPasswordPage() {
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const client = createBrowserSupabaseClient();
+    client.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setReady(true);
+      } else {
+        setError("This link is invalid or has expired. Ask for a new one.");
+      }
+    });
+  }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords don't match.");
+      return;
+    }
+    setSubmitting(true);
+    const client = createBrowserSupabaseClient();
+    const { error: updateError } = await client.auth.updateUser({ password });
+    setSubmitting(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    router.push("/admin");
+  }
+
+  return (
+    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4">
+      <h1 className="font-serif text-2xl font-semibold text-ink">Set your password</h1>
+
+      {!ready && !error && <p className="mt-4 text-sm text-muted">Verifying link…</p>}
+
+      {ready && (
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-ink">
+              New password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-surface px-4 py-3 text-base text-ink focus-visible:border-primary"
+            />
+          </div>
+          <div>
+            <label htmlFor="confirm" className="block text-sm font-medium text-ink">
+              Confirm password
+            </label>
+            <input
+              id="confirm"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-surface px-4 py-3 text-base text-ink focus-visible:border-primary"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-ink transition-colors duration-fast hover:bg-primary-hover disabled:opacity-60"
+          >
+            {submitting ? "Saving…" : "Set password"}
+          </button>
+        </form>
+      )}
+
+      {error && (
+        <p role="alert" className="mt-4 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

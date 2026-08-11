@@ -13,6 +13,7 @@
     "@platform/db": "*",
     "@platform/seo": "*",
     "@platform/shared": "*",
+    "@supabase/ssr": "0.12.4",
     "@tailwindcss/postcss": "4.3.3",
     "next": "^16.3.0",
     "postcss": "8.5.23",

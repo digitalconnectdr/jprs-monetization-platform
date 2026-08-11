@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { locales, defaultLocale, type Locale } from "@/lib/i18n/locales";
+import { updateAdminSession } from "@/lib/supabase/middleware";
 
 function getLocaleFromAcceptLanguage(request: NextRequest): Locale {
   const header = request.headers.get("accept-language");
@@ -18,8 +19,15 @@ function getLocaleFromAcceptLanguage(request: NextRequest): Locale {
   return defaultLocale;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // /admin no vive bajo [locale] (herramienta interna, no contenido público
+  // multi-idioma) — refresca la sesión de Supabase en vez de redirigir por locale.
+  // La lógica pública de abajo queda completamente intacta para todo lo demás.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return updateAdminSession(request);
+  }
 
   const pathnameHasLocale = locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)

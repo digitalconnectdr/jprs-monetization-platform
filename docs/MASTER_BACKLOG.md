@@ -39,7 +39,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 201 | P0 | Schema identity/properties | Migration PASS | DONE — aplicado y verificado en el proyecto real, ver `docs/audits/P2_AUDIT.md` |
 | 202 | P0 | Supabase Auth | Flows PASS | DONE — trigger `handle_new_user`, signup/signin verificado en tests reales |
 | 203 | P0 | RBAC + RLS | Negative tests PASS | DONE — 18/18 tests (`supabase/tests/rls_access.test.mjs`) contra el proyecto real |
-| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED — Fase 4 completó el schema/RLS que los guards protegerían, pero no el wiring de auth en `apps/web` (ver 409, su prerrequisito real). Se implementa en cuanto 409 esté resuelto, no atado a un número de fase fijo |
+| 204 | P0 | Admin/User route guards | E2E PASS | DEFERRED (parcial) — 409 (su prerrequisito) ya está resuelto y `/admin` ya tiene guards reales; sigue pendiente la parte de rutas de **usuario final** (`/user`, cuentas de visitantes), fuera del scope de backlog 409/706 |
 | 205 | P1 | Data dictionary | Documentado | DONE — `docs/DATA_DICTIONARY.md` |
 
 ## Fase P3 — Design System & Public Shell
@@ -64,7 +64,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 404 | P0 | Price/feature history | History preserved | DONE — `product_prices`/`product_features` append-only (sin `UPDATE` para ningún rol de aplicación ni `service_role`, F-05) |
 | 405 | P1 | Bulk import validation | Invalid rows rejected | DONE — función `import_product_prices(jsonb)`, límite de 500 filas (F-07), sin oráculo de existencia (F-04) |
 | 406 | P0 | Freshness queue | Stale item visible | DONE — `freshness_checks` (admin-only), sin cron/Edge Function todavía (eso es Fase 9) |
-| 409 | P0 | Wiring de cliente Supabase (`@supabase/ssr`) + login/sesión de servidor en `apps/web` | Sesión persistente, login/logout funcional | TODO — prerrequisito real de 204; `apps/web` no tiene ningún cliente de Supabase instalado (ver `docs/phases/P4.md` "Explícitamente fuera de scope") |
+| 409 | P0 | Wiring de cliente Supabase (`@supabase/ssr`) + login/sesión de servidor en `apps/web` | Sesión persistente, login/logout funcional | DONE — `@supabase/ssr` instalado (versión fijada), `/admin` fuera de `[locale]`, login/logout reales, ruta protegida. 10/10 tests contra el proyecto real. Ver `docs/phases/P409_REPORT.md` |
 | 407 | P1 | Migrar `apps/web/src/middleware.ts` a la convención `proxy.ts` (Next.js 16.3 marca `middleware` como deprecated) | Build sin warning de deprecación, routing de locale sin regresión | TODO — hallazgo F-02 de `docs/audits/P3_AUDIT.md`, diferido explícitamente en Fase 3 por falta de documentación del framework disponible en el entorno para confirmar el contrato de `proxy.ts` sin riesgo |
 | 408 | P1 | `not-found.tsx` localizado bajo `app/[locale]/` (hoy usa el 404 genérico de Next.js en inglés fijo) | 404 traducido en los 4 idiomas | TODO — hallazgo F-06 de `docs/audits/P3_AUDIT.md`, diferido porque requiere decidir cómo acceder al locale correcto desde una ruta que Next.js renderiza fuera del árbol normal de `params` |
 
@@ -126,11 +126,11 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
 | 701 | P0 | Event schema + ingesta real | Reconcile PASS | DONE — `analytics_events` (9 tipos de `KPI_TREE.md` §3), `record_analytics_event()` idempotente, `page_view` cableado end-to-end desde `apps/web` y verificado con eventos reales. 10/10 tests contra el proyecto real |
-| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO — bloqueado por backlog 409 (sin auth/sesión en `apps/web`, ver 706) |
-| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO — bloqueado por backlog 409 |
-| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO — bloqueado por backlog 409 |
+| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO — 409 ya resuelto, este módulo específico queda para una sesión futura (ver 412) |
+| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO — ídem, ver 412 |
+| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO — ídem, ver 412 |
 | 705 | P0 | ROE v1 rules | Unit tests PASS | DONE (parcial) — `compute_structural_roe_scores()`, score estructural (completitud/frescura de catálogo) para los 3 `content_items` existentes, explícitamente NO la fórmula real de ROE (requiere tráfico real que no existe — ver 708) |
-| 706 | P1 | Ops alerts | Alert test PASS | TODO — reinterpretado: el ítem original de "alerts" del blueprint se reagrupa junto con el resto de la UI del dashboard (702-704), todos bloqueados por 409. La UI del dashboard administrativo completo es el próximo hito claro tras resolver 409 |
+| 706 | P0 | Executive dashboard (primer módulo real) | Reconcile PASS | DONE — `/admin`, revenue/sessions/RPS/R1K/revenue mix con datos reales, consultado con el cliente de sesión (RLS real). Ver `docs/phases/P409_REPORT.md` |
 | 707 | P1 | Cablear el resto de tipos de evento en la UI real (`product_impression`, `affiliate_click`, `comparison_add`, `save_product`, `lead_start`/`submit`, `conversion`, `ad_revenue_daily`, `newsletter_signup`) | Eventos reales verificados | TODO — varios dependen de trabajo que tampoco existe (afiliados reales 608/618/628, cuentas de usuario) |
 | 708 | P1 | ROE real (fórmula completa del blueprint: Ad EV + Affiliate EV + Lead EV + Sponsor EV) | Fórmula validada con tráfico real | TODO — requiere tráfico real post-lanzamiento (Fase 11+), no antes |
 
@@ -146,6 +146,18 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 806 | P1 | Social content workflow | Playbook ready | TODO — ídem 805 |
 | 807 | P1 | Reactivar indexación de `/search` cuando exista búsqueda real | Sin noindex, resultados reales | TODO |
 | 808 | P1 | `Article`/`Review` JSON-LD para contenido editorial publicado | Schema validado en contenido real | TODO — depende de que se resuelva 606/616/626 (aprobación humana) primero |
+
+## Backlog 409/706 — Auth admin + Executive dashboard (sin fase fija, resuelto 2026-08-11)
+
+Resolución del prerrequisito transversal más importante del proyecto en este punto (bloqueaba 204 desde Fase 4 y 706 desde Fase 7). No mapea a un número de fase — igual que ADR-013/backlog 309. Detalle: `docs/phases/P409_AUTH_DASHBOARD.md`, `docs/phases/P409_REPORT.md`.
+
+| ID | Prioridad | Pendiente | Cierre esperado | Estado |
+|---|---|---|---|---|
+| 410 | P0 | Resolver `site_id` real en `analytics_events` (hoy `null` por diseño de Fase 7) para que `analyst`/`admin` de site puedan usar el dashboard con sus propios datos | Un analyst site-scoped ve datos reales de su site | TODO — hoy el dashboard Executive solo es plenamente utilizable por `super_admin` |
+| 412 | P1 | Módulos Ads/Affiliate/Products/Content/Acquisition/Users/Operations del dashboard (`KPI_TREE.md` §5) | Cada módulo con datos reales | TODO — 702/703/704 del blueprint, ahora desbloqueados por 409/706 |
+| 413 | P1 | UI de gestión de roles (asignar/revocar admin/analyst a otros usuarios desde `/admin`) | CRUD funcional, RLS respetada | TODO — hoy sigue siendo vía `service_role` directo |
+
+**Hallazgo real durante la verificación**: `revenue_events` (Fase 5) tenía la policy RLS correcta pero le faltaba el `GRANT SELECT` a `authenticated` — invisible hasta que existió una sesión real autenticada consultándola. Corregido (`20260811120000_grant_authenticated_revenue_events.sql`), refuerza la necesidad de 411.
 
 ## Fase P9 — AI Operations & Freshness
 
