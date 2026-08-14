@@ -127,9 +127,9 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | ID | Prioridad | Pendiente | Cierre esperado | Estado |
 |---|---|---|---|---|
 | 701 | P0 | Event schema + ingesta real | Reconcile PASS | DONE — `analytics_events` (9 tipos de `KPI_TREE.md` §3), `record_analytics_event()` idempotente, `page_view` cableado end-to-end desde `apps/web` y verificado con eventos reales. 10/10 tests contra el proyecto real |
-| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | TODO — 409 ya resuelto, este módulo específico queda para una sesión futura (ver 412) |
-| 703 | P0 | Product/Content dashboard | Metrics PASS | TODO — ídem, ver 412 |
-| 704 | P0 | Acquisition dashboard | Attribution PASS | TODO — ídem, ver 412 |
+| 702 | P0 | Affiliate/Ads dashboards | Reconcile PASS | DONE (2026-08-14) — resuelto vía backlog 412 (`/admin/ads`, `/admin/affiliate`), datos reales de configuración/policy; sin revenue real todavía (`ad_revenue_daily` no wireado, backlog 707) |
+| 703 | P0 | Product/Content dashboard | Metrics PASS | DONE (2026-08-14) — resuelto vía backlog 412 (`/admin/products`, `/admin/content`), incluye la cola real de aprobación editorial |
+| 704 | P0 | Acquisition dashboard | Attribution PASS | DONE (2026-08-14) — resuelto vía backlog 412 (`/admin/acquisition`), sesiones/page views reales por site gracias a backlog 410; sin desglose por canal (referrer/UTM no capturado, backlog 707) |
 | 705 | P0 | ROE v1 rules | Unit tests PASS | DONE (parcial) — `compute_structural_roe_scores()`, score estructural (completitud/frescura de catálogo) para los 3 `content_items` existentes, explícitamente NO la fórmula real de ROE (requiere tráfico real que no existe — ver 708) |
 | 706 | P0 | Executive dashboard (primer módulo real) | Reconcile PASS | DONE — `/admin`, revenue/sessions/RPS/R1K/revenue mix con datos reales, consultado con el cliente de sesión (RLS real). Ver `docs/phases/P409_REPORT.md` |
 | 707 | P1 | Cablear el resto de tipos de evento en la UI real (`product_impression`, `affiliate_click`, `comparison_add`, `save_product`, `lead_start`/`submit`, `conversion`, `ad_revenue_daily`, `newsletter_signup`) | Eventos reales verificados | TODO — varios dependen de trabajo que tampoco existe (afiliados reales 608/618/628, cuentas de usuario) |
@@ -146,7 +146,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 805 | P1 | Newsletter/preferences | E2E PASS | TODO — canal de distribución, no señal de descubribilidad; fuera del scope de esta sesión |
 | 806 | P1 | Social content workflow | Playbook ready | TODO — ídem 805 |
 | 807 | P1 | Reactivar indexación de `/search` cuando exista búsqueda real | Sin noindex, resultados reales | TODO |
-| 808 | P1 | `Article`/`Review` JSON-LD para contenido editorial publicado | Schema validado en contenido real | TODO — depende de que se resuelva 606/616/626 (aprobación humana) primero |
+| 808 | P1 | `Article`/`Review` JSON-LD para contenido editorial publicado | Schema validado en contenido real | TODO — bloqueador resuelto (606/616 publicados 2026-08-14), ya hay 2 páginas reales para validar el schema contra ellas |
 
 ## Backlog 409/706 — Auth admin + Executive dashboard (sin fase fija, resuelto 2026-08-11)
 
