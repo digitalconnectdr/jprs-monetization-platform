@@ -36,10 +36,7 @@ export default async function ContentDashboardPage() {
           value={summary.pendingEditorialReview.length.toLocaleString("en")}
           note="awaiting a publish/reject decision"
         />
-        <StatCard
-          label="Approved, unpublished"
-          value={(summary.versionsByReviewState.find((s) => s.reviewState === "approved")?.count ?? 0).toLocaleString("en")}
-        />
+        <StatCard label="Approved, unpublished" value={summary.approvedUnpublishedCount.toLocaleString("en")} />
       </div>
 
       <section className="mt-10">
