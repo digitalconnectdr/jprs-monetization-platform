@@ -13,6 +13,8 @@ export type PendingContentRow = {
 export type ContentSummary = {
   itemsByStatus: { status: string; count: number }[];
   versionsByReviewState: { reviewState: string; count: number }[];
+  /** Versiones con review_state='approved' que NO son la current_version_id de su item — aprobadas pero todavía sin publicar. Distinto de "total approved", que incluiría también las que ya están en vivo. */
+  approvedUnpublishedCount: number;
   pendingEditorialReview: PendingContentRow[];
 };
 
@@ -23,9 +25,10 @@ export type ContentSummary = {
  * describe manualmente; este módulo lo hace visible directamente en el dashboard.
  */
 export async function getContentSummary(client: SupabaseClient): Promise<ContentSummary> {
-  const [{ data: items }, { data: versions }, { data: pending, error: pendingError }] = await Promise.all([
-    client.from("content_items").select("status"),
+  const [{ data: items }, { data: versions }, { data: approved }, { data: pending, error: pendingError }] = await Promise.all([
+    client.from("content_items").select("id, status, current_version_id"),
     client.from("content_versions").select("review_state"),
+    client.from("content_versions").select("id, content_item_id").eq("review_state", "approved"),
     client
       .from("content_versions")
       // content_items<->content_versions tiene 2 FKs cruzadas (content_item_id y
@@ -49,6 +52,9 @@ export async function getContentSummary(client: SupabaseClient): Promise<Content
     versionsByReviewState.set(row.review_state, (versionsByReviewState.get(row.review_state) ?? 0) + 1);
   }
 
+  const currentVersionIds = new Set((items ?? []).map((i) => i.current_version_id).filter(Boolean));
+  const approvedUnpublishedCount = (approved ?? []).filter((v) => !currentVersionIds.has(v.id)).length;
+
   const pendingEditorialReview: PendingContentRow[] = (pending ?? []).flatMap((row) => {
     const item = Array.isArray(row.content_item) ? row.content_item[0] : row.content_item;
     if (!item) return [];
@@ -71,6 +77,7 @@ export async function getContentSummary(client: SupabaseClient): Promise<Content
       reviewState,
       count,
     })),
+    approvedUnpublishedCount,
     pendingEditorialReview,
   };
 }

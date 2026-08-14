@@ -231,3 +231,11 @@ A pedido del propietario funcional, usando el módulo Content del dashboard (rec
 - **Productivity**: Notion ($10/mes, plan Plus), Asana ($10.99/mes, plan Starter, requiere facturación anual), ClickUp ($10/mes, plan Unlimited).
 - Con esto, backlog 607 queda **DONE (parcial)**: el catálogo estructurado de las 6 categorías de Software & AI está completo (11 productos nuevos + los 5 de Fase 6A/6B), pero el contenido editorial narrativo (guías "vs"/"best X" escritas) para las 4 categorías nuevas sigue pendiente — nuevo backlog 631, mismo patrón que 606/616/626.
 - Confirmado en `sitemap.xml` que las 11 páginas de producto nuevas están indexadas.
+
+## 2026-08-14 — Backlog 632: revisión propia (self-QA) del dashboard admin, bug real encontrado y corregido
+
+- A pedido del propietario funcional ("revisa lo que ya tenemos"), se hizo una pasada de QA sobre lo construido en la sesión: se verificaron `/software-ai` y `/software-ai/ai-assistants` (sin regresiones), y se navegó `/admin/products` y `/admin/content` con una cuenta `super_admin` desechable creada solo para esta verificación.
+- **Bug real encontrado**: el stat card "Approved, unpublished" en `/admin/content` contaba *todas* las `content_versions` con `review_state='approved'`, sin excluir las que ya son la `current_version_id` vigente de su item — es decir, mostraba 2 (las dos piezas de backlog 606/616 ya publicadas) cuando debería mostrar cuántas están aprobadas pero **todavía no en vivo**.
+- Corregido en `getContentSummary` (`packages/db/src/admin-content.ts`): se calcula `approvedUnpublishedCount` filtrando las versiones aprobadas contra el set de `current_version_id` de todos los items. `apps/web/src/app/admin/(protected)/content/page.tsx` actualizado para leer el nuevo campo.
+- Verificado en navegador: el stat pasó de mostrar 2 (incorrecto) a 0 (correcto).
+- Cuenta `super_admin` desechable eliminada (auth user + fila `user_roles`) al terminar la verificación.
