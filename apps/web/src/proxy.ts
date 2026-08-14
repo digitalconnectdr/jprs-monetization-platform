@@ -19,7 +19,7 @@ function getLocaleFromAcceptLanguage(request: NextRequest): Locale {
   return defaultLocale;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // /admin no vive bajo [locale] (herramienta interna, no contenido público
@@ -32,7 +32,14 @@ export async function middleware(request: NextRequest) {
   const pathnameHasLocale = locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );
-  if (pathnameHasLocale) return;
+  if (pathnameHasLocale) {
+    // `app/[locale]/not-found.tsx` no recibe `params` (contrato de Next.js para
+    // not-found.js) — se reenvía el pathname por header para que pueda derivar el
+    // locale y renderizar el 404 traducido en vez del genérico en inglés (backlog 408).
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   const cookieLocale = request.cookies.get("locale")?.value;
   const locale =

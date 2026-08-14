@@ -214,6 +214,12 @@ export const fr: Dictionary = {
         "Cette section sera finalisée avec un conseil juridique avant le lancement pour refléter les juridictions dans lesquelles nous opérons.",
     },
   },
+  notFound: {
+    metaTitle: "Page introuvable",
+    title: "Page introuvable",
+    description: "La page que vous recherchez n'existe pas ou a peut-être été déplacée.",
+    backHome: "Retour à l'accueil",
+  },
   niches: {
     "business-software-ai": {
       name: "Logiciels professionnels et IA",

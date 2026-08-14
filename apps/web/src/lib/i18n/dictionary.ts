@@ -159,6 +159,12 @@ export type Dictionary = {
       liabilityBody: string;
     };
   };
+  notFound: {
+    metaTitle: string;
+    title: string;
+    description: string;
+    backHome: string;
+  };
   niches: Record<string, NicheCopy>;
   catalog: {
     startingAt: string;

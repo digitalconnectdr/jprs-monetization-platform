@@ -214,6 +214,12 @@ export const en: Dictionary = {
         "This section will be finalized with legal counsel before launch to reflect the jurisdictions we operate in.",
     },
   },
+  notFound: {
+    metaTitle: "Page not found",
+    title: "Page not found",
+    description: "The page you're looking for doesn't exist or may have moved.",
+    backHome: "Back to home",
+  },
   niches: {
     "business-software-ai": {
       name: "Business Software & AI",
