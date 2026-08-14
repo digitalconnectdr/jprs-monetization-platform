@@ -33,12 +33,6 @@ export const metadata: Metadata = {
     template: `%s — ${brand.name}`,
   },
   description: brand.tagline,
-  other: {
-    // Verificación de dominio para el registro del propietario funcional en Impact.com
-    // (backlog 608/618/628 — programas de afiliados reales). Sitewide para que
-    // aparezca sin importar el locale en el que aterrice el crawler de verificación.
-    "impact-site-verification": "5f73e1e5-eb8e-4ad9-8707-47d51b4109c2",
-  },
 };
 
 export default async function LocaleLayout({
@@ -59,6 +53,17 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${sourceSerif.variable} ${publicSans.variable}`}>
       <body className="flex min-h-screen flex-col">
+        {/*
+          Verificación de dominio para el registro del propietario funcional en
+          Impact.com (backlog 608/618/628 — afiliados reales). El snippet exigido por
+          Impact.com usa el atributo `value`, no `content` — la Metadata API de
+          Next.js (`metadata.other`) fuerza `content`, así que se renderiza el tag
+          crudo aquí; React 19 lo hoistea a <head> automáticamente. Sitewide para que
+          aparezca sin importar el locale en el que aterrice el crawler.
+        */}
+        <meta
+          {...({ name: "impact-site-verification", value: "5f73e1e5-eb8e-4ad9-8707-47d51b4109c2" } as React.MetaHTMLAttributes<HTMLMetaElement>)}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
         <AnalyticsBeacon locale={locale} />
