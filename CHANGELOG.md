@@ -239,3 +239,11 @@ A pedido del propietario funcional, usando el módulo Content del dashboard (rec
 - Corregido en `getContentSummary` (`packages/db/src/admin-content.ts`): se calcula `approvedUnpublishedCount` filtrando las versiones aprobadas contra el set de `current_version_id` de todos los items. `apps/web/src/app/admin/(protected)/content/page.tsx` actualizado para leer el nuevo campo.
 - Verificado en navegador: el stat pasó de mostrar 2 (incorrecto) a 0 (correcto).
 - Cuenta `super_admin` desechable eliminada (auth user + fila `user_roles`) al terminar la verificación.
+
+## 2026-08-14 — Backlog 633: segundo bug real encontrado en la misma pasada de self-QA
+
+- Continuando la revisión propia, se verificaron Travel y Consumer Tech (sin regresiones) y los módulos Ads/Affiliate/Acquisition/Operations/Executive del dashboard admin con una segunda cuenta `super_admin` desechable.
+- **Segundo bug real encontrado**: en `/admin/acquisition`, el stat "Sessions" mostraba 20 mientras que `/admin/executive` mostraba 12 sesiones sobre el mismo dataset real — inconsistencia reproducida en vivo al navegar 4 sites distintos (Shell, Software & AI, Travel, Consumer Tech) durante esta misma revisión. Causa: `session_id` vive en `localStorage` (persiste entre TODOS los sites que visite un navegador), y Acquisition calculaba el total como la suma de sesiones distintas por site — contando de más cualquier sesión que tocara más de un site. Executive sí calculaba correctamente un Set global de `session_id`.
+- Corregido en `getAcquisitionSummary` (`packages/db/src/admin-acquisition.ts`): se agregó `totalSessions` calculado con un Set global de `session_id` sobre todas las filas, separado del desglose legítimo `sessionsBySite` (que sí puede sumar más que el total, y ahora se explica en la UI). `apps/web/src/app/admin/(protected)/acquisition/page.tsx` actualizado para usar `summary.totalSessions`/`summary.totalPageViews` en vez de sumar el desglose por site.
+- Verificado en navegador: Sessions pasó de 20 a 12, ahora consistente con Executive.
+- Segunda cuenta `super_admin` desechable eliminada al terminar la verificación.
