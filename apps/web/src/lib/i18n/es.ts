@@ -214,6 +214,12 @@ export const es: Dictionary = {
         "Esta sección se finalizará con asesoría legal antes del lanzamiento para reflejar las jurisdicciones en las que operamos.",
     },
   },
+  notFound: {
+    metaTitle: "Página no encontrada",
+    title: "Página no encontrada",
+    description: "La página que buscas no existe o pudo haberse movido.",
+    backHome: "Volver al inicio",
+  },
   niches: {
     "business-software-ai": {
       name: "Software Empresarial e IA",

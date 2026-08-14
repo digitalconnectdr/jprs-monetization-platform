@@ -58,6 +58,8 @@ Completado: 401, 402, 403, 404, 405, 406. Catalog completo (`product_variants`/`
 **Deferred, sin fase fija**: 204 (Admin/User route guards) sigue bloqueado por la falta de wiring de cliente Supabase/sesión en `apps/web` — nuevo backlog 409 documenta ese prerrequisito explícitamente.
 **Deuda heredada de Fase 3, sin tocar** (Fase 4 no modificó `apps/web`): 407 (migración `middleware.ts`→`proxy.ts`), 408 (`not-found.tsx` localizado).
 
+**Actualización posterior al cierre (2026-08-13)**: 407 y 408 resueltos — ver `CHANGELOG.md`. No reabre Fase 4.
+
 ## Fase 5 — cerrada 2026-08-08
 
 Completado: 501, 502, 503, 504, 505, 506, 507. Dominios `affiliate` (programs/terms/offers/links/clicks), `monetization` (ad_slots/rules/roe_scores/sponsored_campaigns/placements), `leads` (forms/submissions/routes/revenue), `revenue_events` + import.
