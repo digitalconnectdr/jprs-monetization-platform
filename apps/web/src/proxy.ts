@@ -49,6 +49,16 @@ export async function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+
+  // La raíz `/` se reescribe (200 real, mismo URL visible) en vez de redirigir (307),
+  // a diferencia de cualquier otra ruta sin locale — un 307 sin body rompe cualquier
+  // verificador externo que lea el HTML de `/` directamente sin seguir redirects (ej.
+  // impact-site-verification de Impact.com, backlog 608/618/628). La página servida
+  // ya declara su propio canonical hacia `/{locale}` vía buildAlternates(), así que no
+  // introduce contenido duplicado para buscadores.
+  if (pathname === "/") {
+    return NextResponse.rewrite(url);
+  }
   return NextResponse.redirect(url);
 }
 

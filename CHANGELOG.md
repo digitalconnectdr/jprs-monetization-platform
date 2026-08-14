@@ -185,3 +185,8 @@ Formato: fecha, fase, resumen. Mantenido por A9 (Project Controller) al cierre d
 ## 2026-08-13 — Meta tag de verificación de dominio para Impact.com (backlog 608/618/628)
 
 - A pedido del propietario funcional, que está gestionando el registro real en Impact.com (red de afiliados) para las 3 verticales: se agregó `<meta name="impact-site-verification" content="...">` sitewide en `apps/web/src/app/[locale]/layout.tsx`, verificado en el HTML servido (incluyendo la raíz `/`, que redirige a `/en` — el tag persiste tras seguir el redirect). Primer paso concreto hacia afiliados reales, todavía pendiente el resto del flujo (aprobación del programa, `affiliate_links` reales en producto).
+
+## 2026-08-14 — Fix: verificación de Impact.com fallaba porque `/` respondía 307 sin body
+
+- El propietario funcional reportó que la verificación de dominio de Impact.com seguía fallando pese al meta tag agregado el día anterior. Causa real: `proxy.ts` respondía a la raíz `/` con un redirect 307 **sin body** hacia `/en` (donde sí estaba el tag) — cualquier verificador externo que lea el HTML de `/` directamente sin seguir redirects (patrón común en checks de ownership de dominio) nunca veía el tag.
+- Corregido en `apps/web/src/proxy.ts`: la raíz `/` ahora usa `NextResponse.rewrite()` en vez de `redirect()` — responde 200 real con el contenido de `/{locale}` bajo la misma URL visible `/`, sin cambiar el comportamiento de ninguna otra ruta (que sigue redirigiendo 307 como antes). La página servida ya declara su propio `canonical` hacia `/{locale}` vía `buildAlternates()` (Fase 8), así que no introduce contenido duplicado para buscadores — verificado en local: `/` → 200 con el meta tag presente directamente, `<link rel="canonical" href=".../en/">` correcto.
