@@ -110,6 +110,7 @@ async function main() {
     productIds: [],
     contentItemIds: [],
     userIds: [],
+    vendorIds: [],
   };
 
   try {
@@ -149,6 +150,18 @@ async function main() {
     check("setup: producto draft creado", draftProduct.status === 201 && Boolean(draftProductId), JSON.stringify(draftProduct));
     if (publishedProductId) cleanup.productIds.push(publishedProductId);
     if (draftProductId) cleanup.productIds.push(draftProductId);
+
+    // Vendor published — backlog 411: vendors_public_read_published se combina por OR
+    // con vendors_admin_editor_write (has_role) igual que products, pero nunca tuvo
+    // cobertura de anon en esta suite.
+    const publishedVendor = await rest("vendors", {
+      key: SERVICE_KEY,
+      method: "POST",
+      body: { niche_id: softwareNicheId, slug: `p4-vendor-pub-${stamp}`, name: "P4 Published Vendor", status: "published" },
+    });
+    const publishedVendorId = publishedVendor.json?.[0]?.id;
+    check("setup: vendor published creado", publishedVendor.status === 201 && Boolean(publishedVendorId), JSON.stringify(publishedVendor));
+    if (publishedVendorId) cleanup.vendorIds.push(publishedVendorId);
 
     // Usuario "editor" scoped a software-ai, y un "admin" de OTRO site (travel) para
     // probar aislamiento cross-site.
@@ -448,6 +461,55 @@ async function main() {
       JSON.stringify(oracleTest)
     );
 
+    // --- backlog 411: import_product_prices/import_revenue_events ya no son
+    // ejecutables por anon a nivel de GRANT (antes solo rechazaban filas/abortaban
+    // dentro de la función; ahora ni siquiera se puede invocarlas sin sesión) ---
+    const anonImportAttempt = await rest("rpc/import_product_prices", {
+      key: ANON_KEY,
+      method: "POST",
+      body: { rows: [{ product_id: publishedProductId, amount: "1.00", currency: "USD", source: "backlog 411 anon probe" }] },
+    });
+    check(
+      "backlog 411: anon (sin sesión) ya NO puede ni invocar import_product_prices (permission denied a nivel de GRANT)",
+      anonImportAttempt.status === 401 || anonImportAttempt.status === 403,
+      JSON.stringify(anonImportAttempt)
+    );
+
+    const anonImportRevenueAttempt = await rest("rpc/import_revenue_events", {
+      key: ANON_KEY,
+      method: "POST",
+      body: { rows: [{ site_id: softwareSiteId, event_type: "ad_revenue", amount: "1.00", currency: "USD", event_id: `backlog-411-probe-${stamp}` }] },
+    });
+    check(
+      "backlog 411: anon (sin sesión) ya NO puede ni invocar import_revenue_events (permission denied a nivel de GRANT)",
+      anonImportRevenueAttempt.status === 401 || anonImportRevenueAttempt.status === 403,
+      JSON.stringify(anonImportRevenueAttempt)
+    );
+
+    // --- backlog 411: anon SIGUE viendo lectura pública tras el revoke/grant explícito
+    // de has_role/is_admin_for_site sobre PUBLIC — la parte más crítica de este cambio,
+    // ya que products/vendors combinan su policy de lectura pública por OR con una
+    // policy que evalúa has_role() ---
+    const anonReadPublishedProduct = await rest(
+      `products?select=id&status=eq.published&id=eq.${publishedProductId}`,
+      { key: ANON_KEY }
+    );
+    check(
+      "backlog 411: anon SIGUE viendo el producto published tras el revoke/grant explícito de has_role",
+      anonReadPublishedProduct.status === 200 && anonReadPublishedProduct.json.length === 1,
+      JSON.stringify(anonReadPublishedProduct)
+    );
+
+    const anonReadPublishedVendor = await rest(
+      `vendors?select=id&status=eq.published&id=eq.${publishedVendorId}`,
+      { key: ANON_KEY }
+    );
+    check(
+      "backlog 411: anon SIGUE viendo el vendor published tras el revoke/grant explícito de has_role",
+      anonReadPublishedVendor.status === 200 && anonReadPublishedVendor.json.length === 1,
+      JSON.stringify(anonReadPublishedVendor)
+    );
+
     // --- freshness_checks: admin-only ---
     const anonReadFreshness = await rest("freshness_checks?select=*", { key: ANON_KEY });
     check(
@@ -475,6 +537,9 @@ async function main() {
       await rest(`product_prices?product_id=eq.${id}`, { key: SERVICE_KEY, method: "DELETE" }).catch(() => {});
       await rest(`product_features?product_id=eq.${id}`, { key: SERVICE_KEY, method: "DELETE" }).catch(() => {});
       await rest(`products?id=eq.${id}`, { key: SERVICE_KEY, method: "DELETE" }).catch(() => {});
+    }
+    for (const id of cleanup.vendorIds) {
+      await rest(`vendors?id=eq.${id}`, { key: SERVICE_KEY, method: "DELETE" }).catch(() => {});
     }
     for (const uid of cleanup.userIds) {
       if (!uid) continue;
