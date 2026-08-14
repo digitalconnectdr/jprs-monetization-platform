@@ -70,6 +70,8 @@ Completado: 501, 502, 503, 504, 505, 506, 507. Dominios `affiliate` (programs/te
 
 **Deferred, sin fase fija**: backlog 411 (revisión sistemática de `GRANT`/`REVOKE EXECUTE` en funciones `SECURITY DEFINER` de Fases 2/4). 204/409 (route guards/wiring de auth) siguen sin resolver.
 
+**Actualización posterior al cierre (2026-08-13)**: backlog 411 resuelto — ver `CHANGELOG.md`. No reabre Fase 5.
+
 ## Fase 6A — cerrada 2026-08-08 (v1 parcial)
 
 Completado: 601 (taxonomía), 602 (seed parcial: 5 productos en 2 de 6 categorías), 603 (templates de categoría/perfil/comparación), 604 (CRM Pricing Comparator), 605 (1 pieza de contenido, `pending_editorial_review`). Site `software-ai` activado (`draft`→`active`). Nuevo paquete real `packages/db` (cliente Supabase público de solo lectura, sin auth).
