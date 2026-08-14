@@ -90,7 +90,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 603 | P0 | Best/VS/Review templates | QA PASS | DONE — categoría (Best X), perfil de producto, y guía/comparación (VS), todas renderizando datos reales, verificadas en navegador mobile/tablet/desktop |
 | 604 | P0 | Software tool v1 | E2E PASS | DONE — CRM Pricing Comparator, interactivo, verificado con toggle real de checkboxes |
 | 605 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 12-18 target) — 1 comparación real (HubSpot CRM vs Freshsales vs monday CRM), `pending_editorial_review`, no auto-publicada. Resto del lote es backlog explícito, no se declara completo por aproximación — ver `docs/phases/P6A_REPORT.md` |
-| 606 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6A | Decisión humana registrada | TODO — requiere al propietario funcional; el agente no se auto-aprueba (ADR-005), confirmado por el clasificador de permisos durante esta fase |
+| 606 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6A | Decisión humana registrada | DONE (2026-08-14) — decisión real del propietario funcional (vía el módulo Content del dashboard, backlog 412): aprobada y publicada la v2 (más completa) de "HubSpot CRM vs Freshsales vs monday CRM"; v1 rechazada por superada. Verificado en el sitio público real |
 | 607 | P0 | Completar el resto del seed editorial de Software & AI (10-15+ páginas adicionales, 4 categorías restantes: Automation, SEO & Marketing, Website & E-commerce, Productivity) | Editorial PASS | TODO — alcance completo de `PROJECT_BLUEPRINT.md` §15 para este vertical, diferido explícitamente de esta sesión (ver `docs/phases/P6A_REPORT.md`) |
 | 608 | P1 | Conectar `affiliate_links` reales a las páginas de producto (hoy son links directos al vendor, no monetizados) | Disclosure + tracking funcionando | TODO — requiere aprobación real de programas de afiliados (`MONETIZATION_POLICY.md` §3), fuera del alcance de un agente autónomo |
 
@@ -103,7 +103,7 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 613 | P0 | Travel tool v1 | E2E PASS | DONE — eSIM Data Plan Comparator, interactivo, verificado en navegador |
 | 614 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 10-15 target) — 1 comparación real (Airalo vs Holafly vs Nomad eSIM), `pending_editorial_review`, no auto-publicada |
 | 615 | P1 | Seasonality rules | Jobs PASS | TODO — requiere datos estacionales reales por destino, no existen todavía |
-| 616 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6B | Decisión humana registrada | TODO — requiere al propietario funcional; el agente no se auto-aprueba (ADR-005), mismo patrón que backlog 606 |
+| 616 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6B | Decisión humana registrada | DONE (2026-08-14) — decisión real del propietario funcional: "Airalo vs Holafly vs Nomad: Best eSIM for Europe Travel" aprobada y publicada. Verificado en el sitio público real |
 | 617 | P0 | Completar el resto del seed editorial de Travel (Hotels, Destinations, Itineraries, Luggage, Travel tech) | Editorial PASS | TODO — Hotels requiere antes una decisión de producto sobre cómo modelar precio dinámico (no encaja en `product_prices` tal cual); Luggage requiere fuentes de vendor más consistentes que las probadas (Away/Samsonite) |
 | 618 | P1 | Conectar `affiliate_links` reales a las páginas de producto de Travel | Disclosure + tracking funcionando | TODO — requiere aprobación real de programas de afiliados (`MONETIZATION_POLICY.md` §3), fuera del alcance de un agente autónomo |
 
@@ -116,10 +116,11 @@ Leyenda de estado: `TODO` · `IN PROGRESS` · `BLOCKED` · `DEFERRED` (no bloque
 | 623 | P0 | Finder/compatibility tool | E2E PASS | DONE — Mesh Wi-Fi Finder, filtro por Wi-Fi 7/multi-gig/hub, verificado interactivo en navegador |
 | 624 | P0 | Deal expiration | Job PASS | DONE — `product_prices.expires_at` obligatorio para `price_type='sale'`, RLS excluye ofertas vencidas, `import_product_prices` actualizada. 10/10 tests contra el proyecto real (`supabase/tests/deal_expiration.test.mjs`) |
 | 625 | P0 | Content batch v1 | Editorial PASS | DONE (parcial, 1 de 8-12 target) — 1 comparación real (eero 7 vs Nest Wifi Pro vs Deco BE63), `pending_editorial_review`, no auto-publicada |
-| 626 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6C | Decisión humana registrada | TODO — mismo patrón que 606/616 |
+| 626 | P1 | Aprobar/publicar (o rechazar) el contenido en `pending_editorial_review` de Fase 6C | Decisión humana registrada | DONE (2026-08-14, rechazada) — decisión real del propietario funcional: "eero 7 vs Nest Wifi Pro vs Deco BE63" rechazada por estar incompleta (solo intro+conclusión, sin tabla comparativa ni pros/cons como las otras dos piezas publicadas) — pendiente completarla y volver a someterla a revisión, ver nuevo backlog 630 |
 | 627 | P0 | Completar el resto del catálogo de Consumer Tech (Smart home, Audio, Monitors, Accessories, Home office, Creator gear) | Editorial PASS | TODO — 6 de 7 categorías sin productos |
 | 628 | P1 | Conectar `affiliate_links` reales a las páginas de producto de Consumer Tech | Disclosure + tracking funcionando | TODO — mismo motivo que 608/618 |
 | 629 | P1 | Sembrar al menos 1 oferta `sale` real y vigente (con `expires_at` verificable) para que `/deals` muestre datos reales | Oferta real visible en `/deals` | TODO — investigado activamente (eero/Nest/Deco BE63 en eero.com, Google Store, Best Buy, Amazon), sin resultado verificable al momento del cierre; ver `docs/phases/P6C_REPORT.md` |
+| 630 | P1 | Completar "eero 7 vs Nest Wifi Pro vs Deco BE63" con tabla comparativa y pros/cons por producto (nueva versión, `content_versions.version_number=2`) antes de volver a someterla a revisión editorial | Versión completa en `pending_editorial_review` | TODO — v1 rechazada 2026-08-14 por estar incompleta frente al estándar de las otras 2 piezas publicadas (606/616) |
 
 ## Fase P7 — Admin Analytics & ROE v1
 
