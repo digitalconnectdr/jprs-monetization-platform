@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import type { ProductDetail } from "@platform/db";
+import { formatPrice } from "@/lib/catalog-price";
 
 export function CrmComparator({
   products,
+  locale,
   labels,
 }: {
   products: ProductDetail[];
+  locale: string;
   labels: {
     selectToCompare: string;
     entryPlanColumn: string;
@@ -80,7 +83,7 @@ export function CrmComparator({
                   <td className="py-3 pr-4 font-medium text-ink">{product.name}</td>
                   <td className="py-3 pr-4 text-ink">{featureValue(product, "entry_plan_name") ?? "—"}</td>
                   <td className="py-3 pr-4 text-ink">
-                    {product.latestPrice ? `$${product.latestPrice.amount.toFixed(0)}/mo` : "—"}
+                    {product.latestPrice ? `${formatPrice(product.latestPrice.amount, product.latestPrice.currency, locale)}/mo` : "—"}
                   </td>
                   <td className="py-3 pr-4 text-ink">{featureValue(product, "free_tier") ?? "—"}</td>
                   <td className="py-3 pr-4 text-ink">{featureValue(product, "billing_model") ?? "—"}</td>

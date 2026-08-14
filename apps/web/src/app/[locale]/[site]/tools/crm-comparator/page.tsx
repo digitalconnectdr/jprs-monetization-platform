@@ -53,6 +53,7 @@ export default async function CrmComparatorPage({
       <div className="mt-10">
         <CrmComparator
           products={products}
+          locale={locale}
           labels={{
             selectToCompare: dictionary.tools.selectToCompare,
             entryPlanColumn: dictionary.tools.entryPlanColumn,

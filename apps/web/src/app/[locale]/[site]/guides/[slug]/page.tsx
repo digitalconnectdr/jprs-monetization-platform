@@ -6,7 +6,7 @@ import { buildAlternates } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
-import { priceSuffix } from "@/lib/catalog-price";
+import { priceSuffix, formatPrice } from "@/lib/catalog-price";
 import type { Dictionary } from "@/lib/i18n/dictionary";
 import { Breadcrumb } from "@/components/breadcrumb";
 
@@ -81,7 +81,7 @@ async function ComparisonTableBlock({
               </td>
               <td className="py-3 pr-4 text-ink">
                 {p.latestPrice
-                  ? `$${p.latestPrice.amount.toFixed(2)}${priceSuffix(dictionary, p.latestPrice.priceType)}`
+                  ? `${formatPrice(p.latestPrice.amount, p.latestPrice.currency, locale)}${priceSuffix(dictionary, p.latestPrice.priceType)}`
                   : "—"}
               </td>
             </tr>

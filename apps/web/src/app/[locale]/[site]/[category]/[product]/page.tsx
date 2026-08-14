@@ -5,7 +5,7 @@ import { buildAlternates, getSiteUrl, productSchema } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
-import { priceSuffix } from "@/lib/catalog-price";
+import { priceSuffix, formatPrice } from "@/lib/catalog-price";
 import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: { params: Promise<RoutePar
             {dictionary.catalog.pricingHeading}
           </h2>
           <p className="mt-2 text-2xl font-semibold text-ink">
-            ${detail.latestPrice.amount.toFixed(2)}
+            {formatPrice(detail.latestPrice.amount, detail.latestPrice.currency, locale)}
             <span className="text-base font-normal text-muted">{priceSuffix(dictionary, detail.latestPrice.priceType)}</span>
           </p>
           <p className="mt-2 text-xs text-muted">

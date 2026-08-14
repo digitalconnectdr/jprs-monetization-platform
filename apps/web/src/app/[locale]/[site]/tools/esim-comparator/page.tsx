@@ -53,6 +53,7 @@ export default async function EsimComparatorPage({
       <div className="mt-10">
         <EsimComparator
           products={products}
+          locale={locale}
           labels={{
             selectToCompare: dictionary.tools.selectToCompare,
             entryPlanColumn: dictionary.tools.entryPlanColumn,

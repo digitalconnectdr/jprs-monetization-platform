@@ -6,7 +6,7 @@ import { buildAlternates } from "@platform/seo";
 import { getNicheBySiteSlug } from "@/lib/niches";
 import { getDictionary, t } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/locales";
-import { priceSuffix } from "@/lib/catalog-price";
+import { priceSuffix, formatPrice } from "@/lib/catalog-price";
 import { Breadcrumb } from "@/components/breadcrumb";
 
 export const dynamic = "force-dynamic";
@@ -79,7 +79,7 @@ export default async function CategoryPage({
                 </span>
                 {product.latestPrice && (
                   <span className="shrink-0 text-sm text-ink sm:text-right">
-                    {dictionary.catalog.startingAt} ${product.latestPrice.amount.toFixed(2)}
+                    {dictionary.catalog.startingAt} {formatPrice(product.latestPrice.amount, product.latestPrice.currency, locale)}
                     {priceSuffix(dictionary, product.latestPrice.priceType)}
                   </span>
                 )}
