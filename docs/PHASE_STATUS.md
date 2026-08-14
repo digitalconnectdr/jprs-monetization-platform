@@ -133,3 +133,5 @@ A pedido explícito del propietario funcional, resolviendo el bloqueador transve
 Cuenta `super_admin` real creada para el propietario funcional vía Admin API — el agente generó y asignó el rol, pero nunca vio ni eligió la contraseña (link de recuperación real, el propietario funcional la estableció él mismo en `/admin/reset-password`).
 
 **Deferred, sin fase fija**: backlog 410 (resolver `site_id` en `analytics_events` para que analyst/admin de site también puedan usar el dashboard), 412 (resto de módulos del dashboard: Ads/Affiliate/Products/Content/Acquisition/Users/Operations), 413 (UI de gestión de roles). Backlog 411 (revisión sistemática de GRANT) reforzado por el hallazgo real de esta sesión.
+
+**Actualización posterior al cierre (2026-08-14)**: backlog 410/412/413 resueltos — ver `CHANGELOG.md`. No reabre el backlog 409/706.

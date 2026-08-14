@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getAdminContext } from "@/lib/supabase/admin-context";
 import { signOut } from "@/app/admin/actions";
+import { AdminNav } from "@/components/admin/admin-nav";
 
 export default async function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   const client = await createServerSupabaseClient();
@@ -41,6 +42,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
           </form>
         </div>
       </header>
+      <AdminNav />
       <main className="py-10">{children}</main>
     </div>
   );

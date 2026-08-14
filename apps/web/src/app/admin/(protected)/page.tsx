@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getAdminContext } from "@/lib/supabase/admin-context";
 import { getExecutiveSummary } from "@platform/db";
+import { StatCard } from "@/components/admin/stat-card";
+import { ScopeNote } from "@/components/admin/scope-note";
 
 export const dynamic = "force-dynamic";
 
@@ -13,24 +15,15 @@ function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat("en", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).format(amount);
 }
 
-function StatCard({ label, value, note }: { label: string; value: string; note?: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-ink">{value}</p>
-      {note && <p className="mt-1 text-xs text-muted">{note}</p>}
-    </div>
-  );
-}
-
 export default async function ExecutiveDashboardPage() {
   const client = await createServerSupabaseClient();
   const context = await getAdminContext(client);
 
-  // La policy de analytics_events exige site_id no-nulo para analyst/admin scoped a
-  // un site — AnalyticsBeacon (Fase 7) no lo resuelve todavía (backlog nuevo), así
-  // que hoy este módulo solo trae datos reales para super_admin. Se documenta en vez
-  // de ocultarlo.
+  // Sessions/page views SÍ se atribuyen por site desde backlog 410 (AnalyticsBeacon
+  // resuelve site_id real) — RLS filtra analytics_events automáticamente para
+  // analyst/admin scoped. revenue_events sigue siendo estrictamente super_admin-only
+  // por diseño (Fase 5), así que Revenue/RPS/R1K/Revenue mix siempre leen $0 para un
+  // rol scoped a site, con o sin tráfico real. Se documenta en vez de ocultarlo.
   const isSiteScopedOnly = !context?.isSuperAdmin && (context?.siteRoles.length ?? 0) > 0;
 
   const summary = await getExecutiveSummary(client);
@@ -43,11 +36,11 @@ export default async function ExecutiveDashboardPage() {
       </p>
 
       {isSiteScopedOnly && (
-        <p className="mt-4 rounded-md border border-border bg-surface p-3 text-xs text-muted">
-          Your role is scoped to a specific site. Session/page-view data isn&apos;t attributed to a site yet
-          (backlog: resolve <code>site_id</code> in <code>analytics_events</code>), so those numbers may read as
-          zero even where real traffic exists.
-        </p>
+        <ScopeNote>
+          Your role is scoped to a specific site — sessions and page views below are already filtered to your
+          site. Revenue figures stay at $0 regardless of traffic: <code>revenue_events</code> is readable by
+          <code>super_admin</code> only, by design.
+        </ScopeNote>
       )}
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
