@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { ProductDetail } from "@platform/db";
+import { formatPrice } from "@/lib/catalog-price";
 
 type FinderLabels = {
   requireWifi7: string;
@@ -73,7 +74,9 @@ export function MeshWifiFinder({
               <li key={product.id} className="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-semibold text-ink">{product.name}</p>
-                  {product.latestPrice && <p className="mt-1 text-sm text-muted">${product.latestPrice.amount.toFixed(2)}</p>}
+                  {product.latestPrice && (
+                    <p className="mt-1 text-sm text-muted">{formatPrice(product.latestPrice.amount, product.latestPrice.currency, locale)}</p>
+                  )}
                 </div>
                 <Link
                   href={`/${locale}/${site}/${category}/${product.slug}`}
