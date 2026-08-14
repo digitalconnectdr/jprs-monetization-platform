@@ -16,9 +16,6 @@ export default async function AcquisitionDashboardPage() {
 
   const [summary, sites] = await Promise.all([getAcquisitionSummary(client), getSiteInfoById(client)]);
 
-  const totalSessions = summary.sessionsBySite.reduce((sum, s) => sum + s.sessions, 0);
-  const totalPageViews = summary.sessionsBySite.reduce((sum, s) => sum + s.pageViews, 0);
-
   return (
     <div>
       <h1 className="font-serif text-2xl font-semibold text-ink">Acquisition</h1>
@@ -30,12 +27,15 @@ export default async function AcquisitionDashboardPage() {
       {isSiteScopedOnly && <ScopeNote>Sessions and page views below are already filtered to your site.</ScopeNote>}
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatCard label="Sessions" value={totalSessions.toLocaleString("en")} />
-        <StatCard label="Page views" value={totalPageViews.toLocaleString("en")} />
+        <StatCard label="Sessions" value={summary.totalSessions.toLocaleString("en")} />
+        <StatCard label="Page views" value={summary.totalPageViews.toLocaleString("en")} />
       </div>
 
       <section className="mt-10">
         <h2 className="font-serif text-lg font-semibold text-ink">Sessions by site</h2>
+        <p className="mt-1 text-xs text-muted">
+          A session can touch more than one site, so these rows can add up to more than the total above.
+        </p>
         {summary.sessionsBySite.length === 0 ? (
           <p className="mt-3 text-sm text-muted">No page views recorded yet.</p>
         ) : (
