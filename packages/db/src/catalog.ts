@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getSiteIdBySlug } from "./sites";
 
 export type CategorySummary = { id: string; slug: string; name: string };
 
@@ -38,11 +39,6 @@ export type ProductDeal = ProductSummary & {
   /** Precio de referencia (price_type='list' más reciente) para mostrar "antes/ahora" — null si el producto nunca tuvo un precio de lista sembrado. */
   listPrice: LatestPrice | null;
 };
-
-async function getSiteId(client: SupabaseClient, siteSlug: string): Promise<string | null> {
-  const { data } = await client.from("sites").select("id").eq("slug", siteSlug).maybeSingle();
-  return data?.id ?? null;
-}
 
 async function getCategoryId(client: SupabaseClient, nicheId: string, categorySlug: string): Promise<string | null> {
   const { data } = await client
@@ -86,7 +82,7 @@ export async function listPublishedProductSlugs(
   client: SupabaseClient,
   siteSlug: string
 ): Promise<{ productSlug: string; categorySlug: string }[]> {
-  const siteId = await getSiteId(client, siteSlug);
+  const siteId = await getSiteIdBySlug(client, siteSlug);
   if (!siteId) return [];
 
   const { data } = await client
@@ -155,7 +151,7 @@ export async function getProductsForCategory(
 }
 
 export async function getProduct(client: SupabaseClient, siteSlug: string, productSlug: string): Promise<ProductDetail | null> {
-  const siteId = await getSiteId(client, siteSlug);
+  const siteId = await getSiteIdBySlug(client, siteSlug);
   if (!siteId) return null;
 
   const { data: product } = await client

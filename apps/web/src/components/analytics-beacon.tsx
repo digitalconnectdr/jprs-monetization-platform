@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { createPublicSupabaseClient, recordPageView } from "@platform/db";
+import { createPublicSupabaseClient, recordPageView, getSiteIdMap } from "@platform/db";
 import { nicheStructures } from "@/lib/niches";
 
 const SESSION_STORAGE_KEY = "decidero_session_id";
@@ -25,11 +25,30 @@ function siteSlugFromPathname(pathname: string): string | null {
 /** Emite page_view real en cada navegación (Fase 7, backlog 701) — sin cookies de terceros, sin PII. */
 export function AnalyticsBeacon({ locale }: { locale: string }) {
   const pathname = usePathname();
+  // backlog 410: cachea la PROMESA (no solo el resultado) del mapa slug→site_id, así
+  // navegaciones concurrentes durante la primera carga comparten la misma query en vez
+  // de disparar una cada una. Solo la primera navegación de la sesión paga el
+  // roundtrip extra que originalmente motivó dejar site_id siempre en null.
+  const siteIdMapPromiseRef = useRef<Promise<Record<string, string>> | null>(null);
 
   useEffect(() => {
     const sessionId = getOrCreateSessionId();
     const client = createPublicSupabaseClient();
-    recordPageView(client, { path: pathname, locale, siteSlug: siteSlugFromPathname(pathname), sessionId }).catch(() => {
+    const siteSlug = siteSlugFromPathname(pathname);
+
+    async function send() {
+      let siteId: string | null = null;
+      if (siteSlug) {
+        if (!siteIdMapPromiseRef.current) {
+          siteIdMapPromiseRef.current = getSiteIdMap(client);
+        }
+        const map = await siteIdMapPromiseRef.current;
+        siteId = map[siteSlug] ?? null;
+      }
+      await recordPageView(client, { path: pathname, locale, siteSlug, siteId, sessionId });
+    }
+
+    send().catch(() => {
       // Best-effort: un fallo de telemetría nunca debe afectar la navegación del visitante.
     });
   }, [pathname, locale]);
